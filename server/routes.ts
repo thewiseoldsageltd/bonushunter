@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { parseUserIntent, generateBonusExplanation, generateChatResponse } from "./services/openai";
 import type { UserIntent } from "@shared/schema";
 import { filterBonusesByIntent, rankBonuses } from "./services/bonusService";
+import { registerScrapingRoutes } from "./routes/scraping";
 import { z } from "zod";
 
 const chatRequestSchema = z.object({
@@ -22,6 +23,9 @@ const recommendRequestSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Register scraping admin routes
+  registerScrapingRoutes(app);
   
   // Chat endpoint for conversational interface
   app.post("/api/chat", async (req, res) => {
