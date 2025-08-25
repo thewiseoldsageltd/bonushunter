@@ -2,11 +2,19 @@ import puppeteer from 'puppeteer';
 import { storage } from '../storage';
 import type { InsertBonus } from '@shared/schema';
 
+export interface FilterConfig {
+  name: string;
+  productType: 'casino' | 'sportsbook' | 'poker' | 'bingo';
+  filterSelector?: string; // Button/tab to click
+  waitAfterClick?: number; // Milliseconds to wait after clicking filter
+}
+
 export interface ScrapingConfig {
   operatorName: string;
   operatorId: string;
   bonusPageUrl: string;
   loginRequired: boolean;
+  filters?: FilterConfig[]; // Multiple filters on same page
   selectors: {
     containerSelector: string;
     titleSelector: string;
@@ -57,11 +65,57 @@ export class BonusScraper {
         timeout: 30000 
       });
 
-      // Wait for bonus containers to load
-      await page.waitForSelector(config.selectors.containerSelector, { timeout: 10000 });
+      let allBonuses: ScrapedBonus[] = [];
 
-      // Extract bonus data
-      const bonuses = await page.evaluate((config) => {
+      // If no filters specified, scrape current page
+      if (!config.filters || config.filters.length === 0) {
+        await page.waitForSelector(config.selectors.containerSelector, { timeout: 10000 });
+        const bonuses = await this.extractBonusesFromPage(page, config, 'casino');
+        allBonuses = bonuses;
+      } else {
+        // Scrape each filter separately
+        for (const filter of config.filters) {
+          console.log(`Scraping ${filter.name} bonuses...`);
+          
+          // Click filter if selector provided
+          if (filter.filterSelector) {
+            try {
+              await page.click(filter.filterSelector);
+              await page.waitForTimeout(filter.waitAfterClick || 2000);
+            } catch (error) {
+              console.error(`Failed to click filter ${filter.name}:`, error);
+              continue;
+            }
+          }
+
+          // Wait for content to load
+          try {
+            await page.waitForSelector(config.selectors.containerSelector, { timeout: 10000 });
+          } catch (error) {
+            console.log(`No bonuses found for ${filter.name} filter`);
+            continue;
+          }
+
+          // Extract bonuses for this filter
+          const bonuses = await this.extractBonusesFromPage(page, config, filter.productType);
+          allBonuses = allBonuses.concat(bonuses);
+        }
+      }
+
+      console.log(`Found ${allBonuses.length} total bonuses for ${config.operatorName}`);
+      return allBonuses;
+
+    } catch (error) {
+      console.error(`Scraping failed for ${config.operatorName}:`, error);
+      return [];
+    } finally {
+      await page.close();
+    }
+  }
+
+  private async extractBonusesFromPage(page: any, config: ScrapingConfig, productType: string): Promise<ScrapedBonus[]> {
+    // Extract bonus data
+    const bonuses = await page.evaluate((config, productType) => {
         const containers = document.querySelectorAll(config.selectors.containerSelector);
         const bonuses: any[] = [];
 
@@ -135,6 +189,9 @@ export class BonusScraper {
               bonus.landingUrl = config.bonusPageUrl;
             }
 
+            // Add product type from filter
+            bonus.productType = productType;
+
             bonuses.push(bonus);
           } catch (error) {
             console.error('Error processing bonus container:', error);
@@ -142,21 +199,13 @@ export class BonusScraper {
         });
 
         return bonuses;
-      }, config);
+      }, config, productType);
 
-      console.log(`Found ${bonuses.length} bonuses for ${config.operatorName}`);
-      return bonuses.map(b => ({
+      return bonuses.map((b: any) => ({
         ...b,
         endDate: b.endDate ? new Date(b.endDate) : undefined,
         lastScraped: new Date()
       }));
-
-    } catch (error) {
-      console.error(`Scraping failed for ${config.operatorName}:`, error);
-      return [];
-    } finally {
-      await page.close();
-    }
   }
 
   async updateBonusDatabase(operatorId: string, scrapedBonuses: ScrapedBonus[]) {
@@ -182,8 +231,8 @@ export class BonusScraper {
           operatorId,
           title: scrapedBonus.title,
           description: scrapedBonus.description,
-          productType: 'casino', // Default - would enhance to detect type
-          bonusType: 'match_deposit', // Default - would enhance to detect type
+          productType: (scrapedBonus as any).productType || 'casino',
+          bonusType: this.detectBonusType(scrapedBonus.title, scrapedBonus.description),
           maxBonus: scrapedBonus.maxBonus || null,
           wageringRequirement: scrapedBonus.wageringRequirement || null,
           landingUrl: scrapedBonus.landingUrl,
@@ -225,6 +274,18 @@ export class BonusScraper {
     const now = new Date();
     const diffTime = date.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  private detectBonusType(title: string, description: string): string {
+    const text = (title + ' ' + description).toLowerCase();
+    
+    if (text.includes('free bet') || text.includes('risk free')) return 'free_bet';
+    if (text.includes('no deposit')) return 'no_deposit';
+    if (text.includes('match') || text.includes('%')) return 'match_deposit';
+    if (text.includes('free spin') || text.includes('free play')) return 'free_spins';
+    if (text.includes('cashback') || text.includes('cash back')) return 'cashback';
+    
+    return 'match_deposit'; // Default fallback
   }
 
   async close() {
