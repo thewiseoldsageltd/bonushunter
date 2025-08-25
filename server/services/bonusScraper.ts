@@ -48,9 +48,21 @@ export class BonusScraper {
   private browser: any;
   
   async initialize() {
+    // Try to use system Chrome if available, otherwise fallback to bundled Chrome
     this.browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor'
+      ]
     });
   }
 
@@ -117,24 +129,40 @@ export class BonusScraper {
 
   private async extractBonusesFromPage(page: any, config: ScrapingConfig, productType: string): Promise<ScrapedBonus[]> {
     // Extract bonus data
-    const bonuses = await page.evaluate((config, productType) => {
+    const bonuses = await page.evaluate((config: ScrapingConfig, productType: string) => {
         const containers = document.querySelectorAll(config.selectors.containerSelector);
         const bonuses: any[] = [];
 
         containers.forEach(container => {
           try {
-            // Extract basic info
-            const titleElement = container.querySelector(config.selectors.titleSelector);
-            const descElement = container.querySelector(config.selectors.descriptionSelector);
+            // Extract title - try multiple selectors
+            let titleElement = null;
+            const titleSelectors = config.selectors.titleSelector.split(', ');
+            for (const selector of titleSelectors) {
+              titleElement = container.querySelector(selector.trim());
+              if (titleElement) break;
+            }
             
-            if (!titleElement || !descElement) return;
+            if (!titleElement) return;
 
             const title = titleElement.textContent?.trim();
-            const description = descElement.textContent?.trim();
+            
+            // Extract description - try multiple selectors, avoid duplicate of title
+            let description = title; // Fallback to title
+            if (config.selectors.descriptionSelector) {
+              const descSelectors = config.selectors.descriptionSelector.split(', ');
+              for (const selector of descSelectors) {
+                const descElement = container.querySelector(selector.trim());
+                if (descElement && descElement !== titleElement) {
+                  description = descElement.textContent?.trim() || title;
+                  break;
+                }
+              }
+            }
 
             // Skip if contains exclude keywords
             const fullText = (title + ' ' + description).toLowerCase();
-            if (config.parsingRules.excludeKeywords.some(keyword => fullText.includes(keyword))) {
+            if (config.parsingRules.excludeKeywords.some((keyword: string) => fullText.includes(keyword))) {
               return;
             }
 
@@ -183,13 +211,16 @@ export class BonusScraper {
               }
             }
 
-            // Extract landing URL
+            // Extract landing URL - try multiple selectors  
+            let linkElement = null;
             if (config.selectors.claimLinkSelector) {
-              const linkElement = container.querySelector(config.selectors.claimLinkSelector);
-              bonus.landingUrl = linkElement?.getAttribute('href') || config.bonusPageUrl;
-            } else {
-              bonus.landingUrl = config.bonusPageUrl;
+              const linkSelectors = config.selectors.claimLinkSelector.split(', ');
+              for (const selector of linkSelectors) {
+                linkElement = container.querySelector(selector.trim());
+                if (linkElement) break;
+              }
             }
+            bonus.landingUrl = linkElement?.getAttribute('href') || config.bonusPageUrl;
 
             // Add product type from filter
             bonus.productType = productType;

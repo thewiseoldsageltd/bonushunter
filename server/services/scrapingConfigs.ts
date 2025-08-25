@@ -8,15 +8,15 @@ export const defaultScrapingConfigs: ScrapingConfig[] = [
     operatorId: "op-1",
     bonusPageUrl: "https://sportsbook.draftkings.com/promos",
     loginRequired: false,
-    productType: "sportsbook", // Single product type per config
+    productType: "sportsbook",
     selectors: {
-      containerSelector: "[TO_BE_CONFIGURED]", // Will need from inspection
-      titleSelector: "[TO_BE_CONFIGURED]",
-      descriptionSelector: "[TO_BE_CONFIGURED]", 
-      amountSelector: "[TO_BE_CONFIGURED]",
-      wageringSelector: "[TO_BE_CONFIGURED]",
-      endDateSelector: "[TO_BE_CONFIGURED]",
-      claimLinkSelector: "[TO_BE_CONFIGURED]"
+      containerSelector: "[data-testid*='promo'], .promo-card, .promotion-card, article, .card", // Multiple fallbacks
+      titleSelector: "a[href*='promo'], h2, h3, .title, .promo-title, .headline", // Link text or headings
+      descriptionSelector: ".description, .promo-description, p, .text", 
+      amountSelector: "a[href*='promo'], h2, h3, .title", // Amount likely in main title
+      wageringSelector: ".terms, .fine-print, .wagering, small",
+      endDateSelector: ".expires, .expiry, .end-date, time",
+      claimLinkSelector: "a[href*='signup'], button:contains('Sign Up'), .cta-button, .signup-btn"
     },
     parsingRules: {
       amountRegex: /\$(\d+(?:,\d{3})*)/,
@@ -28,24 +28,24 @@ export const defaultScrapingConfigs: ScrapingConfig[] = [
   
   // DraftKings Casino
   {
-    operatorName: "DraftKings Casino",
-    operatorId: "op-1", // Same operator, different product
+    operatorName: "DraftKings Casino", 
+    operatorId: "op-1",
     bonusPageUrl: "https://casino.draftkings.com/promos",
     loginRequired: false,
     productType: "casino",
     selectors: {
-      containerSelector: "[TO_BE_CONFIGURED]", // Likely same as sportsbook
-      titleSelector: "[TO_BE_CONFIGURED]",
-      descriptionSelector: "[TO_BE_CONFIGURED]", 
-      amountSelector: "[TO_BE_CONFIGURED]",
-      wageringSelector: "[TO_BE_CONFIGURED]",
-      endDateSelector: "[TO_BE_CONFIGURED]",
-      claimLinkSelector: "[TO_BE_CONFIGURED]"
+      containerSelector: "[data-testid*='promo'], .promo-card, .promotion-card, article, .card", // Same structure as sportsbook
+      titleSelector: "a[href*='promo'], h2, h3, .title, .promo-title, .headline",
+      descriptionSelector: ".description, .promo-description, p, .text", 
+      amountSelector: "a[href*='promo'], h2, h3, .title",
+      wageringSelector: ".terms, .fine-print, .wagering, small",
+      endDateSelector: ".expires, .expiry, .end-date, time",
+      claimLinkSelector: "a[href*='signup'], button:contains('Sign Up'), .cta-button, .signup-btn"
     },
     parsingRules: {
       amountRegex: /\$(\d+(?:,\d{3})*)/,
       wageringRegex: /(\d+)x\s*wagering/i,
-      dateFormat: "MM/dd/yyyy",
+      dateFormat: "MM/dd/yyyy",  
       excludeKeywords: ["expired", "ended", "no longer available"]
     }
   },

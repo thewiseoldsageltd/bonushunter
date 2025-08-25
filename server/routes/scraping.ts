@@ -102,12 +102,70 @@ export function registerScrapingRoutes(app: Express) {
     }
   });
   
+  // Test DraftKings configurations (simple version)
+  app.post("/api/admin/scraping/test-draftkings", async (req, res) => {
+    try {
+      const { productType = "sportsbook" } = req.body;
+      
+      // Find the DraftKings config for the requested product type
+      const config = defaultScrapingConfigs.find(c => 
+        c.operatorId === "op-1" && c.productType === productType
+      );
+      
+      if (!config) {
+        return res.status(404).json({ 
+          error: `DraftKings ${productType} configuration not found`,
+          availableTypes: defaultScrapingConfigs
+            .filter(c => c.operatorId === "op-1")
+            .map(c => c.productType)
+        });
+      }
+
+      console.log(`Testing DraftKings ${productType} scraping...`);
+      
+      const scraper = new BonusScraper();
+      await scraper.initialize();
+      
+      const bonuses = await scraper.scrapeOperatorBonuses(config);
+      await scraper.close();
+      
+      const response = {
+        success: true,
+        operatorName: config.operatorName,
+        productType: config.productType,
+        url: config.bonusPageUrl,
+        bonusesFound: bonuses.length,
+        bonuses: bonuses.map(bonus => ({
+          title: bonus.title,
+          description: bonus.description?.substring(0, 100) + "...",
+          maxBonus: bonus.maxBonus,
+          landingUrl: bonus.landingUrl,
+          productType: config.productType
+        })),
+        selectors: config.selectors,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`✅ Found ${bonuses.length} DraftKings ${productType} bonuses`);
+      res.json(response);
+      
+    } catch (error) {
+      console.error("DraftKings test failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "DraftKings scraping test failed",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Get scraping configurations
   app.get("/api/admin/scraping/configs", (req, res) => {
     res.json({
       configs: defaultScrapingConfigs.map(config => ({
         operatorName: config.operatorName,
         operatorId: config.operatorId,
+        productType: config.productType,
         bonusPageUrl: config.bonusPageUrl,
         loginRequired: config.loginRequired
       }))
