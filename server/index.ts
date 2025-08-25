@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seedData";
+import { setupHealthCheck } from "./health";
 
 const app = express();
 app.use(express.json());
@@ -42,6 +43,9 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
     await seedDatabase();
   }
+  
+  // Setup health check endpoint
+  setupHealthCheck(app);
   
   const server = await registerRoutes(app);
 
