@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, log } from "./vite";
 import { seedDatabase } from "./seedData";
 import path from "path";
 import fs from "fs";
@@ -68,29 +68,63 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    // Production static file serving - fixed paths for Railway
+    // Production mode - serve built files from dist/public
     console.log('🗂️ Setting up production static file serving...');
-    const staticPath = path.resolve('./public');
-    console.log(`📁 Serving static files from: ${staticPath}`);
+    
+    // In Railway, we're in the root directory, and dist/public contains the built frontend
+    const publicDir = path.join(process.cwd(), 'dist', 'public');
+    console.log(`📁 Looking for static files at: ${publicDir}`);
+    console.log(`🔍 Current working directory: ${process.cwd()}`);
     
     try {
-      if (fs.existsSync(staticPath)) {
-        app.use(express.static(staticPath));
-        app.use("*", (_req, res) => {
-          res.sendFile(path.join(staticPath, "index.html"));
-        });
-        console.log('✅ Static file serving configured');
-      } else {
-        console.log('❌ Static files not found, serving API only');
-        // Fallback: serve a simple message for frontend requests
+      if (fs.existsSync(publicDir)) {
+        console.log(`✅ Found static files at ${publicDir}`);
+        const files = fs.readdirSync(publicDir);
+        console.log(`📋 Static files: ${files.join(', ')}`);
+        
+        // Serve static files
+        app.use(express.static(publicDir));
+        
+        // Catch-all route for SPA
         app.get("*", (_req, res) => {
-          res.json({ message: "Bonushunter API is running", status: "ok" });
+          const indexPath = path.join(publicDir, 'index.html');
+          console.log(`📄 Serving index.html from: ${indexPath}`);
+          res.sendFile(indexPath);
+        });
+        
+        console.log('✅ Production static file serving configured successfully');
+      } else {
+        console.log(`❌ Static files not found at ${publicDir}`);
+        console.log('🗂️ Available files in current directory:');
+        try {
+          const rootFiles = fs.readdirSync(process.cwd());
+          console.log(`📋 Root files: ${rootFiles.join(', ')}`);
+          
+          if (fs.existsSync('dist')) {
+            const distFiles = fs.readdirSync('dist');
+            console.log(`📋 Dist files: ${distFiles.join(', ')}`);
+          }
+        } catch (e) {
+          console.log('❌ Could not list files');
+        }
+        
+        // API-only fallback
+        app.get("*", (_req, res) => {
+          res.json({ 
+            message: "Bonushunter API is running", 
+            status: "ok",
+            note: "Frontend files not found - API endpoints available at /api/*"
+          });
         });
       }
     } catch (error) {
-      console.error('❌ Error setting up static files:', error);
+      console.error('❌ Error setting up static file serving:', error);
       app.get("*", (_req, res) => {
-        res.json({ message: "Bonushunter API is running", status: "ok" });
+        res.json({ 
+          message: "Bonushunter API is running", 
+          status: "ok",
+          error: "Static file serving failed"
+        });
       });
     }
   }
