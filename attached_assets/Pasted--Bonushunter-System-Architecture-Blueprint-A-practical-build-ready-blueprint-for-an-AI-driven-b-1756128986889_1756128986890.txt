@@ -1,0 +1,283 @@
+# Bonushunter – System Architecture Blueprint
+
+A practical, build-ready blueprint for an AI-driven bonus recommendation platform.
+
+---
+
+## 1) High-Level Overview
+
+**Goal:** Help users find the *best-value, legally available* bonus based on budget, location, and game type via a conversational UI.
+
+**Core Pillars:**
+
+* Conversational search (chat-style or smart search box)
+* Geo/regulatory filtering by jurisdiction
+* Offer scoring (true player value, RTP-aware, T\&Cs-adjusted)
+* Transparent explanations (why this bonus?)
+
+---
+
+## 2) System Diagram (Logical)
+
+```
+[User Browser]
+    │
+    ▼
+[Frontend Web App (Next.js/React)]  — chat UI, search bar, results, explanation cards
+    │                │
+    │ GraphQL/REST   │ Affiliate links + analytics pixels
+    ▼                ▼
+[Backend API Gateway / BFF]  — auth, rate limit, A/B tests, caching
+    │
+    ├──► [Recommendation Service] — orchestrates NLP → filters → scoring → ranking
+    │       ├──► [NLP/Intent Engine] (LLM) — extract budget, location, product
+    │       ├──► [Policy & Geo Engine] — jurisdiction licensing rules
+    │       ├──► [Scoring Engine] — EV/RTP + T&Cs
+    │       └──► [Explainability] — rationale text, terms summary
+    │
+    ├──► [Offer Catalog Service] — bonuses, operators, terms, game constraints
+    │
+    ├──► [Compliance & Audit Service] — rule logs, decision trails
+    │
+    ├──► [Tracking Service] — affiliate link generator, click/impression logs
+    │
+    └──► [Admin CMS/API] — ingest, curate, QA offers; jurisdiction rules console
+
+[Datastores]
+  ├── Relational DB (Postgres/MySQL) — offers, operators, rules, jurisdictions
+  ├── Vector DB (pgvector/Weaviate) — semantic search over T&Cs & user queries
+  ├── Cache (Redis) — hot results, user session, geo lookups
+  └── Object Storage (S3/GCS) — creatives, terms PDFs, backups
+
+[3rd Parties]
+  ├── Geo-IP provider (MaxMind/IP2Location)
+  ├── Compliance feeds (licensing registries, if available)
+  ├── LLM provider (OpenAI/Azure/Anthropic) with guardrails
+  └── Analytics (GA4, Snowplow) & A/B testing
+```
+
+---
+
+## 3) Frontend (Next.js/React)
+
+* **Entry UI:** Search bar + “Try prompts” (e.g., *“\$50 on blackjack in New Jersey”*).
+* **Chat assistant:** One-shot or multi-turn; inline clarification chips (budget, region, product).
+* **Results:** Ranked cards with: bonus headline, *True Value* score, key T\&Cs (wagering, min odds, eligible games), and **Why this pick**.
+* **Filters:** Budget slider, product chips (Casino, Sportsbook, Poker, Bingo, Crypto), “Low wagering” toggle.
+* **Trust & E-E-A-T:** Licenses displayed with logos + links, last verified date, clear disclaimers.
+
+---
+
+## 4) Backend Services
+
+### 4.1 API Gateway / BFF
+
+* Normalizes requests, handles auth (if any), caching (Redis), rate limiting, feature flags.
+* Aggregates from Recommendation, Offer Catalog, Tracking, Compliance.
+
+### 4.2 Recommendation Service (Core)
+
+* **Pipeline:**
+
+  1. **NLP Parse**: Extract budget, jurisdiction, product(s), risk tolerance.
+  2. **Geo/Policy Filter**: Only show licensed, allowed products in user’s location.
+  3. **Eligibility Filter**: Budget coverage, payment method constraints, new/existing user eligibility.
+  4. **Scoring**: Compute *True Value Score* (EV/RTP-adjusted) for each candidate.
+  5. **Rerank & Diversify**: Avoid near-duplicates; include one “wildcard” if close.
+  6. **Explainability**: Generate reason string + terms summary; show warnings.
+
+* **Inputs:** user prompt, detected location (IP or explicit), optional user prefs.
+
+* **Outputs:** ranked list + rationale + key terms + affiliate link.
+
+### 4.3 Offer Catalog Service
+
+* CRUD for bonuses, operators, product types, jurisdiction mappings, terms metadata.
+* Ingestion jobs: CSV/Sheets → ETL → normalized schema; versioning; QA flags.
+
+### 4.4 Compliance & Audit
+
+* Log every decision: inputs, filters applied, rule versions, output set.
+* Exportable audit trail for regulators/partners.
+
+### 4.5 Tracking Service
+
+* Link tokenization, UTM management, click/impression events, postback handlers.
+
+### 4.6 Admin CMS
+
+* WYSIWYG for offers; term templates; jurisdiction rules editor; bulk publish; preview.
+
+---
+
+## 5) Data Model (Relational Core)
+
+**operators**(id, name, site\_url, brand\_codes, trust\_score, active)
+
+**jurisdictions**(id, name, code, country, min\_age, notes)
+
+**licenses**(id, operator\_id, jurisdiction\_id, license\_no, product\_types\[], status, valid\_from, valid\_to)
+
+**bonuses**(id, operator\_id, title, product\_type, bonus\_type, match\_pct, min\_deposit, max\_bonus, code, landing\_url, start\_at, end\_at, status)
+
+**bonus\_terms**(id, bonus\_id, wagering\_req, wagering\_unit, eligible\_games\[], game\_weightings JSON, min\_odds, max\_cashout, expiry\_days, payment\_method\_exclusions\[], existing\_user\_ok, notes)
+
+**game\_catalog**(id, operator\_id, game\_name, category, rtp, weighting)
+
+**geo\_rules**(id, jurisdiction\_id, product\_type, allowed, notes)
+
+**audits**(id, decision\_id, payload JSON, created\_at)
+
+**clicks/impressions/conversions**(event\_id, bonus\_id, operator\_id, session\_id, ts, meta JSON)
+
+---
+
+## 6) Value / Scoring Formula (True Value Score)
+
+**Intent:** Rank by *expected net benefit* to the user, not headline size.
+
+**Definitions:**
+
+* `D`: user deposit (budget)
+* `M`: match percent (0–1)
+* `Cap`: max bonus cap
+* `B`: awarded bonus = `min(D * M, Cap)`
+* `W`: wagering multiplier (e.g., 30×), applied to (bonus-only OR deposit+bonus)
+* `Weighting`: game weighting for the user’s chosen product (e.g., blackjack 10%, slots 100%)
+* `RTP_e`: effective RTP given eligible games (weighed by constraints)
+* `Leakage`: breakage/limitations (payment exclusions, expiry risk, max cashout), modeled as penalty `P ∈ [0, 0.3]`
+
+**Turnover required:** `T = W * basis` (basis ∈ {B, D+B} per terms)
+
+**Expected Retention from play:** `ER = T * (RTP_e - 1)` (negative number; loss to house edge)
+
+**Expected Payout Ceiling:** apply `max_cashout` if present → clamp EV.
+
+**Expected Value (simplified):**
+
+```
+EV ≈ (B) + (play_through_gain) – (house_edge_cost) – (penalties)
+   ≈ B + 0 – |ER| – P*(D + B)
+```
+
+**True Value Score (0–100):**
+
+```
+score = normalize( EV / D , domain=[-1, +1] ) * 100
+```
+
+* Add bonuses for low wagering, broad eligibility, high RTP games; subtract for restrictive terms.
+* Where RTP\_e unknown, use category defaults (e.g., slots 96%, roulette 97.3%, blackjack 99.5% with weightings).
+
+**Explainability Fields:** `basis`, `W`, `Weighting`, `RTP_e`, `max_cashout`, `penalties`, `assumptions`.
+
+---
+
+## 7) NLP/Intent Extraction
+
+* **Entities:** budget (`$50`), location (`New Jersey`), product (`blackjack`, `sportsbook free bet`), user type (`new/existing`), risk preference (`low wagering`, `fast cashout`).
+* **Tools:** LLM + regex guards; validation rules (budget range, known jurisdictions, supported products).
+* **Safety:** Disallow minors, block restricted geos, return educational messaging where required.
+
+**Prompt Template (system):**
+
+* “Extract fields from user text. Return JSON with {budget, currency, jurisdiction, product\_type, games\[], user\_status, preferences\[]}.”
+
+---
+
+## 8) API Sketch (BFF)
+
+`POST /api/recommend`
+
+* **Body:** `{ query?: string, budget?: number, currency?: "USD", geo?: {country, region}, product?: "casino|sportsbook|poker|bingo|crypto", preferences?: string[] }`
+* **Response:** `{ recommendations: [ { bonus_id, operator, title, true_value_score, ev, rationale, key_terms, link } ], audit_id }`
+
+`GET /api/bonus/:id`
+
+* Full terms, history, jurisdictions, game eligibility matrix.
+
+`POST /api/click`
+
+* Track outbound affiliate click with `session_id` + `bonus_id`.
+
+`POST /api/admin/ingest`
+
+* Secured. Accepts CSV/Sheets payload for offers + terms.
+
+---
+
+## 9) Recommendation Flow (E2E)
+
+1. **Detect Geo** (IP + user confirmation banner).
+2. **Parse Query** (NLP → structured intent JSON).
+3. **Filter by Jurisdiction** (only licensed operators & allowed product types).
+4. **Eligibility Filter** (budget, new/existing user, payment exclusions).
+5. **Assemble Candidates** (from catalog; fetch current status & caps).
+6. **Compute EV & Score** (per formula; cache results keyed by query+geo).
+7. **Diversify & Rerank** (top 1–3 primary; 1 alternative; 1 low-wagering option).
+8. **Explain** (show why; highlight critical terms; link to full T\&Cs).
+9. **Track** (impressions, clicks, affiliate id).
+
+---
+
+## 10) Compliance, Safety & UX
+
+* **Age gates & disclaimers**; show 21+/18+ as appropriate; RG links (e.g., 1-800-GAMBLER for US).
+* **Licensing badges**; operator license #; jurisdiction logo.
+* **Transparency**; note affiliate relationships.
+* **Auditability**; store decision contexts + rule versions.
+* **Regional content**; hide disallowed categories (e.g., crypto in UK).
+
+---
+
+## 11) Tech Stack (suggested)
+
+* **Frontend:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui.
+* **Backend:** Node.js (NestJS/Fastify) or Python (FastAPI). BFF pattern.
+* **DB:** Postgres + pgvector; Redis cache.
+* **LLM:** OpenAI/Azure with output schema validation (Zod/Pydantic). Guardrails.
+* **Infra:** Vercel (FE) + Fly.io/Render/AWS (BE). Terraform/IaC. CI via GitHub Actions.
+* **Analytics:** GA4 + server-side events; PostHog/Snowplow optional.
+
+---
+
+## 12) MVP Milestones
+
+1. **MVP-0: Catalog & Geo** — seed 20–50 offers, basic geo filter, static ranking.
+2. **MVP-1: Chat Search** — NLP extraction; simple EV scoring; top-3 picks + rationale.
+3. **MVP-2: Admin CMS** — CRUD, importers, rule console, audit logs.
+4. **MVP-3: A/B & Explainability** — expose factors; experiment with weights.
+5. **MVP-4: Personalization** — remember preferences (e.g., low wagering bias).
+
+---
+
+## 13) Example Calculation (Blackjack in NJ, \$50)
+
+* Terms: 100% match up to \$100, wagering 20× **bonus**, blackjack weighting 10%, RTP 99.5%.
+* `D=50`, `M=1.0`, `Cap=100` → `B=50`.
+* Basis = bonus → `T=20×50=1,000`.
+* Effective edge = `(1 - 0.995)` with weighting 10% ⇒ `house_edge ≈ 0.5% × 0.10 = 0.05%` on T.
+* `ER ≈ 1,000 × (0.995 - 1) = -5` → loss ≈ \$5.
+* `EV ≈ B - |ER| - P*(D+B)`; assume `P=0.05` → `EV ≈ 50 - 5 - 0.05*(100) = 40`.
+* `True Value Score` scales EV/D; `40/50=0.8` → high score after normalization.
+
+*Front-end explanation surfaces these steps plainly.*
+
+---
+
+## 14) Future Enhancements
+
+* **Bankroll-aware advice** (session limits, low-risk picks).
+* **Live odds + sportsbook boosts** with min-odds validators.
+* **User modeling** (historical outcomes → tailored risk profile).
+* **Partner APIs** to auto-refresh terms.
+* **Localized languages & currencies**.
+
+---
+
+## 15) Glossary (Quick)
+
+* **RTP:** Expected long-run return to player.
+* **Wagering multiplier:** Turnover required before withdrawal.
+* **Weighting:** % of a bet that counts toward wagering per game type.
+* **EV:** Expected value (estimated net benefit to user).
