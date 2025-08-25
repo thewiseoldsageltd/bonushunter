@@ -1,0 +1,107 @@
+Starting Container
+
+npm warn config production Use `--omit=dev` instead.
+
+ 
+
+> rest-express@1.0.0 start
+
+> NODE_ENV=production node dist/index.js
+
+ 
+
+💾 Using memory storage
+
+❌ OPENAI_API_KEY environment variable is not set!
+
+Available env vars: []
+
+🌱 Seeding database in production...
+
+🌱 Seeding database...
+
+🧹 Clearing existing data for fresh seed...
+
+ℹ️ No existing data to clear (fresh database)
+
+❌ Failed to seed database: Error: connect ECONNREFUSED ::1:5432
+
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16) {
+
+  errno: -111,
+
+  code: 'ECONNREFUSED',
+
+  syscall: 'connect',
+
+  address: '::1',
+
+  port: 5432
+
+}
+
+❌ Database seeding failed: Error: connect ECONNREFUSED ::1:5432
+
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16) {
+
+  errno: -111,
+
+  code: 'ECONNREFUSED',
+
+  syscall: 'connect',
+
+  address: '::1',
+
+  port: 5432
+
+}
+
+🚀 Production mode - skipping Vite setup
+
+🗂️ Setting up production static file serving...
+
+📁 Looking for static files at: /app/dist/public
+
+🔍 Current working directory: /app
+
+✅ Found static files at /app/dist/public
+
+📋 Static files: assets, index.html
+
+✅ Production static file serving configured successfully
+
+🚀 Server started successfully on port 8080
+
+📍 Health check available at: http://0.0.0.0:8080/health
+
+🌍 Environment: production
+
+🌐 Railway PORT: 8080
+
+6:36:08 PM [express] serving on port 8080
+
+6:36:41 PM [express] GET /api/bonuses/ 200 in 5ms :: {"bonuses":[{"id":"bonus-1","operatorId":"op-1"…
+
+📄 Serving index.html from: /app/dist/public/index.html
+
+Failed to parse user intent: AuthenticationError: 401 Incorrect API key provided: missing-***-key. You can find your API key at https://platform.openai.com/account/api-keys.
+
+    at APIError.generate (file:///app/node_modules/openai/core/error.mjs:44:20)
+
+    at OpenAI.makeStatusError (file:///app/node_modules/openai/client.mjs:158:32)
+
+    at OpenAI.makeRequest (file:///app/node_modules/openai/client.mjs:303:30)
+
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+    at async parseUserIntent (file:///app/dist/index.js:1086:22)
+
+    at async file:///app/dist/index.js:1551:22 {
+
+  status: 401,
+
+  headers: HeadersList {
+
+    cookies: [
+
+      '__cf_bm=cirMcRJMC3fn6PB7tAwgA.r.R2vEVf5dD39DCpibbIw-1756147172-1.0.1.1-twem5Xwpk44Q4FvPPKcXbPk37sWOBHLPYYY7unY9js112IOsweBXhQeEoayDInwojrmHRpd5C5DLJnZyhgdemind4_8v7xiO.YMKfdAuRIQ; path=/; expires=Mon, 25-Aug-25 19:09:32 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
