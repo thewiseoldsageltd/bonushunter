@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seedData";
+import path from "path";
+import fs from "fs";
 
 const app = express();
 app.use(express.json());
@@ -66,7 +68,31 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // Production static file serving - fixed paths for Railway
+    console.log('🗂️ Setting up production static file serving...');
+    const staticPath = path.resolve('./public');
+    console.log(`📁 Serving static files from: ${staticPath}`);
+    
+    try {
+      if (fs.existsSync(staticPath)) {
+        app.use(express.static(staticPath));
+        app.use("*", (_req, res) => {
+          res.sendFile(path.join(staticPath, "index.html"));
+        });
+        console.log('✅ Static file serving configured');
+      } else {
+        console.log('❌ Static files not found, serving API only');
+        // Fallback: serve a simple message for frontend requests
+        app.get("*", (_req, res) => {
+          res.json({ message: "Bonushunter API is running", status: "ok" });
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error setting up static files:', error);
+      app.get("*", (_req, res) => {
+        res.json({ message: "Bonushunter API is running", status: "ok" });
+      });
+    }
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
