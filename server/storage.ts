@@ -226,7 +226,7 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id,
       location: insertUser.location || null,
-      preferredGameTypes: insertUser.preferredGameTypes || null,
+      preferredGameTypes: insertUser.preferredGameTypes ?? null,
       createdAt: new Date()
     };
     this.users.set(id, user);
@@ -247,10 +247,10 @@ export class MemStorage implements IStorage {
     const operator: Operator = { 
       ...insertOperator, 
       id,
-      brandCodes: insertOperator.brandCodes || null,
+      brandCodes: insertOperator.brandCodes ?? null,
       trustScore: insertOperator.trustScore || null,
       logo: insertOperator.logo || null,
-      active: insertOperator.active ?? null
+      active: insertOperator.active ?? true
     };
     this.operators.set(id, operator);
     return operator;
@@ -426,4 +426,9 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { DatabaseStorage } from './dbStorage';
+
+// Use database storage in production, memory storage in development
+export const storage = process.env.NODE_ENV === 'production' 
+  ? new DatabaseStorage() 
+  : new MemStorage();
