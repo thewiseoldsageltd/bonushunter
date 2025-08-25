@@ -53,11 +53,11 @@ app.use((req, res, next) => {
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('🚨 Request error:', err);
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    
     res.status(status).json({ message });
-    throw err;
   });
 
   // importantly only setup vite in development and after
@@ -74,14 +74,15 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, "0.0.0.0", () => {
     console.log(`🚀 Server started successfully on port ${port}`);
     console.log(`📍 Health check available at: http://0.0.0.0:${port}/health`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 Railway PORT: ${process.env.PORT}`);
     log(`serving on port ${port}`);
+  });
+
+  server.on('error', (error) => {
+    console.error('❌ Server error:', error);
   });
 })();
