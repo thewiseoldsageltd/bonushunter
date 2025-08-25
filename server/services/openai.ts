@@ -1,8 +1,15 @@
 import OpenAI from "openai";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.error("❌ OPENAI_API_KEY environment variable is not set!");
+  console.error("Available env vars:", Object.keys(process.env).filter(k => k.includes('OPENAI')));
+}
+
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
+  apiKey: apiKey || "missing-api-key"
 });
 
 import type { UserIntent } from "@shared/schema";
@@ -39,6 +46,9 @@ export async function parseUserIntent(userMessage: string): Promise<UserIntent> 
     return result as UserIntent;
   } catch (error) {
     console.error("Failed to parse user intent:", error);
+    if (error instanceof Error && error.message.includes('api key')) {
+      console.error("🔑 OpenAI API key issue detected!");
+    }
     return {};
   }
 }
@@ -103,6 +113,10 @@ export async function generateChatResponse(
     return response.choices[0].message.content || "I'm here to help you find the best bonus offers!";
   } catch (error) {
     console.error("Failed to generate chat response:", error);
+    if (error instanceof Error && error.message.includes('api key')) {
+      console.error("🔑 OpenAI API key issue detected!");
+      return "I'm having trouble processing your request. Please try again or check if the OpenAI API key is properly configured.";
+    }
     return "I'm having trouble processing your request right now. Please try again.";
   }
 }
