@@ -1,0 +1,180 @@
+import { eq, and } from 'drizzle-orm';
+import { db } from './db';
+import * as schema from '@shared/schema';
+import type { IStorage } from './storage';
+import type { 
+  User, InsertUser, 
+  Operator, InsertOperator,
+  Jurisdiction, InsertJurisdiction,
+  Bonus, InsertBonus, BonusWithOperator,
+  ChatSession, InsertChatSession,
+  ChatMessage, InsertChatMessage,
+  BonusRecommendation, InsertBonusRecommendation,
+  UserFavorite, InsertUserFavorite
+} from "@shared/schema";
+
+export class SimpleDbStorage implements IStorage {
+  // Users
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(schema.users).where(eq(schema.users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(schema.users).where(eq(schema.users.username, username)).limit(1);
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await db.insert(schema.users).values({
+      username: user.username,
+      password: user.password,
+      location: user.location || null,
+      preferredGameTypes: user.preferredGameTypes || []
+    }).returning();
+    return result[0];
+  }
+
+  // Operators
+  async getOperator(id: string): Promise<Operator | undefined> {
+    const result = await db.select().from(schema.operators).where(eq(schema.operators.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllOperators(): Promise<Operator[]> {
+    return await db.select().from(schema.operators).where(eq(schema.operators.active, true));
+  }
+
+  async createOperator(operator: InsertOperator): Promise<Operator> {
+    const result = await db.insert(schema.operators).values({
+      name: operator.name,
+      siteUrl: operator.siteUrl,
+      brandCodes: operator.brandCodes || [],
+      trustScore: operator.trustScore || "0.0",
+      logo: operator.logo || null,
+      active: operator.active ?? true
+    }).returning();
+    return result[0];
+  }
+
+  // Jurisdictions
+  async getJurisdiction(id: string): Promise<Jurisdiction | undefined> {
+    const result = await db.select().from(schema.jurisdictions).where(eq(schema.jurisdictions.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAllJurisdictions(): Promise<Jurisdiction[]> {
+    return await db.select().from(schema.jurisdictions);
+  }
+
+  async getJurisdictionByCode(code: string): Promise<Jurisdiction | undefined> {
+    const result = await db.select().from(schema.jurisdictions).where(eq(schema.jurisdictions.code, code)).limit(1);
+    return result[0];
+  }
+
+  async createJurisdiction(jurisdiction: InsertJurisdiction): Promise<Jurisdiction> {
+    const result = await db.insert(schema.jurisdictions).values(jurisdiction).returning();
+    return result[0];
+  }
+
+  // Bonuses
+  async getBonus(id: string): Promise<BonusWithOperator | undefined> {
+    const result = await db.select().from(schema.bonuses)
+      .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
+      .where(eq(schema.bonuses.id, id))
+      .limit(1);
+    
+    if (result[0] && result[0].operators) {
+      return {
+        ...result[0].bonuses,
+        operator: result[0].operators
+      } as BonusWithOperator;
+    }
+    return undefined;
+  }
+
+  async getAllBonuses(): Promise<BonusWithOperator[]> {
+    const result = await db.select().from(schema.bonuses)
+      .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
+      .where(eq(schema.bonuses.status, 'active'));
+    
+    return result.map(row => ({
+      ...row.bonuses,
+      operator: row.operators!
+    })) as BonusWithOperator[];
+  }
+
+  async getBonusesByOperator(operatorId: string): Promise<BonusWithOperator[]> {
+    const result = await db.select().from(schema.bonuses)
+      .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
+      .where(and(eq(schema.bonuses.operatorId, operatorId), eq(schema.bonuses.status, 'active')));
+    
+    return result.map(row => ({
+      ...row.bonuses,
+      operator: row.operators!
+    })) as BonusWithOperator[];
+  }
+
+  async getBonusesByProductType(productType: string): Promise<BonusWithOperator[]> {
+    const result = await db.select().from(schema.bonuses)
+      .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
+      .where(and(eq(schema.bonuses.productType, productType), eq(schema.bonuses.status, 'active')));
+    
+    return result.map(row => ({
+      ...row.bonuses,
+      operator: row.operators!
+    })) as BonusWithOperator[];
+  }
+
+  async createBonus(bonus: InsertBonus): Promise<Bonus> {
+    const result = await db.insert(schema.bonuses).values(bonus).returning();
+    return result[0];
+  }
+
+  // Chat Sessions
+  async getChatSession(id: string): Promise<ChatSession | undefined> {
+    const result = await db.select().from(schema.chatSessions).where(eq(schema.chatSessions.id, id)).limit(1);
+    return result[0];
+  }
+
+  async createChatSession(session: InsertChatSession): Promise<ChatSession> {
+    const result = await db.insert(schema.chatSessions).values(session).returning();
+    return result[0];
+  }
+
+  // Chat Messages
+  async getMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
+    return await db.select().from(schema.chatMessages).where(eq(schema.chatMessages.sessionId, sessionId));
+  }
+
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const result = await db.insert(schema.chatMessages).values(message).returning();
+    return result[0];
+  }
+
+  // Bonus Recommendations
+  async getRecommendationsBySession(sessionId: string): Promise<BonusRecommendation[]> {
+    return await db.select().from(schema.bonusRecommendations).where(eq(schema.bonusRecommendations.sessionId, sessionId));
+  }
+
+  async createBonusRecommendation(recommendation: InsertBonusRecommendation): Promise<BonusRecommendation> {
+    const result = await db.insert(schema.bonusRecommendations).values(recommendation).returning();
+    return result[0];
+  }
+
+  // User Favorites
+  async getUserFavorites(userId: string): Promise<UserFavorite[]> {
+    return await db.select().from(schema.userFavorites).where(eq(schema.userFavorites.userId, userId));
+  }
+
+  async createUserFavorite(favorite: InsertUserFavorite): Promise<UserFavorite> {
+    const result = await db.insert(schema.userFavorites).values(favorite).returning();
+    return result[0];
+  }
+
+  async removeUserFavorite(userId: string, bonusId: string): Promise<boolean> {
+    await db.delete(schema.userFavorites)
+      .where(and(eq(schema.userFavorites.userId, userId), eq(schema.userFavorites.bonusId, bonusId)));
+    return true;
+  }
+}
