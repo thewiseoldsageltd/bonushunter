@@ -37,7 +37,8 @@ export default function BonusCard({
     ));
   };
 
-  const getIconFromLogo = (logo: string) => {
+  const getIconFromLogo = (logo: string | null) => {
+    if (!logo) return '🎯';
     if (logo.includes('dice')) return '🎲';
     if (logo.includes('spade')) return '♠️';
     if (logo.includes('football')) return '🏈';
