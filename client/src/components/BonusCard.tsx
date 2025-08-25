@@ -38,7 +38,7 @@ export default function BonusCard({
   };
 
   const getIconFromLogo = (logo: string | null) => {
-    // Railway deployment fix - ensure null check for logos
+    // FORCE RAILWAY DEPLOY - Fixed null logo crash
     if (!logo) return '🎯';
     if (logo.includes('dice')) return '🎲';
     if (logo.includes('spade')) return '♠️';
