@@ -1,0 +1,107 @@
+Starting Container
+
+npm warn config production Use `--omit=dev` instead.
+
+ 
+
+> rest-express@1.0.0 start
+
+> NODE_ENV=production node dist/index.js
+
+ 
+
+💾 Using memory storage
+
+🌱 Seeding database in production...
+
+🌱 Seeding database...
+
+📋 Static files: assets, index.html
+
+✅ Production static file serving configured successfully
+
+❌ Database seeding failed: Error: connect ECONNREFUSED ::1:5432
+
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16) {
+
+  errno: -111,
+
+  code: 'ECONNREFUSED',
+
+  syscall: 'connect',
+
+  address: '::1',
+
+  port: 5432
+
+}
+
+🚀 Production mode - skipping Vite setup
+
+🗂️ Setting up production static file serving...
+
+📁 Looking for static files at: /app/dist/public
+
+🔍 Current working directory: /app
+
+✅ Found static files at /app/dist/public
+
+🚀 Server started successfully on port 8080
+
+📍 Health check available at: http://0.0.0.0:8080/health
+
+🌍 Environment: production
+
+🌐 Railway PORT: 8080
+
+5:57:43 PM [express] serving on port 8080
+
+5:58:12 PM [express] GET /api/bonuses/ 200 in 3ms :: {"bonuses":[{"id":"bonus-1","operatorId":"op-1"…
+
+📄 Serving index.html from: /app/dist/public/index.html
+
+Chat error: ZodError: [
+
+  {
+
+    "code": "invalid_type",
+
+    "expected": "string",
+
+    "received": "null",
+
+    "path": [
+
+      "sessionId"
+
+    ],
+
+    "message": "Expected string, received null"
+
+  }
+
+]
+
+    at get error [as error] (file:///app/node_modules/zod/lib/index.mjs:587:31)
+
+    at ZodObject.parse (file:///app/node_modules/zod/lib/index.mjs:663:22)
+
+    at file:///app/dist/index.js:1512:70
+
+    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+
+    at next (/app/node_modules/express/lib/router/route.js:149:13)
+
+    at Route.dispatch (/app/node_modules/express/lib/router/route.js:119:3)
+
+    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+
+    at /app/node_modules/express/lib/router/index.js:284:15
+
+    at Function.process_params (/app/node_modules/express/lib/router/index.js:346:12)
+
+    at next (/app/node_modules/express/lib/router/index.js:280:10) {
+
+  issues: [
+
+    {

@@ -9,7 +9,7 @@ import { z } from "zod";
 
 const chatRequestSchema = z.object({
   message: z.string(),
-  sessionId: z.string().optional(),
+  sessionId: z.string().nullable().optional(),
   userLocation: z.string().optional()
 });
 
@@ -34,15 +34,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create or get existing session
       let session;
-      if (sessionId) {
-        session = await storage.getChatSession(sessionId);
+      if (sessionId && sessionId.trim() !== '') {
+        try {
+          session = await storage.getChatSession(sessionId);
+        } catch (error) {
+          console.error('Error getting chat session:', error);
+          session = null;
+        }
       }
       
       if (!session) {
-        session = await storage.createChatSession({
-          userId: null,
-          sessionData: { userLocation } as any
-        });
+        try {
+          session = await storage.createChatSession({
+            userId: null,
+            sessionData: { userLocation } as any
+          });
+        } catch (error) {
+          console.error('Error creating chat session:', error);
+          throw new Error('Unable to create chat session. Please try again later.');
+        }
       }
 
       // Save user message
