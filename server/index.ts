@@ -1,9 +1,19 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, log } from "./vite";
 import { seedDatabase } from "./seedData";
 import path from "path";
 import fs from "fs";
+
+// Simple log function for production
+function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit", 
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
 
 const app = express();
 app.use(express.json());
@@ -65,6 +75,8 @@ app.use((req, res, next) => {
   // Only setup vite in development - completely skip in production
   if (process.env.NODE_ENV === "development") {
     console.log('🔧 Setting up Vite for development...');
+    // Dynamically import vite only in development to avoid import.meta issues in production
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     console.log('🚀 Production mode - skipping Vite setup');
