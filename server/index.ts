@@ -38,12 +38,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed database in production
-  if (process.env.NODE_ENV === 'production') {
-    await seedDatabase();
-  }
-  
   const server = await registerRoutes(app);
+
+  // Seed database in production (after routes are set up)
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🌱 Seeding database in production...');
+    try {
+      await seedDatabase();
+      console.log('✅ Database seeded successfully');
+    } catch (error) {
+      console.error('❌ Database seeding failed:', error);
+      // Continue anyway - app can still work without seeded data
+    }
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -72,6 +79,9 @@ app.use((req, res, next) => {
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
+    console.log(`🚀 Server started successfully on port ${port}`);
+    console.log(`📍 Health check available at: http://0.0.0.0:${port}/health`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     log(`serving on port ${port}`);
   });
 })();
