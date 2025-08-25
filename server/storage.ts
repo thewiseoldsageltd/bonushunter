@@ -428,7 +428,20 @@ export class MemStorage implements IStorage {
 
 import { SimpleDbStorage } from './simpleDbStorage';
 
-// Use database storage in production, memory storage in development
-export const storage = process.env.NODE_ENV === 'production' 
-  ? new SimpleDbStorage() 
-  : new MemStorage();
+// Safely initialize storage with fallback
+let storage: IStorage;
+
+try {
+  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+    console.log('🗄️ Using PostgreSQL database storage');
+    storage = new SimpleDbStorage();
+  } else {
+    console.log('💾 Using memory storage');
+    storage = new MemStorage();
+  }
+} catch (error) {
+  console.error('❌ Database connection failed, falling back to memory storage:', error);
+  storage = new MemStorage();
+}
+
+export { storage };

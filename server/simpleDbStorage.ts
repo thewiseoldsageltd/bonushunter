@@ -26,12 +26,7 @@ export class SimpleDbStorage implements IStorage {
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const result = await db.insert(schema.users).values({
-      username: user.username,
-      password: user.password,
-      location: user.location || null,
-      preferredGameTypes: user.preferredGameTypes || []
-    }).returning();
+    const result = await db.insert(schema.users).values(user).returning();
     return result[0];
   }
 
@@ -46,14 +41,7 @@ export class SimpleDbStorage implements IStorage {
   }
 
   async createOperator(operator: InsertOperator): Promise<Operator> {
-    const result = await db.insert(schema.operators).values({
-      name: operator.name,
-      siteUrl: operator.siteUrl,
-      brandCodes: operator.brandCodes || [],
-      trustScore: operator.trustScore || "0.0",
-      logo: operator.logo || null,
-      active: operator.active ?? true
-    }).returning();
+    const result = await db.insert(schema.operators).values(operator).returning();
     return result[0];
   }
 
