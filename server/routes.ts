@@ -72,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           bonusId: bonus.id,
           rank: i + 1,
           rationale: bonus.rationale,
-          calculatedValue: bonus.valueScore?.toString() || "0"
+          calculatedValue: String(bonus.valueScore || 0)
         });
       }
 
