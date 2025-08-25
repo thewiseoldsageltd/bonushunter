@@ -5,11 +5,20 @@ import { eq } from 'drizzle-orm';
 export async function seedDatabase() {
   console.log('🌱 Seeding database...');
   
-  // Check if operators already exist
-  const existingOperators = await db.select().from(schema.operators).limit(1);
-  if (existingOperators.length > 0) {
-    console.log('✅ Database already seeded');
-    return;
+  // Force fresh seed to ensure only DraftKings bonuses  
+  console.log('🧹 Clearing existing data for fresh seed...');
+  
+  // Clear existing data
+  try {
+    await db.delete(schema.bonusRecommendations);
+    await db.delete(schema.chatMessages); 
+    await db.delete(schema.chatSessions);
+    await db.delete(schema.bonuses);
+    await db.delete(schema.operators);
+    await db.delete(schema.jurisdictions);
+    console.log('🗑️ Existing data cleared');
+  } catch (error) {
+    console.log('ℹ️ No existing data to clear (fresh database)');
   }
 
   try {
