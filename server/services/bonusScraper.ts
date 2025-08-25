@@ -14,7 +14,8 @@ export interface ScrapingConfig {
   operatorId: string;
   bonusPageUrl: string;
   loginRequired: boolean;
-  filters?: FilterConfig[]; // Multiple filters on same page
+  productType?: 'casino' | 'sportsbook' | 'poker' | 'bingo'; // Single product type per config
+  filters?: FilterConfig[]; // Multiple filters on same page (alternative approach)
   selectors: {
     containerSelector: string;
     titleSelector: string;
@@ -70,7 +71,8 @@ export class BonusScraper {
       // If no filters specified, scrape current page
       if (!config.filters || config.filters.length === 0) {
         await page.waitForSelector(config.selectors.containerSelector, { timeout: 10000 });
-        const bonuses = await this.extractBonusesFromPage(page, config, 'casino');
+        const productType = config.productType || 'casino';
+        const bonuses = await this.extractBonusesFromPage(page, config, productType);
         allBonuses = bonuses;
       } else {
         // Scrape each filter separately

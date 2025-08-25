@@ -1,21 +1,46 @@
 import type { ScrapingConfig } from './bonusScraper';
 
-// Example scraping configurations
+// DraftKings scraping configurations - separate URLs for each product type
 export const defaultScrapingConfigs: ScrapingConfig[] = [
-  // DraftKings Casino Example
+  // DraftKings Sportsbook
+  {
+    operatorName: "DraftKings Sportsbook",
+    operatorId: "op-1",
+    bonusPageUrl: "https://sportsbook.draftkings.com/promos",
+    loginRequired: false,
+    productType: "sportsbook", // Single product type per config
+    selectors: {
+      containerSelector: "[TO_BE_CONFIGURED]", // Will need from inspection
+      titleSelector: "[TO_BE_CONFIGURED]",
+      descriptionSelector: "[TO_BE_CONFIGURED]", 
+      amountSelector: "[TO_BE_CONFIGURED]",
+      wageringSelector: "[TO_BE_CONFIGURED]",
+      endDateSelector: "[TO_BE_CONFIGURED]",
+      claimLinkSelector: "[TO_BE_CONFIGURED]"
+    },
+    parsingRules: {
+      amountRegex: /\$(\d+(?:,\d{3})*)/,
+      wageringRegex: /(\d+)x\s*wagering/i,
+      dateFormat: "MM/dd/yyyy",
+      excludeKeywords: ["expired", "ended", "no longer available"]
+    }
+  },
+  
+  // DraftKings Casino
   {
     operatorName: "DraftKings Casino",
-    operatorId: "op-1", // Should match operator ID in database
-    bonusPageUrl: "https://casino.draftkings.com/promotions",
+    operatorId: "op-1", // Same operator, different product
+    bonusPageUrl: "https://casino.draftkings.com/promos",
     loginRequired: false,
+    productType: "casino",
     selectors: {
-      containerSelector: ".promotion-tile", // Each bonus container
-      titleSelector: ".promotion-tile__title",
-      descriptionSelector: ".promotion-tile__description", 
-      amountSelector: ".promotion-tile__offer",
-      wageringSelector: ".promotion-tile__terms",
-      endDateSelector: ".promotion-tile__expiry",
-      claimLinkSelector: ".promotion-tile__cta-button"
+      containerSelector: "[TO_BE_CONFIGURED]", // Likely same as sportsbook
+      titleSelector: "[TO_BE_CONFIGURED]",
+      descriptionSelector: "[TO_BE_CONFIGURED]", 
+      amountSelector: "[TO_BE_CONFIGURED]",
+      wageringSelector: "[TO_BE_CONFIGURED]",
+      endDateSelector: "[TO_BE_CONFIGURED]",
+      claimLinkSelector: "[TO_BE_CONFIGURED]"
     },
     parsingRules: {
       amountRegex: /\$(\d+(?:,\d{3})*)/,
