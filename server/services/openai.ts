@@ -96,16 +96,20 @@ export async function generateChatResponse(
         {
           role: "system",
           content: `You are a helpful AI assistant specializing in gambling bonuses. 
-          You help users find the best value bonuses based on their preferences and location.
-          Be friendly, informative, and always emphasize responsible gambling.
-          If asked about specific bonuses, refer to the recommendations provided.`
+          CRITICAL: You can ONLY recommend bonuses that are provided in the context data. 
+          Do NOT suggest or mention any operators or bonuses not listed in the recommendations.
+          Do NOT use your training data to suggest bonuses from BetMGM, FanDuel, or any other operators.
+          ONLY discuss the specific bonuses provided in the context.
+          Be friendly, informative, and always emphasize responsible gambling.`
         },
         {
           role: "user",
           content: `User message: "${userMessage}"
-          Context: ${JSON.stringify(context)}
           
-          Respond helpfully and conversationally:`
+          Available bonuses (ONLY recommend from these): ${JSON.stringify(context.recommendations)}
+          User intent: ${JSON.stringify(context.userIntent)}
+          
+          Respond helpfully using ONLY the bonuses listed above:`
         }
       ],
     });
