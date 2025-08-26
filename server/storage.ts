@@ -33,6 +33,8 @@ export interface IStorage {
   getBonusesByOperator(operatorId: string): Promise<BonusWithOperator[]>;
   getBonusesByProductType(productType: string): Promise<BonusWithOperator[]>;
   createBonus(bonus: InsertBonus): Promise<Bonus>;
+  updateBonus(id: string, bonus: Partial<InsertBonus>): Promise<Bonus | undefined>;
+  deleteBonus(id: string): Promise<boolean>;
 
   // Chat Sessions
   getChatSession(id: string): Promise<ChatSession | undefined>;
@@ -263,6 +265,23 @@ export class MemStorage implements IStorage {
     };
     this.bonuses.set(id, bonus);
     return bonus;
+  }
+
+  async updateBonus(id: string, updates: Partial<InsertBonus>): Promise<Bonus | undefined> {
+    const existing = this.bonuses.get(id);
+    if (!existing) return undefined;
+
+    const updated: Bonus = { 
+      ...existing, 
+      ...updates,
+      id // Ensure ID doesn't change
+    };
+    this.bonuses.set(id, updated);
+    return updated;
+  }
+
+  async deleteBonus(id: string): Promise<boolean> {
+    return this.bonuses.delete(id);
   }
 
   // Chat Sessions

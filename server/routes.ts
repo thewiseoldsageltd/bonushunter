@@ -299,6 +299,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin API endpoints for bonus management
+  app.get("/api/admin/operators", async (req, res) => {
+    try {
+      const operators = await storage.getAllOperators();
+      res.json({ operators });
+    } catch (error) {
+      console.error("Get operators error:", error);
+      res.status(500).json({ error: "Failed to get operators" });
+    }
+  });
+
+  app.post("/api/admin/bonuses", async (req, res) => {
+    try {
+      const bonusData = req.body;
+      
+      // Get operator by name for now (in real app would use proper ID mapping)
+      const operators = await storage.getAllOperators();
+      const operator = operators.find(op => op.name.toLowerCase().includes(bonusData.operatorId));
+      
+      if (!operator) {
+        return res.status(400).json({ error: "Operator not found" });
+      }
+
+      const bonus = await storage.createBonus({
+        ...bonusData,
+        operatorId: operator.id,
+        matchPercent: String(bonusData.matchPercent),
+        minDeposit: String(bonusData.minDeposit),
+        maxBonus: String(bonusData.maxBonus),
+        wageringRequirement: String(bonusData.wageringRequirement),
+        valueScore: String(bonusData.valueScore)
+      });
+      
+      res.json(bonus);
+    } catch (error) {
+      console.error("Create bonus error:", error);
+      res.status(500).json({ error: "Failed to create bonus" });
+    }
+  });
+
+  app.put("/api/admin/bonuses/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const bonusData = req.body;
+      
+      const updated = await storage.updateBonus(id, bonusData);
+      if (!updated) {
+        return res.status(404).json({ error: "Bonus not found" });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Update bonus error:", error);
+      res.status(500).json({ error: "Failed to update bonus" });
+    }
+  });
+
+  app.delete("/api/admin/bonuses/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteBonus(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Bonus not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete bonus error:", error);
+      res.status(500).json({ error: "Failed to delete bonus" });
+    }
+  });
+
   // Health check endpoint for Railway
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
