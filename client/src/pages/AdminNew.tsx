@@ -913,9 +913,6 @@ const AdminDashboard = () => {
             <div className="mt-4">
               {editingBonus && (
                 <div>
-                  <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded">
-                    <strong>DEBUG:</strong> Edit form should show below this message
-                  </div>
                   {/* Live EV Display for Edit */}
                   <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
                     <div className="flex items-center gap-4 mb-3">
