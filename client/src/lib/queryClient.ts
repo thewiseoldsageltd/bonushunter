@@ -39,7 +39,8 @@ export const getQueryFn: <T>(options: {
     const BACKEND_URL = import.meta.env.PROD 
       ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
       : '';
-    const url = queryKey.join("/") as string;
+    // Only use the first item in queryKey for the URL
+    const url = queryKey[0] as string;
     const fullUrl = `${BACKEND_URL}${url}`;
     
     const res = await fetch(fullUrl, {
