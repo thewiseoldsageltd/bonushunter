@@ -56,6 +56,7 @@ export const defaultScrapingConfigs: ScrapingConfig[] = [
     operatorId: "op-2",
     bonusPageUrl: "https://casino.betmgm.com/promotions",
     loginRequired: false,
+    productType: "casino",
     selectors: {
       containerSelector: ".promo-card",
       titleSelector: ".promo-card-title",
