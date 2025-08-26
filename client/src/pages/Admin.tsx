@@ -536,13 +536,40 @@ const AdminDashboard = () => {
 
                   <div className="flex gap-2">
                     <Button 
-                      onClick={() => {
-                        // Test configuration
-                        console.log('Testing configuration:', configForm);
-                        toast({
-                          title: "Testing Configuration",
-                          description: "Configuration test functionality will be implemented",
-                        });
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/admin/scraping/configs/test', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              operatorName: configForm.operatorName,
+                              operatorId: configForm.operatorId,
+                              bonusPageUrl: configForm.bonusPageUrl,
+                              productType: configForm.productType,
+                              selectors: {
+                                containerSelector: configForm.containerSelector,
+                                titleSelector: configForm.titleSelector,
+                                descriptionSelector: configForm.descriptionSelector,
+                                amountSelector: configForm.amountSelector,
+                                wageringSelector: configForm.wageringSelector,
+                                endDateSelector: configForm.endDateSelector,
+                                claimLinkSelector: configForm.claimLinkSelector
+                              }
+                            })
+                          });
+                          const result = await response.json();
+                          toast({
+                            title: result.success ? "Test Successful" : "Test Failed",
+                            description: result.message || result.error,
+                            variant: result.success ? "default" : "destructive"
+                          });
+                        } catch (error) {
+                          toast({
+                            title: "Test Failed",
+                            description: "Failed to test configuration",
+                            variant: "destructive"
+                          });
+                        }
                       }}
                       variant="outline"
                       data-testid="button-test-config"
@@ -600,13 +627,28 @@ const AdminDashboard = () => {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => {
-                              // Test this specific configuration
-                              console.log('Testing config:', config);
-                              toast({
-                                title: "Testing Configuration",
-                                description: `Testing ${config.operatorName} ${config.productType}`,
-                              });
+                            onClick={async () => {
+                              try {
+                                const response = await fetch('/api/admin/scraping/configs/test', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify(config)
+                                });
+                                const result = await response.json();
+                                toast({
+                                  title: result.success ? "Test Successful" : "Test Failed", 
+                                  description: result.success 
+                                    ? `Found ${result.bonusesFound} bonuses from ${config.operatorName}`
+                                    : result.error,
+                                  variant: result.success ? "default" : "destructive"
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Test Failed",
+                                  description: `Failed to test ${config.operatorName}`,
+                                  variant: "destructive"
+                                });
+                              }
                             }}
                             data-testid={`button-test-${config.operatorId}-${config.productType}`}
                           >
