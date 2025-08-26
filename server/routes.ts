@@ -392,12 +392,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const bonusData = req.body;
       
-      const updated = await storage.updateBonus(id, bonusData);
+      // Auto-calculate EV score based on updated bonus terms
+      const calculatedEV = calculateBonusValue(bonusData as any);
+      
+      // Update the valueScore with calculated value
+      const bonusDataWithEV = {
+        ...bonusData,
+        valueScore: calculatedEV.valueScore.toString()
+      };
+      
+      const updated = await storage.updateBonus(id, bonusDataWithEV);
       if (!updated) {
         return res.status(404).json({ error: "Bonus not found" });
       }
       
-      res.json(updated);
+      res.json({ 
+        bonus: updated, 
+        calculatedEV: {
+          valueScore: calculatedEV.valueScore,
+          expectedValue: calculatedEV.expectedValue,
+          breakdown: calculatedEV.breakdown
+        }
+      });
     } catch (error) {
       console.error("Update bonus error:", error);
       res.status(500).json({ error: "Failed to update bonus" });

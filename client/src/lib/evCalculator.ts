@@ -35,12 +35,20 @@ export function calculateBonusEV(
   const maxCashout = bonusData.maxCashout ? Number(bonusData.maxCashout) : null;
   const expiryDays = Number(bonusData.expiryDays || 30);
   
-  // Calculate deposit amount (limited by user budget and bonus structure)
-  const maxEligibleDeposit = maxBonus > 0 && matchPercent > 0 ? maxBonus / matchPercent : userBudget;
-  const depositAmount = Math.max(minDeposit, Math.min(userBudget, maxEligibleDeposit));
+  // Handle fixed-amount bonuses vs percentage match bonuses
+  let bonusAmount: number;
+  let depositAmount: number;
   
-  // Calculate bonus amount
-  const bonusAmount = Math.min(depositAmount * matchPercent, maxBonus);
+  if (matchPercent === 0 && maxBonus > 0) {
+    // Fixed-amount bonus: "Bet $X, Get $Y" - bonus amount is fixed regardless of deposit
+    bonusAmount = maxBonus;
+    depositAmount = minDeposit; // Use minimum deposit for fixed bonuses
+  } else {
+    // Percentage match bonus: deposit * matchPercent, capped at maxBonus
+    const maxEligibleDeposit = maxBonus > 0 && matchPercent > 0 ? maxBonus / matchPercent : userBudget;
+    depositAmount = Math.max(minDeposit, Math.min(userBudget, maxEligibleDeposit));
+    bonusAmount = Math.min(depositAmount * matchPercent, maxBonus);
+  }
   
   // Calculate wagering requirement
   const wageringBasis = bonusData.wageringUnit === "deposit_plus_bonus" 

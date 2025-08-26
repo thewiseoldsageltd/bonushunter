@@ -16,9 +16,23 @@ export function calculateBonusValue(
   bonus: Bonus,
   userBudget: number = 100
 ): ValueCalculation {
-  const deposit = Math.min(userBudget, Number(bonus.maxBonus || 1000) / Number(bonus.matchPercent || 1));
-  const bonusAmount = deposit * Number(bonus.matchPercent || 0);
-  const cappedBonus = Math.min(bonusAmount, Number(bonus.maxBonus || bonusAmount));
+  const matchPercent = Number(bonus.matchPercent || 0);
+  const maxBonus = Number(bonus.maxBonus || 0);
+  
+  // Handle fixed-amount bonuses (e.g., "Bet $5, Get $150") vs percentage match bonuses
+  let cappedBonus: number;
+  let deposit: number;
+  
+  if (matchPercent === 0 && maxBonus > 0) {
+    // Fixed-amount bonus: "Bet $X, Get $Y" - bonus amount is fixed regardless of deposit
+    cappedBonus = maxBonus;
+    deposit = Number(bonus.minDeposit || 5); // Use minimum deposit for fixed bonuses
+  } else {
+    // Percentage match bonus: deposit * matchPercent, capped at maxBonus
+    deposit = Math.min(userBudget, maxBonus / Math.max(matchPercent, 0.01));
+    const bonusAmount = deposit * matchPercent;
+    cappedBonus = Math.min(bonusAmount, maxBonus);
+  }
   
   // Calculate wagering requirement
   const wageringMultiplier = Number(bonus.wageringRequirement || 0);
