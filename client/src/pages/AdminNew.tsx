@@ -47,26 +47,52 @@ interface OperatorFormData {
 }
 
 // Simple Operator Form Component
-const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const OperatorForm = ({ 
+  operator, 
+  onSuccess 
+}: { 
+  operator?: any; 
+  onSuccess: () => void 
+}) => {
   const { toast } = useToast();
-  const [operatorForm, setOperatorForm] = useState<OperatorFormData>({
-    name: '',
-    siteUrl: '',
-    description: '',
-    trustScore: '8.0',
-    overallRating: '4.0',
-    foundedYear: '2020',
-    headquarters: '',
-    licenses: '',
-    languages: '',
-    currencies: '',
-    paymentMethods: '',
-    minDeposit: '10.00',
-    maxWithdrawal: '10000.00',
-    withdrawalTimeframe: '24-48 hours'
+  const [operatorForm, setOperatorForm] = useState<OperatorFormData>(() => {
+    if (operator) {
+      return {
+        name: operator.name || '',
+        siteUrl: operator.siteUrl || '',
+        description: operator.description || '',
+        trustScore: operator.trustScore || '8.0',
+        overallRating: operator.overallRating || '4.0',
+        foundedYear: operator.foundedYear?.toString() || '2020',
+        headquarters: operator.headquarters || '',
+        licenses: Array.isArray(operator.licenses) ? operator.licenses.join(', ') : (operator.licenses || ''),
+        languages: Array.isArray(operator.languages) ? operator.languages.join(', ') : (operator.languages || ''),
+        currencies: Array.isArray(operator.currencies) ? operator.currencies.join(', ') : (operator.currencies || ''),
+        paymentMethods: Array.isArray(operator.paymentMethods) ? operator.paymentMethods.join(', ') : (operator.paymentMethods || ''),
+        minDeposit: operator.minDeposit || '10.00',
+        maxWithdrawal: operator.maxWithdrawal || '10000.00',
+        withdrawalTimeframe: operator.withdrawalTimeframe || '24-48 hours'
+      };
+    }
+    return {
+      name: '',
+      siteUrl: '',
+      description: '',
+      trustScore: '8.0',
+      overallRating: '4.0',
+      foundedYear: '2020',
+      headquarters: '',
+      licenses: '',
+      languages: '',
+      currencies: '',
+      paymentMethods: '',
+      minDeposit: '10.00',
+      maxWithdrawal: '10000.00',
+      withdrawalTimeframe: '24-48 hours'
+    };
   });
 
-  const createOperatorMutation = useMutation({
+  const operatorMutation = useMutation({
     mutationFn: async (formData: OperatorFormData) => {
       const processedData = {
         ...formData,
@@ -81,36 +107,41 @@ const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
         esports: false,
         active: true
       };
-      const response = await apiRequest('POST', '/api/admin/operators', processedData);
+      
+      const method = operator ? 'PUT' : 'POST';
+      const url = operator ? `/api/admin/operators/${operator.id}` : '/api/admin/operators';
+      const response = await apiRequest(method, url, processedData);
       return await response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success!",
-        description: "Operator added successfully!",
+        description: operator ? "Operator updated successfully!" : "Operator added successfully!",
       });
-      setOperatorForm({
-        name: '',
-        siteUrl: '',
-        description: '',
-        trustScore: '8.0',
-        overallRating: '4.0',
-        foundedYear: '2020',
-        headquarters: '',
-        licenses: '',
-        languages: '',
-        currencies: '',
-        paymentMethods: '',
-        minDeposit: '10.00',
-        maxWithdrawal: '10000.00',
-        withdrawalTimeframe: '24-48 hours'
-      });
+      if (!operator) {
+        setOperatorForm({
+          name: '',
+          siteUrl: '',
+          description: '',
+          trustScore: '8.0',
+          overallRating: '4.0',
+          foundedYear: '2020',
+          headquarters: '',
+          licenses: '',
+          languages: '',
+          currencies: '',
+          paymentMethods: '',
+          minDeposit: '10.00',
+          maxWithdrawal: '10000.00',
+          withdrawalTimeframe: '24-48 hours'
+        });
+      }
       onSuccess();
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to create operator",
+        description: error.message || `Failed to ${operator ? 'update' : 'create'} operator`,
         variant: "destructive",
       });
     }
@@ -126,7 +157,7 @@ const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
       });
       return;
     }
-    createOperatorMutation.mutate(operatorForm);
+    operatorMutation.mutate(operatorForm);
   };
 
   return (
@@ -342,8 +373,11 @@ const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
         </div>
 
         <div className="flex justify-end gap-3 pt-6 border-t">
-          <Button type="submit" disabled={createOperatorMutation.isPending} className="px-8">
-            {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
+          <Button type="submit" disabled={operatorMutation.isPending} className="px-8">
+            {operatorMutation.isPending 
+              ? (operator ? "Updating..." : "Adding...")
+              : (operator ? "Update Operator" : "Add Operator")
+            }
           </Button>
         </div>
       </form>
@@ -355,6 +389,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
+  const [editingOperator, setEditingOperator] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [bonusForm, setBonusForm] = useState<BonusFormData>({
     title: '',
@@ -734,6 +769,7 @@ const AdminDashboard = () => {
                     <div className="mt-4">
                       <OperatorForm onSuccess={() => {
                         queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
                       }} />
                     </div>
                   </DialogContent>
@@ -754,20 +790,51 @@ const AdminDashboard = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          Trust: {operator.trustScore}/10
-                        </Badge>
-                        {operator.overallRating && operator.overallRating !== "0.0" && (
-                          <Badge variant="outline">
-                            Rating: {operator.overallRating}/5
+                        <div className="flex items-center gap-2 mr-4">
+                          <Badge variant="secondary">
+                            Trust: {operator.trustScore}/10
                           </Badge>
-                        )}
+                          {operator.overallRating && operator.overallRating !== "0.0" && (
+                            <Badge variant="outline">
+                              Rating: {operator.overallRating}/5
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingOperator(operator)}
+                          data-testid={`button-edit-operator-${operator.id}`}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+
+            {/* Edit Operator Dialog */}
+            <Dialog open={!!editingOperator} onOpenChange={(open) => !open && setEditingOperator(null)}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Operator: {editingOperator?.name}</DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  {editingOperator && (
+                    <OperatorForm 
+                      operator={editingOperator}
+                      onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                        setEditingOperator(null);
+                      }} 
+                    />
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           <TabsContent value="analytics">

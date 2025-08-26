@@ -20,6 +20,7 @@ export interface IStorage {
   getOperator(id: string): Promise<Operator | undefined>;
   getAllOperators(): Promise<Operator[]>;
   createOperator(operator: InsertOperator): Promise<Operator>;
+  updateOperator(id: string, operator: InsertOperator): Promise<Operator>;
 
   // Jurisdictions
   getJurisdiction(id: string): Promise<Jurisdiction | undefined>;
@@ -180,6 +181,24 @@ export class MemStorage implements IStorage {
     };
     this.operators.set(id, operator);
     return operator;
+  }
+
+  async updateOperator(id: string, insertOperator: InsertOperator): Promise<Operator> {
+    const existing = this.operators.get(id);
+    if (!existing) {
+      throw new Error(`Operator with id ${id} not found`);
+    }
+    
+    const updated: Operator = {
+      ...insertOperator,
+      id: existing.id,
+      brandCodes: (insertOperator.brandCodes as string[]) ?? null,
+      trustScore: insertOperator.trustScore || null,
+      logo: insertOperator.logo || null,
+      active: insertOperator.active ?? true
+    };
+    this.operators.set(id, updated);
+    return updated;
   }
 
   // Jurisdictions

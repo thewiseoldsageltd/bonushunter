@@ -45,6 +45,14 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async updateOperator(id: string, operator: InsertOperator): Promise<Operator> {
+    const result = await db.update(schema.operators)
+      .set(operator)
+      .where(eq(schema.operators.id, id))
+      .returning();
+    return result[0];
+  }
+
   // Jurisdictions
   async getJurisdiction(id: string): Promise<Jurisdiction | undefined> {
     const result = await db.select().from(schema.jurisdictions).where(eq(schema.jurisdictions.id, id)).limit(1);

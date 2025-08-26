@@ -326,6 +326,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update existing operator
+  app.put("/api/admin/operators/:id", async (req, res) => {
+    try {
+      const operatorId = req.params.id;
+      const operatorData = insertOperatorSchema.parse(req.body);
+      const operator = await storage.updateOperator(operatorId, operatorData);
+      res.json({ operator, message: "Operator updated successfully" });
+    } catch (error) {
+      console.error("Update operator error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid operator data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update operator" });
+    }
+  });
+
   app.post("/api/admin/bonuses", async (req, res) => {
     try {
       const bonusData = req.body;
