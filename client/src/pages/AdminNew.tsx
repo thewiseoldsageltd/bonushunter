@@ -904,7 +904,7 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Edit Bonus Dialog - Outside of all tabs */}
+        {/* Edit Bonus Dialog - Fresh Implementation Matching Add Form */}
         <Dialog open={!!editingBonus} onOpenChange={(open) => !open && setEditingBonus(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -913,12 +913,12 @@ const AdminDashboard = () => {
             <div className="mt-4">
               {editingBonus && (
                 <div>
-                  {/* Live EV Display for Edit */}
+                  {/* Live EV Display for Edit - Matching Add Form Style */}
                   <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold">Expected Value Analysis (Edit Mode)</span>
+                        <span className="font-semibold">Expected Value Analysis</span>
                       </div>
                       <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEVRating(editCalculatedEV.valueScore).color} bg-gray-100 dark:bg-gray-800`}>
                         {getEVRating(editCalculatedEV.valueScore).rating} ({editCalculatedEV.valueScore}/100)
@@ -996,7 +996,7 @@ const AdminDashboard = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="edit-bonus-type">Bonus Type</Label>
+                        <Label htmlFor="edit-bonusType">Bonus Type</Label>
                         <Select 
                           value={editBonusForm.bonusType} 
                           onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, bonusType: value }))}
@@ -1015,7 +1015,7 @@ const AdminDashboard = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="edit-product-type">Product Type</Label>
+                        <Label htmlFor="edit-productType">Product Type</Label>
                         <Select 
                           value={editBonusForm.productType} 
                           onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, productType: value }))}
@@ -1035,9 +1035,9 @@ const AdminDashboard = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="edit-match-percent">Match Percentage (%)</Label>
+                        <Label htmlFor="edit-matchPercent">Match Percentage (%)</Label>
                         <Input
-                          id="edit-match-percent"
+                          id="edit-matchPercent"
                           type="number"
                           value={editBonusForm.matchPercent}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, matchPercent: e.target.value }))}
@@ -1046,9 +1046,9 @@ const AdminDashboard = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="edit-promo-code">Promo Code</Label>
+                        <Label htmlFor="edit-promoCode">Promo Code</Label>
                         <Input
-                          id="edit-promo-code"
+                          id="edit-promoCode"
                           value={editBonusForm.promoCode}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
                           placeholder="BONUS1000"
@@ -1059,9 +1059,9 @@ const AdminDashboard = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="edit-wagering">Wagering Requirement (x)</Label>
+                        <Label htmlFor="edit-wageringRequirement">Wagering Requirement (x)</Label>
                         <Input
-                          id="edit-wagering"
+                          id="edit-wageringRequirement"
                           type="number"
                           value={editBonusForm.wageringRequirement}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, wageringRequirement: e.target.value }))}
@@ -1070,9 +1070,9 @@ const AdminDashboard = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="edit-expiry">Expiry (Days)</Label>
+                        <Label htmlFor="edit-expiryDays">Expiry (Days)</Label>
                         <Input
-                          id="edit-expiry"
+                          id="edit-expiryDays"
                           type="number"
                           value={editBonusForm.expiryDays}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, expiryDays: e.target.value }))}
@@ -1084,9 +1084,9 @@ const AdminDashboard = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="edit-min-deposit">Min Deposit ($)</Label>
+                        <Label htmlFor="edit-minDeposit">Min Deposit ($)</Label>
                         <Input
-                          id="edit-min-deposit"
+                          id="edit-minDeposit"
                           type="number"
                           value={editBonusForm.minDeposit}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
@@ -1095,9 +1095,9 @@ const AdminDashboard = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="edit-max-bonus">Max Bonus ($)</Label>
+                        <Label htmlFor="edit-maxBonus">Max Bonus ($)</Label>
                         <Input
-                          id="edit-max-bonus"
+                          id="edit-maxBonus"
                           type="number"
                           value={editBonusForm.maxBonus}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
@@ -1125,9 +1125,9 @@ const AdminDashboard = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="edit-landing-url">Landing URL*</Label>
+                      <Label htmlFor="edit-landingUrl">Landing URL*</Label>
                       <Input
-                        id="edit-landing-url"
+                        id="edit-landingUrl"
                         type="url"
                         value={editBonusForm.landingUrl}
                         onChange={(e) => setEditBonusForm(prev => ({ ...prev, landingUrl: e.target.value }))}
