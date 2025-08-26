@@ -242,55 +242,50 @@ export class BonusScraper {
   }
 
   async updateBonusDatabase(operatorId: string, scrapedBonuses: ScrapedBonus[]) {
-    // Get existing bonuses for this operator
-    const existingBonuses = await storage.getBonusesByOperator(operatorId);
+    console.log(`🔄 Replacing bonuses for operator ${operatorId} with live scraped data...`);
     
-    for (const scrapedBonus of scrapedBonuses) {
-      // Check if bonus already exists (match by title)
-      const existingBonus = existingBonuses.find(b => 
-        this.normalizeTitle(b.title) === this.normalizeTitle(scrapedBonus.title)
-      );
-
-      if (existingBonus) {
-        // Check if bonus has changed significantly
-        if (this.hasSignificantChange(existingBonus, scrapedBonus)) {
-          console.log(`Bonus changed: ${scrapedBonus.title}`);
-          // Update existing bonus - would implement update method in storage
-          // await storage.updateBonus(existingBonus.id, scrapedBonus);
-        }
-      } else {
-        // Create new bonus
-        const newBonus: InsertBonus = {
-          operatorId,
-          title: scrapedBonus.title,
-          description: scrapedBonus.description,
-          productType: (scrapedBonus as any).productType || 'casino',
-          bonusType: this.detectBonusType(scrapedBonus.title, scrapedBonus.description),
-          maxBonus: scrapedBonus.maxBonus || null,
-          wageringRequirement: scrapedBonus.wageringRequirement || null,
-          landingUrl: scrapedBonus.landingUrl,
-          endAt: scrapedBonus.endDate || null,
-          status: 'active',
-          // Set other required fields with sensible defaults
-          matchPercent: null,
-          minDeposit: null,
-          promoCode: null,
-          wageringUnit: 'bonus',
-          eligibleGames: [],
-          gameWeightings: {},
-          minOdds: null,
-          maxCashout: null,
-          expiryDays: scrapedBonus.endDate ? this.getDaysUntil(scrapedBonus.endDate) : 30,
-          paymentMethodExclusions: [],
-          existingUserEligible: false,
-          valueScore: null,
-          startAt: null
-        };
-
-        await storage.createBonus(newBonus);
-        console.log(`Created new bonus: ${scrapedBonus.title}`);
-      }
+    // IMPORTANT: Clear all existing bonuses for this operator first
+    // This ensures live scraped data completely replaces seed data
+    const existingBonuses = await storage.getBonusesByOperator(operatorId);
+    for (const existingBonus of existingBonuses) {
+      await storage.deleteBonus(existingBonus.id);
+      console.log(`🗑️ Removed old bonus: ${existingBonus.title}`);
     }
+    
+    // Create all new bonuses from scraped data
+    for (const scrapedBonus of scrapedBonuses) {
+      const newBonus: InsertBonus = {
+        operatorId,
+        title: scrapedBonus.title,
+        description: scrapedBonus.description,
+        productType: (scrapedBonus as any).productType || 'casino',
+        bonusType: this.detectBonusType(scrapedBonus.title, scrapedBonus.description),
+        maxBonus: scrapedBonus.maxBonus || null,
+        wageringRequirement: scrapedBonus.wageringRequirement || null,
+        landingUrl: scrapedBonus.landingUrl,
+        endAt: scrapedBonus.endDate || null,
+        status: 'active',
+        // Set other required fields with sensible defaults
+        matchPercent: null,
+        minDeposit: null,
+        promoCode: null,
+        wageringUnit: 'bonus',
+        eligibleGames: [],
+        gameWeightings: {},
+        minOdds: null,
+        maxCashout: null,
+        expiryDays: scrapedBonus.endDate ? this.getDaysUntil(scrapedBonus.endDate) : 30,
+        paymentMethodExclusions: [],
+        existingUserEligible: false,
+        valueScore: null,
+        startAt: null
+      };
+
+      await storage.createBonus(newBonus);
+      console.log(`✅ Created live bonus: ${scrapedBonus.title}`);
+    }
+    
+    console.log(`🎉 Replaced ${existingBonuses.length} seed bonuses with ${scrapedBonuses.length} live bonuses for ${operatorId}`);
   }
 
   private normalizeTitle(title: string): string {
