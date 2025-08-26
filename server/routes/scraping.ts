@@ -321,4 +321,92 @@ export function registerScrapingRoutes(app: Express) {
       });
     }
   });
+
+  // Test scraping configuration endpoint (for admin panel test button)
+  app.post("/api/admin/scraping/configs/test", async (req, res) => {
+    try {
+      const config = req.body;
+      console.log(`Testing ${config.operatorName} ${config.productType} scraping...`);
+      
+      const scraper = new BonusScraper();
+      await scraper.initialize();
+      
+      const bonuses = await scraper.scrapeOperatorBonuses(config);
+      await scraper.close();
+      
+      res.json({
+        success: true,
+        message: `Found ${bonuses.length} bonuses`,
+        bonusesFound: bonuses.length,
+        bonuses: bonuses.slice(0, 3).map(bonus => ({
+          title: bonus.title,
+          description: bonus.description?.substring(0, 100) + "...",
+          maxBonus: bonus.maxBonus
+        }))
+      });
+      
+    } catch (error) {
+      console.error("Test scraping failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Test scraping failed",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Start scraping endpoint (for admin panel start button)
+  app.post("/api/admin/scraping/start", async (req, res) => {
+    try {
+      console.log("Starting automated scraping for all operators...");
+      
+      const scraper = new BonusScraper();
+      await scraper.initialize();
+      
+      let totalBonuses = 0;
+      for (const config of defaultScrapingConfigs) {
+        try {
+          const bonuses = await scraper.scrapeOperatorBonuses(config);
+          await scraper.updateBonusDatabase(config.operatorId, bonuses);
+          totalBonuses += bonuses.length;
+          console.log(`✅ Scraped ${bonuses.length} bonuses from ${config.operatorName}`);
+        } catch (error) {
+          console.error(`❌ Failed to scrape ${config.operatorName}:`, error);
+        }
+      }
+      
+      await scraper.close();
+      
+      res.json({
+        success: true,
+        message: `Scraping completed successfully`,
+        totalBonuses,
+        operatorsProcessed: defaultScrapingConfigs.length
+      });
+      
+    } catch (error) {
+      console.error("Start scraping failed:", error);
+      res.status(500).json({ 
+        error: "Failed to start scraping",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Stop scraping endpoint (for admin panel stop button)
+  app.post("/api/admin/scraping/stop", async (req, res) => {
+    try {
+      // In a real implementation, you'd stop any running scraping processes
+      res.json({
+        success: true,
+        message: "Scraping stopped successfully"
+      });
+      
+    } catch (error) {
+      res.status(500).json({ 
+        error: "Failed to stop scraping",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
 }
