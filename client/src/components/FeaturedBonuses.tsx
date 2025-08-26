@@ -11,7 +11,17 @@ export default function FeaturedBonuses() {
   const [location, setLocation] = useState<string>("all");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType === "all" ? undefined : productType],
+    queryKey: ["/api/bonuses", productType, location],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (productType !== "all") params.append("productType", productType);
+      if (location !== "all") params.append("location", location);
+      
+      const url = `/api/bonuses${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch bonuses');
+      return response.json();
+    },
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
@@ -41,7 +51,7 @@ export default function FeaturedBonuses() {
             <div className="bg-dark-light/50 rounded-2xl p-8 border border-dark-lighter">
               <p className="text-red-400 mb-4">Failed to load bonuses</p>
               <p className="text-gray-400 text-sm">
-                Please ensure the OpenAI API key is configured and the server is running properly.
+                {error?.message || 'Unable to fetch bonus data. Please try refreshing the page.'}
               </p>
             </div>
           </div>
