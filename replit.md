@@ -2,7 +2,7 @@
 
 ## Overview
 
-Bonushunter is a conversational AI platform designed to help users discover the best-value gambling bonuses based on their budget, location, and gaming preferences. The system combines natural language processing with complex bonus evaluation algorithms to provide personalized recommendations through a chat-based interface. Built as a full-stack web application, it serves as an intelligent bonus aggregator that considers regulatory compliance, value scoring, and user preferences to deliver tailored gambling bonus suggestions.
+Bonushunter is a comprehensive conversational AI platform designed to help users discover the best-value gambling bonuses across multiple operators, verticals, and territories. The system combines natural language processing with complex bonus evaluation algorithms to provide personalized recommendations through a chat-based interface. Built as a full-stack web application, it serves as an intelligent multi-operator bonus aggregator covering major US operators (DraftKings, FanDuel, BetMGM, Caesars), international brands (Bet365, William Hill), crypto casinos (Stake.com), and various product verticals (sportsbook, casino, poker, crypto) across 15+ jurisdictions including US states and international markets.
 
 ## User Preferences
 

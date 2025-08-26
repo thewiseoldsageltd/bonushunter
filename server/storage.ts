@@ -356,7 +356,7 @@ import { SimpleDbStorage } from './simpleDbStorage';
 let storage: IStorage;
 
 try {
-  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL) {
     console.log('🗄️ Using PostgreSQL database storage');
     storage = new SimpleDbStorage();
   } else {
