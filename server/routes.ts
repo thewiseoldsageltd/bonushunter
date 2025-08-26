@@ -325,9 +325,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const bonusData = req.body;
       
-      // Get operator by name for now (in real app would use proper ID mapping)
+      // Find operator by ID
       const operators = await storage.getAllOperators();
-      const operator = operators.find(op => op.name.toLowerCase().includes(bonusData.operatorId));
+      const operator = operators.find(op => op.id === bonusData.operatorId);
       
       if (!operator) {
         return res.status(400).json({ error: "Operator not found" });
