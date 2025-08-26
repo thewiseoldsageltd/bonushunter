@@ -3,14 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Plus, Edit, Trash2, Eye, Users, Building } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { insertOperatorSchema, type InsertOperator } from '@shared/schema';
 
 interface BonusFormData {
   title: string;
@@ -27,6 +33,359 @@ interface BonusFormData {
   expiryDays: string;
   valueScore: string;
 }
+
+// OperatorForm Component for Adding New Operators
+const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const form = useForm<InsertOperator>({
+    resolver: zodResolver(insertOperatorSchema),
+    defaultValues: {
+      name: '',
+      siteUrl: '',
+      description: '',
+      trustScore: '8.0',
+      overallRating: '4.0',
+      bonusRating: '4.0',
+      oddsRating: '4.0', 
+      uiRating: '4.0',
+      foundedYear: 2020,
+      headquarters: '',
+      minDeposit: '10.00',
+      maxWithdrawal: '10000.00',
+      withdrawalTimeframe: '24-48 hours',
+      liveChat: false,
+      mobileApp: false,
+      casinoGames: false,
+      liveCasino: false,
+      esports: false,
+      virtuals: false,
+      active: true,
+      licenses: [],
+      languages: [],
+      currencies: [],
+      paymentMethods: [],
+      withdrawalMethods: [],
+      customerSupportMethods: [],
+      sportsOffered: [],
+      prosAndCons: { pros: [], cons: [] },
+      brandCodes: []
+    }
+  });
+
+  const createOperatorMutation = useMutation({
+    mutationFn: (data: InsertOperator) => apiRequest('/api/admin/operators', {
+      method: 'POST',
+      body: data
+    }),
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Operator added successfully!",
+      });
+      form.reset();
+      setIsOpen(false);
+      onSuccess();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create operator",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const onSubmit = (data: InsertOperator) => {
+    // Parse comma-separated arrays
+    const processedData = {
+      ...data,
+      licenses: typeof data.licenses === 'string' ? data.licenses.split(',').map(s => s.trim()).filter(Boolean) : data.licenses || [],
+      languages: typeof data.languages === 'string' ? data.languages.split(',').map(s => s.trim()).filter(Boolean) : data.languages || [],
+      currencies: typeof data.currencies === 'string' ? data.currencies.split(',').map(s => s.trim()).filter(Boolean) : data.currencies || [],
+      paymentMethods: typeof data.paymentMethods === 'string' ? data.paymentMethods.split(',').map(s => s.trim()).filter(Boolean) : data.paymentMethods || [],
+      withdrawalMethods: typeof data.withdrawalMethods === 'string' ? data.withdrawalMethods.split(',').map(s => s.trim()).filter(Boolean) : data.withdrawalMethods || [],
+      customerSupportMethods: typeof data.customerSupportMethods === 'string' ? data.customerSupportMethods.split(',').map(s => s.trim()).filter(Boolean) : data.customerSupportMethods || [],
+      sportsOffered: typeof data.sportsOffered === 'string' ? data.sportsOffered.split(',').map(s => s.trim()).filter(Boolean) : data.sportsOffered || [],
+    };
+    
+    createOperatorMutation.mutate(processedData);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Operator Name*</FormLabel>
+                <FormControl>
+                  <Input placeholder="DraftKings" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="siteUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Website URL*</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://draftkings.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Leading sports betting operator..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Company Details */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="foundedYear"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Founded Year</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="2020" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="headquarters"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Headquarters</FormLabel>
+                <FormControl>
+                  <Input placeholder="Boston, Massachusetts, USA" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Arrays - Comma Separated */}
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="licenses"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Licenses (comma-separated)</FormLabel>
+                <FormControl>
+                  <Input placeholder="UK Gambling Commission, Malta Gaming Authority" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="languages"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Languages (comma-separated)</FormLabel>
+                <FormControl>
+                  <Input placeholder="English, Spanish, French" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="currencies"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currencies (comma-separated)</FormLabel>
+                <FormControl>
+                  <Input placeholder="USD, EUR, GBP" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="paymentMethods"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Payment Methods (comma-separated)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Visa, Mastercard, PayPal, Bank Transfer" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Financial Details */}
+        <div className="grid grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="minDeposit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Min Deposit ($)</FormLabel>
+                <FormControl>
+                  <Input placeholder="10.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maxWithdrawal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Withdrawal ($)</FormLabel>
+                <FormControl>
+                  <Input placeholder="10000.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="withdrawalTimeframe"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Withdrawal Time</FormLabel>
+                <FormControl>
+                  <Input placeholder="24-48 hours" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Ratings */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="trustScore"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Trust Score (/10)</FormLabel>
+                <FormControl>
+                  <Input placeholder="8.0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="overallRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Overall Rating (/5)</FormLabel>
+                <FormControl>
+                  <Input placeholder="4.0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Features */}
+        <div className="space-y-3">
+          <h4 className="font-semibold">Features Available</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="liveChat"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel>Live Chat Support</FormLabel>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mobileApp"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel>Mobile App</FormLabel>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="casinoGames"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel>Casino Games</FormLabel>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="esports"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel>Esports Betting</FormLabel>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={createOperatorMutation.isPending}>
+            {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+};
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -414,8 +773,24 @@ const AdminDashboard = () => {
 
         <TabsContent value="operators">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Operators ({operators.length})</CardTitle>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button data-testid="button-add-operator">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Operator
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Add New Operator</DialogTitle>
+                  </DialogHeader>
+                  <OperatorForm onSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                  }} />
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -427,10 +802,20 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="font-semibold">{operator.name}</h3>
                       <p className="text-sm text-gray-500">{operator.siteUrl}</p>
+                      {operator.description && (
+                        <p className="text-sm text-gray-400 mt-1">{operator.description}</p>
+                      )}
                     </div>
-                    <Badge variant="secondary">
-                      Trust: {operator.trustScore}/10
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">
+                        Trust: {operator.trustScore}/10
+                      </Badge>
+                      {operator.overallRating && operator.overallRating !== "0.0" && (
+                        <Badge variant="outline">
+                          Rating: {operator.overallRating}/5
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

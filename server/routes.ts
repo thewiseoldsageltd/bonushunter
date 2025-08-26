@@ -6,6 +6,7 @@ import type { UserIntent } from "@shared/schema";
 import { filterBonusesByIntent, rankBonuses } from "./services/bonusService";
 import { registerScrapingRoutes } from "./routes/scraping";
 import { z } from "zod";
+import { insertOperatorSchema } from "@shared/schema";
 
 const chatRequestSchema = z.object({
   message: z.string(),
@@ -313,10 +314,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new operator
   app.post("/api/admin/operators", async (req, res) => {
     try {
-      const operator = await storage.createOperator(req.body);
+      const operatorData = insertOperatorSchema.parse(req.body);
+      const operator = await storage.createOperator(operatorData);
       res.json({ operator, message: "Operator created successfully" });
     } catch (error) {
       console.error("Create operator error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid operator data", details: error.errors });
+      }
       res.status(500).json({ error: "Failed to create operator" });
     }
   });

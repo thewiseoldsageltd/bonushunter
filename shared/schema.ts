@@ -20,6 +20,34 @@ export const operators = pgTable("operators", {
   trustScore: decimal("trust_score", { precision: 3, scale: 1 }).default("0.0"),
   logo: text("logo"),
   active: boolean("active").default(true),
+  
+  // Enhanced operator details for review pages
+  description: text("description"),
+  foundedYear: integer("founded_year"),
+  headquarters: text("headquarters"),
+  licenses: jsonb("licenses").$type<string[]>().default([]),
+  languages: jsonb("languages").$type<string[]>().default([]),
+  currencies: jsonb("currencies").$type<string[]>().default([]),
+  paymentMethods: jsonb("payment_methods").$type<string[]>().default([]),
+  withdrawalMethods: jsonb("withdrawal_methods").$type<string[]>().default([]),
+  minDeposit: decimal("min_deposit", { precision: 10, scale: 2 }),
+  maxWithdrawal: decimal("max_withdrawal", { precision: 10, scale: 2 }),
+  withdrawalTimeframe: text("withdrawal_timeframe"),
+  customerSupportMethods: jsonb("customer_support_methods").$type<string[]>().default([]),
+  liveChat: boolean("live_chat").default(false),
+  mobileApp: boolean("mobile_app").default(false),
+  sportsOffered: jsonb("sports_offered").$type<string[]>().default([]),
+  casinoGames: boolean("casino_games").default(false),
+  liveCasino: boolean("live_casino").default(false),
+  esports: boolean("esports").default(false),
+  virtuals: boolean("virtuals").default(false),
+  prosAndCons: jsonb("pros_and_cons").$type<{pros: string[], cons: string[]}>().default({pros: [], cons: []}),
+  overallRating: decimal("overall_rating", { precision: 2, scale: 1 }).default("0.0"),
+  bonusRating: decimal("bonus_rating", { precision: 2, scale: 1 }).default("0.0"),
+  oddsRating: decimal("odds_rating", { precision: 2, scale: 1 }).default("0.0"),
+  uiRating: decimal("ui_rating", { precision: 2, scale: 1 }).default("0.0"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const jurisdictions = pgTable("jurisdictions", {
@@ -106,6 +134,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertOperatorSchema = createInsertSchema(operators).omit({
   id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertJurisdictionSchema = createInsertSchema(jurisdictions).omit({
