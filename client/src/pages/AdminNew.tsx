@@ -1102,6 +1102,7 @@ const AdminDashboard = () => {
                               onClick={() => {
                                 setShowAddForm(false); // Close add form if open
                                 setShowEditForm(true); // Show edit form inline
+                                setEditingBonus(bonus); // Store editing bonus for inline form
                                 setEditBonusForm({
                                   title: bonus.title,
                                   operatorId: bonus.operatorId,
