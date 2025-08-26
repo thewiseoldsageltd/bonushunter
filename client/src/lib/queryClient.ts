@@ -12,8 +12,11 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Use the current server URL for development
-  const fullUrl = url.startsWith('http') ? url : url;
+  // Use Replit backend in production, relative URLs in development
+  const BACKEND_URL = import.meta.env.PROD 
+    ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
+    : '';
+  const fullUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
   
   const res = await fetch(fullUrl, {
     method,
@@ -32,9 +35,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Use relative URLs that work with the current server
+    // Use Replit backend in production, relative URLs in development
+    const BACKEND_URL = import.meta.env.PROD 
+      ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
+      : '';
     const url = queryKey.join("/") as string;
-    const fullUrl = url;
+    const fullUrl = `${BACKEND_URL}${url}`;
     
     const res = await fetch(fullUrl, {
       credentials: "include",
