@@ -10,18 +10,16 @@ export default function FeaturedBonuses() {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
 
+  // Construct query string for filtering
+  const queryString = (() => {
+    const params = new URLSearchParams();
+    if (productType !== "all") params.append("productType", productType);
+    if (location !== "all") params.append("location", location);
+    return params.toString() ? `?${params.toString()}` : '';
+  })();
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType, location],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (productType !== "all") params.append("productType", productType);
-      if (location !== "all") params.append("location", location);
-      
-      const url = `http://localhost:5000/api/bonuses${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      return response.json();
-    },
+    queryKey: [`/api/bonuses${queryString}`],
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
