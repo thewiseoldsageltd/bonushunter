@@ -100,27 +100,7 @@ export class MemStorage implements IStorage {
     };
     this.operators.set(draftKings.id, draftKings);
 
-    const betmgm: Operator = {
-      id: "op-2",
-      name: "BetMGM Casino", 
-      siteUrl: "https://casino.betmgm.com",
-      brandCodes: ["MGM"],
-      trustScore: "8.8",
-      logo: "fas fa-spade",
-      active: true
-    };
-    this.operators.set(betmgm.id, betmgm);
-
-    const fanduel: Operator = {
-      id: "op-3",
-      name: "FanDuel Sportsbook",
-      siteUrl: "https://sportsbook.fanduel.com", 
-      brandCodes: ["FD"],
-      trustScore: "9.0",
-      logo: "fas fa-football-ball",
-      active: true
-    };
-    this.operators.set(fanduel.id, fanduel);
+    // Only DraftKings operator - removed BetMGM and FanDuel fake data
 
     // Seed bonuses
     const dkBonus: Bonus = {
@@ -152,63 +132,7 @@ export class MemStorage implements IStorage {
     };
     this.bonuses.set(dkBonus.id, dkBonus);
 
-    const betmgmBonus: Bonus = {
-      id: "bonus-2", 
-      operatorId: betmgm.id,
-      title: "100% Match up to $1,500 + 200 Free Spins",
-      description: "Double your first deposit up to $1,500 and get 200 free spins on popular slot games",
-      productType: "casino",
-      bonusType: "match_deposit",
-      matchPercent: "1.00",
-      minDeposit: "10.00", 
-      maxBonus: "1500.00",
-      promoCode: "WELCOME200",
-      landingUrl: "https://casino.betmgm.com/promotions",
-      wageringRequirement: "20.0",
-      wageringUnit: "bonus",
-      eligibleGames: ["slots"],
-      gameWeightings: {"slots": 1.0},
-      minOdds: null,
-      maxCashout: null,
-      expiryDays: 14,
-      paymentMethodExclusions: ["paypal", "skrill"],
-      existingUserEligible: false,
-      valueScore: "94.2",
-      startAt: new Date(),
-      endAt: null,
-      status: "active",
-      createdAt: new Date()
-    };
-    this.bonuses.set(betmgmBonus.id, betmgmBonus);
-
-    const fdBonus: Bonus = {
-      id: "bonus-3",
-      operatorId: fanduel.id,
-      title: "Bet $5, Get $150 in Bonus Bets", 
-      description: "Place your first $5 bet and receive $150 in bonus bets regardless of outcome",
-      productType: "sportsbook",
-      bonusType: "free_bet",
-      matchPercent: "0.00",
-      minDeposit: "5.00",
-      maxBonus: "150.00",
-      promoCode: null,
-      landingUrl: "https://sportsbook.fanduel.com/welcome",
-      wageringRequirement: "1.0",
-      wageringUnit: "bonus",
-      eligibleGames: ["sports"],
-      gameWeightings: {"sports": 1.0},
-      minOdds: "-200",
-      maxCashout: null,
-      expiryDays: 7,
-      paymentMethodExclusions: [],
-      existingUserEligible: false,
-      valueScore: "92.5",
-      startAt: new Date(),
-      endAt: null,
-      status: "active",
-      createdAt: new Date()
-    };
-    this.bonuses.set(fdBonus.id, fdBonus);
+    // Only DraftKings bonus - removed BetMGM and FanDuel fake bonuses
   }
 
   // Users
