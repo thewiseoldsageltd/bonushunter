@@ -165,14 +165,14 @@ export function registerScrapingRoutes(app: Express) {
       
       // Find the DraftKings config for the requested product type
       const config = defaultScrapingConfigs.find(c => 
-        c.operatorId === "op-1" && c.productType === productType
+        c.operatorName.includes("DraftKings") && c.productType === productType
       );
       
       if (!config) {
         return res.status(404).json({ 
           error: `DraftKings ${productType} configuration not found`,
           availableTypes: defaultScrapingConfigs
-            .filter(c => c.operatorId === "op-1")
+            .filter(c => c.operatorName.includes("DraftKings"))
             .map(c => c.productType)
         });
       }
