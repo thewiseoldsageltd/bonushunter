@@ -9,6 +9,7 @@ interface BonusData {
   maxCashout: string;
   expiryDays: string;
   paymentMethodExclusions: string[];
+  productType: string;
 }
 
 interface EVCalculation {
