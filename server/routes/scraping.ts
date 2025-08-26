@@ -52,6 +52,38 @@ export function registerScrapingRoutes(app: Express) {
       });
     }
   });
+
+  // Clear database endpoint - removes all seed data
+  app.post("/api/admin/clear-database", async (req, res) => {
+    try {
+      console.log('🧹 Clearing all data for fresh start...');
+      
+      const { db } = await import('../db');
+      const schema = await import('@shared/schema');
+      
+      // Clear in proper order (respect foreign key constraints)
+      await db.delete(schema.bonusRecommendations);
+      await db.delete(schema.bonusJurisdictions);
+      await db.delete(schema.chatMessages); 
+      await db.delete(schema.chatSessions);
+      await db.delete(schema.bonuses);
+      await db.delete(schema.operators);
+      
+      console.log('✅ Database cleared successfully!');
+      
+      res.json({ 
+        message: "Database cleared successfully - ready for live data only!",
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('❌ Clear database error:', error);
+      res.status(500).json({ 
+        error: "Failed to clear database",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
   
   // Start scraping scheduler
   app.post("/api/admin/scraping/start", async (req, res) => {
