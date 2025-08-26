@@ -85,11 +85,19 @@ const AdminDashboard = () => {
   // Start scraping mutation
   const startScrapingMutation = useMutation({
     mutationFn: async () => {
-      return await fetch('/api/admin/scraping/start', {
+      const response = await fetch('/api/admin/scraping/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ configs: [] })
-      }).then(res => res.json());
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+      
+      return data;
     },
     onSuccess: () => {
       setScrapingStatus({ isRunning: true });
@@ -97,6 +105,7 @@ const AdminDashboard = () => {
         title: "Scraping Started",
         description: "Live bonus data collection has begun!",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
     },
     onError: (error: any) => {
       toast({
@@ -126,15 +135,30 @@ const AdminDashboard = () => {
   // Manual scrape mutation
   const manualScrapeMutation = useMutation({
     mutationFn: async (operatorId: string) => {
-      return await fetch(`/api/admin/scraping/manual/${operatorId}`, {
+      const response = await fetch(`/api/admin/scraping/manual/${operatorId}`, {
         method: 'POST'
-      }).then(res => res.json());
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+      
+      return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
       toast({
         title: "Manual Scrape Complete",
         description: `Scraping completed successfully`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Manual Scrape Failed",
+        description: error.message || "Could not complete manual scrape",
+        variant: "destructive",
       });
     }
   });

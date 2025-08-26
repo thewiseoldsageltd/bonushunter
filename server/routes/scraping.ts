@@ -85,47 +85,7 @@ export function registerScrapingRoutes(app: Express) {
     }
   });
   
-  // Start scraping scheduler
-  app.post("/api/admin/scraping/start", async (req, res) => {
-    try {
-      if (scrapingScheduler) {
-        return res.status(400).json({ error: "Scraping is already running" });
-      }
-      
-      const configs = req.body.configs || defaultScrapingConfigs;
-      scrapingScheduler = new ScrapingScheduler(configs);
-      await scrapingScheduler.scheduleIntelligentScraping();
-      
-      res.json({ 
-        message: "Scraping scheduler started successfully",
-        configCount: configs.length
-      });
-      
-    } catch (error) {
-      res.status(500).json({ 
-        error: "Failed to start scraping scheduler",
-        details: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
-  
-  // Stop scraping scheduler  
-  app.post("/api/admin/scraping/stop", async (req, res) => {
-    try {
-      if (scrapingScheduler) {
-        // Would implement stop method in scheduler
-        scrapingScheduler = null;
-        res.json({ message: "Scraping scheduler stopped" });
-      } else {
-        res.status(400).json({ error: "No scraping scheduler is running" });
-      }
-    } catch (error) {
-      res.status(500).json({ 
-        error: "Failed to stop scraping scheduler",
-        details: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
+  // Note: Start and stop scraping endpoints are defined later in the file
   
   // Manual scrape trigger
   app.post("/api/admin/scraping/manual/:operatorId", async (req, res) => {
