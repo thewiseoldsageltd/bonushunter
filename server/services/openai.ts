@@ -17,7 +17,7 @@ import type { UserIntent } from "@shared/schema";
 export async function parseUserIntent(userMessage: string): Promise<UserIntent> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -60,7 +60,7 @@ export async function generateBonusExplanation(
 ): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -91,7 +91,7 @@ export async function generateChatResponse(
 ): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
