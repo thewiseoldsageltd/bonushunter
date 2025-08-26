@@ -2,7 +2,29 @@ import type { ScrapingConfig } from './bonusScraper';
 
 // Start with empty configs - add operators one by one with live data only
 export const defaultScrapingConfigs: ScrapingConfig[] = [
-  // Configs will be added one by one as operators are configured
+  // DraftKings Sportsbook - First operator added
+  {
+    operatorName: "DraftKings Sportsbook",
+    operatorId: "781d7e9c-3a1e-476c-8958-ede0d1e0beb0",
+    bonusPageUrl: "https://sportsbook.draftkings.com/promos",
+    loginRequired: false,
+    productType: "sportsbook",
+    selectors: {
+      containerSelector: "[data-testid*='promo'], .promo-card, .promotion-card, article, .card",
+      titleSelector: "a[href*='promo'], h2, h3, .title, .promo-title, .headline",
+      descriptionSelector: ".description, .promo-description, p, .text",
+      amountSelector: "a[href*='promo'], h2, h3, .title",
+      wageringSelector: ".terms, .fine-print, .wagering, small",
+      endDateSelector: ".expires, .expiry, .end-date, time",
+      claimLinkSelector: "a[href*='signup'], button:contains('Sign Up'), .cta-button, .signup-btn"
+    },
+    parsingRules: {
+      amountRegex: /\$(\d+(?:,\d{3})*)/,
+      wageringRegex: /(\d+)x\s*wagering/i,
+      dateFormat: "MM/dd/yyyy",
+      excludeKeywords: ["expired", "ended", "no longer available"]
+    }
+  }
 ];
 
 // Validation function for scraping configs

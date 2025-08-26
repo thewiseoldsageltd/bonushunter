@@ -310,6 +310,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create new operator
+  app.post("/api/admin/operators", async (req, res) => {
+    try {
+      const operator = await storage.createOperator(req.body);
+      res.json({ operator, message: "Operator created successfully" });
+    } catch (error) {
+      console.error("Create operator error:", error);
+      res.status(500).json({ error: "Failed to create operator" });
+    }
+  });
+
   app.post("/api/admin/bonuses", async (req, res) => {
     try {
       const bonusData = req.body;
