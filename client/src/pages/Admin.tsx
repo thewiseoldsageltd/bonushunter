@@ -580,8 +580,14 @@ const AdminDashboard = () => {
                     <Button 
                       onClick={async () => {
                         try {
-                          const response = await fetch('/api/admin/scraping/configs', {
-                            method: 'POST',
+                          const isEditing = selectedConfig !== null;
+                          const url = isEditing 
+                            ? `/api/admin/scraping/configs/${selectedConfig.operatorId}/${selectedConfig.productType}`
+                            : '/api/admin/scraping/configs';
+                          const method = isEditing ? 'PUT' : 'POST';
+                          
+                          const response = await fetch(url, {
+                            method,
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                               operatorName: configForm.operatorName,
@@ -603,6 +609,7 @@ const AdminDashboard = () => {
                           
                           if (response.ok) {
                             setShowConfigForm(false);
+                            setSelectedConfig(null);
                             setConfigForm({
                               operatorName: '', operatorId: '', productType: 'sportsbook',
                               bonusPageUrl: '', loginRequired: false,
@@ -611,8 +618,8 @@ const AdminDashboard = () => {
                             });
                             queryClient.invalidateQueries({ queryKey: ['/api/admin/scraping/configs'] });
                             toast({
-                              title: "Configuration Saved",
-                              description: `${configForm.operatorName} configuration has been saved`,
+                              title: isEditing ? "Configuration Updated" : "Configuration Saved",
+                              description: `${configForm.operatorName} configuration has been ${isEditing ? 'updated' : 'saved'}`,
                             });
                           } else {
                             const error = await response.json();
@@ -632,11 +639,20 @@ const AdminDashboard = () => {
                       }}
                       data-testid="button-save-config"
                     >
-                      Save Configuration
+                      {selectedConfig ? "Update Configuration" : "Save Configuration"}
                     </Button>
                     <Button 
                       variant="outline" 
-                      onClick={() => setShowConfigForm(false)}
+                      onClick={() => {
+                        setShowConfigForm(false);
+                        setSelectedConfig(null);
+                        setConfigForm({
+                          operatorName: '', operatorId: '', productType: 'sportsbook',
+                          bonusPageUrl: '', loginRequired: false,
+                          containerSelector: '', titleSelector: '', descriptionSelector: '',
+                          amountSelector: '', wageringSelector: '', endDateSelector: '', claimLinkSelector: ''
+                        });
+                      }}
                       data-testid="button-cancel-config"
                     >
                       Cancel

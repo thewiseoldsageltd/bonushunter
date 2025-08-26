@@ -196,6 +196,51 @@ export function registerScrapingRoutes(app: Express) {
     });
   });
   
+  // Update existing scraping configuration
+  app.put("/api/admin/scraping/configs/:operatorId/:productType", async (req, res) => {
+    try {
+      const { operatorId, productType } = req.params;
+      const updatedConfig: ScrapingConfig = {
+        ...req.body,
+        parsingRules: req.body.parsingRules || {
+          amountRegex: /\$(\d+(?:,\d{3})*)/,
+          wageringRegex: /(\d+)x\s*wagering/i,
+          dateFormat: "MM/dd/yyyy",
+          excludeKeywords: ["expired", "ended", "no longer available"]
+        }
+      };
+      
+      // Find and update existing configuration
+      const configIndex = defaultScrapingConfigs.findIndex(c => 
+        c.operatorId === operatorId && c.productType === productType
+      );
+      
+      if (configIndex === -1) {
+        return res.status(404).json({ error: "Configuration not found" });
+      }
+      
+      // Validate configuration
+      const errors = validateScrapingConfig(updatedConfig);
+      if (errors.length > 0) {
+        return res.status(400).json({ errors });
+      }
+      
+      // Update the configuration
+      defaultScrapingConfigs[configIndex] = updatedConfig;
+      
+      res.json({
+        message: "Scraping configuration updated successfully",
+        config: updatedConfig
+      });
+      
+    } catch (error) {
+      res.status(500).json({ 
+        error: "Failed to update configuration",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Add new scraping configuration
   app.post("/api/admin/scraping/configs", async (req, res) => {
     try {
