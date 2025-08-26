@@ -370,13 +370,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/bonuses/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteBonus(id);
       
+      const deleted = await storage.deleteBonus(id);
       if (!deleted) {
         return res.status(404).json({ error: "Bonus not found" });
       }
       
-      res.json({ success: true });
+      res.json({ message: "Bonus deleted successfully" });
     } catch (error) {
       console.error("Delete bonus error:", error);
       res.status(500).json({ error: "Failed to delete bonus" });
