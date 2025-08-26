@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { parseUserIntent, generateBonusExplanation, generateChatResponse } from "./services/openai";
 import type { UserIntent } from "@shared/schema";
-import { filterBonusesByIntent, rankBonuses } from "./services/bonusService";
+import { filterBonusesByIntent, rankBonuses, calculateBonusValue } from "./services/bonusService";
 import { registerScrapingRoutes } from "./routes/scraping";
 import { z } from "zod";
 import { insertOperatorSchema } from "@shared/schema";
@@ -354,7 +354,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Operator not found" });
       }
 
-      const bonus = await storage.createBonus({
+      // Prepare bonus data for calculation
+      const bonusForCalculation = {
         ...bonusData,
         operatorId: operator.id,
         matchPercent: String(bonusData.matchPercent),
@@ -362,9 +363,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxBonus: String(bonusData.maxBonus),
         wageringRequirement: String(bonusData.wageringRequirement),
         valueScore: String(bonusData.valueScore)
-      });
+      };
+
+      // Auto-calculate EV score based on bonus terms
+      const calculatedEV = calculateBonusValue(bonusForCalculation as any);
       
-      res.json(bonus);
+      // Update the valueScore with calculated value
+      bonusForCalculation.valueScore = calculatedEV.valueScore.toString();
+
+      const bonus = await storage.createBonus(bonusForCalculation);
+      
+      res.json({ 
+        bonus, 
+        calculatedEV: {
+          valueScore: calculatedEV.valueScore,
+          expectedValue: calculatedEV.expectedValue,
+          breakdown: calculatedEV.breakdown
+        }
+      });
     } catch (error) {
       console.error("Create bonus error:", error);
       res.status(500).json({ error: "Failed to create bonus" });

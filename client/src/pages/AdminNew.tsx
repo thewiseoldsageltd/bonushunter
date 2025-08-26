@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Plus, Edit, Trash2, Eye, Users, Building } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Users, Building, Calculator, TrendingUp } from 'lucide-react';
+import { calculateBonusEV, getEVRating } from '@/lib/evCalculator';
 
 interface BonusFormData {
   title: string;
@@ -407,6 +408,44 @@ const AdminDashboard = () => {
     valueScore: '85'
   });
 
+  // EV Calculation State
+  const [calculatedEV, setCalculatedEV] = useState(() => 
+    calculateBonusEV({
+      matchPercent: '0',
+      maxBonus: '0',
+      minDeposit: '0',
+      wageringRequirement: '1',
+      wageringUnit: 'bonus',
+      expiryDays: '30',
+      eligibleGames: [],
+      gameWeightings: {},
+      paymentMethodExclusions: []
+    })
+  );
+
+  // Recalculate EV when form changes
+  React.useEffect(() => {
+    const newEV = calculateBonusEV({
+      matchPercent: bonusForm.matchPercent,
+      maxBonus: bonusForm.maxBonus,
+      minDeposit: bonusForm.minDeposit,
+      wageringRequirement: bonusForm.wageringRequirement,
+      wageringUnit: 'bonus', // Default for now
+      expiryDays: bonusForm.expiryDays,
+      eligibleGames: bonusForm.productType === 'casino' ? ['slots'] : ['sports'],
+      gameWeightings: {},
+      maxCashout: '',
+      paymentMethodExclusions: []
+    });
+    setCalculatedEV(newEV);
+    
+    // Auto-update the valueScore field
+    setBonusForm(prev => ({ 
+      ...prev, 
+      valueScore: newEV.valueScore.toString() 
+    }));
+  }, [bonusForm.matchPercent, bonusForm.maxBonus, bonusForm.minDeposit, bonusForm.wageringRequirement, bonusForm.expiryDays, bonusForm.productType]);
+
   // Fetch all bonuses
   const { data: bonusesData, isLoading: loadingBonuses } = useQuery({
     queryKey: ['/api/bonuses']
@@ -581,7 +620,50 @@ const AdminDashboard = () => {
               <CardContent>
                 {showAddForm && (
                   <div className="mb-6 p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <h3 className="text-lg font-semibold mb-4">Add New Bonus</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Add New Bonus</h3>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calculator className="h-4 w-4" />
+                        <span>Live EV Calculator</span>
+                      </div>
+                    </div>
+
+                    {/* Live EV Display */}
+                    <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-blue-600" />
+                          <span className="font-semibold">Expected Value Analysis</span>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEVRating(calculatedEV.valueScore).color} bg-gray-100 dark:bg-gray-800`}>
+                          {getEVRating(calculatedEV.valueScore).rating} ({calculatedEV.valueScore}/100)
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                        <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                          <div className="font-semibold text-green-700 dark:text-green-400">${calculatedEV.breakdown.bonusAmount}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Bonus Amount</div>
+                        </div>
+                        <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                          <div className="font-semibold text-red-700 dark:text-red-400">${calculatedEV.breakdown.wageringCost}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Wagering Cost</div>
+                        </div>
+                        <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
+                          <div className="font-semibold text-orange-700 dark:text-orange-400">${calculatedEV.breakdown.penalties}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Penalties</div>
+                        </div>
+                        <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          <div className="font-semibold text-blue-700 dark:text-blue-400">${calculatedEV.expectedValue}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Net EV</div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {getEVRating(calculatedEV.valueScore).description} • Based on $100 deposit • RTP: {(calculatedEV.breakdown.effectiveRTP * 100).toFixed(1)}%
+                      </div>
+                    </div>
+
                     <form onSubmit={handleAddBonus} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -651,7 +733,7 @@ const AdminDashboard = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="valueScore">Value Score (0-100)</Label>
+                          <Label htmlFor="valueScore">Value Score (Auto-Calculated)</Label>
                           <Input
                             id="valueScore"
                             type="number"
@@ -659,7 +741,13 @@ const AdminDashboard = () => {
                             onChange={(e) => setBonusForm(prev => ({ ...prev, valueScore: e.target.value }))}
                             placeholder="88"
                             data-testid="input-value-score"
+                            className="bg-gray-100 dark:bg-gray-700"
+                            readOnly
+                            title="Automatically calculated based on bonus terms"
                           />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Automatically calculated • Higher is better • Based on mathematical expected value
+                          </p>
                         </div>
                       </div>
 
@@ -704,13 +792,24 @@ const AdminDashboard = () => {
                     <p className="text-gray-500">No bonuses yet. Add your first bonus!</p>
                   ) : (
                     <div className="space-y-3">
-                      {bonuses.map((bonus: any) => (
+                      {bonuses.map((bonus: any) => {
+                        const evRating = getEVRating(Number(bonus.valueScore || 0));
+                        return (
                         <div
                           key={bonus.id}
-                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg border-l-4"
+                          style={{borderLeftColor: evRating.rating === 'Excellent' ? '#10b981' : 
+                                                     evRating.rating === 'Good' ? '#3b82f6' :
+                                                     evRating.rating === 'Fair' ? '#f59e0b' :
+                                                     evRating.rating === 'Poor' ? '#f97316' : '#ef4444'}}
                         >
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{bonus.title}</h3>
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="font-semibold text-lg">{bonus.title}</h3>
+                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${evRating.color} bg-white dark:bg-gray-800 shadow-sm border`}>
+                                {evRating.rating} • {Number(bonus.valueScore || 0).toFixed(1)}/100
+                              </div>
+                            </div>
                             <p className="text-gray-600 dark:text-gray-300 mb-2">
                               {bonus.operator?.name} • {bonus.description}
                             </p>
@@ -718,9 +817,13 @@ const AdminDashboard = () => {
                               <span>Min: ${bonus.minDeposit}</span>
                               <span>Max: ${bonus.maxBonus}</span>
                               <span>Wagering: {bonus.wageringRequirement}x</span>
-                              <Badge variant="outline">
-                                Score: {bonus.valueScore}
-                              </Badge>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${evRating.color === 'text-green-600' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                                                                                     evRating.color === 'text-blue-600' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                                                                                     evRating.color === 'text-yellow-600' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                                                                                     evRating.color === 'text-orange-600' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' :
+                                                                                     'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`}>
+                                EV: {evRating.description}
+                              </span>
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -743,7 +846,8 @@ const AdminDashboard = () => {
                             </Button>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
