@@ -38,7 +38,7 @@ export default function BonusCard({
   };
 
   const getIconFromLogo = (logo: string | null) => {
-    // FORCE RAILWAY DEPLOY - Fixed null logo crash
+    // NUCLEAR OPTION - Force Railway to serve new bundle
     if (!logo) return '🎯';
     if (logo.includes('draftkings') || logo.includes('crown')) return '👑';
     if (logo.includes('dice')) return '🎲';
