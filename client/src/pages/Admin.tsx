@@ -578,13 +578,57 @@ const AdminDashboard = () => {
                       Test Configuration
                     </Button>
                     <Button 
-                      onClick={() => {
-                        // Save configuration
-                        setShowConfigForm(false);
-                        toast({
-                          title: "Configuration Saved",
-                          description: "Scraping configuration has been updated",
-                        });
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/admin/scraping/configs', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              operatorName: configForm.operatorName,
+                              operatorId: configForm.operatorId || configForm.operatorName.toLowerCase().replace(/\s+/g, '-'),
+                              productType: configForm.productType,
+                              bonusPageUrl: configForm.bonusPageUrl,
+                              loginRequired: configForm.loginRequired,
+                              selectors: {
+                                containerSelector: configForm.containerSelector,
+                                titleSelector: configForm.titleSelector,
+                                descriptionSelector: configForm.descriptionSelector,
+                                amountSelector: configForm.amountSelector,
+                                wageringSelector: configForm.wageringSelector,
+                                endDateSelector: configForm.endDateSelector,
+                                claimLinkSelector: configForm.claimLinkSelector
+                              }
+                            })
+                          });
+                          
+                          if (response.ok) {
+                            setShowConfigForm(false);
+                            setConfigForm({
+                              operatorName: '', operatorId: '', productType: 'sportsbook',
+                              bonusPageUrl: '', loginRequired: false,
+                              containerSelector: '', titleSelector: '', descriptionSelector: '',
+                              amountSelector: '', wageringSelector: '', endDateSelector: '', claimLinkSelector: ''
+                            });
+                            queryClient.invalidateQueries({ queryKey: ['/api/admin/scraping/configs'] });
+                            toast({
+                              title: "Configuration Saved",
+                              description: `${configForm.operatorName} configuration has been saved`,
+                            });
+                          } else {
+                            const error = await response.json();
+                            toast({
+                              title: "Save Failed",
+                              description: error.message || "Failed to save configuration",
+                              variant: "destructive"
+                            });
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Save Failed", 
+                            description: "Failed to save configuration",
+                            variant: "destructive"
+                          });
+                        }
                       }}
                       data-testid="button-save-config"
                     >

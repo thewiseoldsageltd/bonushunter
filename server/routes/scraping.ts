@@ -6,7 +6,31 @@ let scrapingScheduler: ScrapingScheduler | null = null;
 
 export function registerScrapingRoutes(app: Express) {
   
-  // Test scraping configuration
+  // Test scraping configuration 
+  app.post("/api/admin/scraping/configs/test", async (req, res) => {
+    try {
+      const config: ScrapingConfig = req.body;
+      
+      // Validate configuration
+      const errors = validateScrapingConfig(config);
+      if (errors.length > 0) {
+        return res.status(400).json({ success: false, errors });
+      }
+      
+      // Test the configuration
+      const testResult = await testScrapingConfig(config);
+      res.json(testResult);
+      
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        error: "Test failed", 
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Test scraping configuration (legacy endpoint)
   app.post("/api/admin/scraping/test", async (req, res) => {
     try {
       const config: ScrapingConfig = req.body;
