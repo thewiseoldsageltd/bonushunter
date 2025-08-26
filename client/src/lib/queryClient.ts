@@ -12,9 +12,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Use VITE_API_URL environment variable or fallback to same domain
-  const baseUrl = import.meta.env.VITE_API_URL || '';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  // Direct Replit backend URL - more reliable than environment variables
+  const REPLIT_BACKEND = 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev';
+  const fullUrl = url.startsWith('http') ? url : `${REPLIT_BACKEND}${url}`;
   
   const res = await fetch(fullUrl, {
     method,
