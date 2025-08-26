@@ -31,11 +31,14 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin as string)) {
     res.setHeader('Access-Control-Allow-Origin', origin as string);
+  } else {
+    // Allow all origins for production API access
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Credentials', 'false');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
