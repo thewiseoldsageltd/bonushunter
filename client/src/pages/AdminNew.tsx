@@ -782,7 +782,25 @@ const AdminDashboard = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setEditingBonus(bonus)}
+                              onClick={() => {
+                                setEditingBonus(bonus);
+                                setEditBonusForm({
+                                  title: bonus.title,
+                                  operatorId: bonus.operatorId,
+                                  description: bonus.description || '',
+                                  bonusType: bonus.bonusType || '',
+                                  productType: bonus.productType || '',
+                                  matchPercent: bonus.matchPercent || '',
+                                  promoCode: bonus.promoCode || '',
+                                  wageringRequirement: bonus.wageringRequirement || '',
+                                  expiryDays: bonus.expiryDays || '',
+                                  minDeposit: bonus.minDeposit || '',
+                                  maxBonus: bonus.maxBonus || '',
+                                  valueScore: bonus.valueScore || '',
+                                  landingUrl: bonus.landingUrl,
+                                  termsAndConditions: bonus.termsAndConditions || ''
+                                });
+                              }}
                               data-testid={`button-edit-${bonus.id}`}
                             >
                               <Edit className="h-4 w-4" />
