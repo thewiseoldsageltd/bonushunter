@@ -59,7 +59,7 @@ export const defaultScrapingConfigs: ScrapingConfig[] = [
     productType: "casino",
     selectors: {
       containerSelector: ".promo-card",
-      titleSelector: ".promo-card-title",
+      titleSelector: ".promo-card-title", 
       descriptionSelector: ".promo-card-description",
       amountSelector: ".promo-amount",
       wageringSelector: ".wagering-info",
