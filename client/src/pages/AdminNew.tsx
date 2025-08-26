@@ -116,6 +116,7 @@ const AdminDashboard = () => {
   );
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -307,6 +308,25 @@ const AdminDashboard = () => {
       return;
     }
     aiAnalysisMutation.mutate(bonusForm.termsAndConditions);
+  };
+
+  const handleAnalyzeEditTerms = () => {
+    // For now, just use the regular analyze function
+    // The AI will analyze and update the add form, then user can copy values
+    if (!editBonusForm.termsAndConditions.trim()) {
+      toast({
+        title: "Missing Terms & Conditions", 
+        description: "Please paste the terms and conditions text first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Feature Coming Soon",
+      description: "AI analysis for edit form will be available soon. For now, please manually update the fields.",
+      variant: "default",
+    });
   };
 
   const resetForm = () => {
@@ -736,6 +756,303 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
+                {/* Inline Edit Form - Exactly like Add Form */}
+                {showEditForm && editingBonus && (
+                  <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <h3 className="text-lg font-semibold mb-4">Edit Bonus: {editingBonus.title}</h3>
+
+                    {/* Live EV Display */}
+                    <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-blue-600" />
+                          <span className="font-semibold">Expected Value Analysis</span>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEVRating(editCalculatedEV.valueScore).color} bg-gray-100 dark:bg-gray-800`}>
+                          {getEVRating(editCalculatedEV.valueScore).rating} ({editCalculatedEV.valueScore}/100)
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                        <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                          <div className="font-semibold text-green-700 dark:text-green-400">${editCalculatedEV.breakdown.bonusAmount}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Bonus Amount</div>
+                        </div>
+                        <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                          <div className="font-semibold text-red-700 dark:text-red-400">${editCalculatedEV.breakdown.wageringCost}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Wagering Cost</div>
+                        </div>
+                        <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
+                          <div className="font-semibold text-orange-700 dark:text-orange-400">${editCalculatedEV.breakdown.penalties}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Penalties</div>
+                        </div>
+                        <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          <div className="font-semibold text-blue-700 dark:text-blue-400">${editCalculatedEV.expectedValue}</div>
+                          <div className="text-gray-600 dark:text-gray-400">Net EV</div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {getEVRating(editCalculatedEV.valueScore).description} • Based on $100 deposit • RTP: {(editCalculatedEV.breakdown.effectiveRTP * 100).toFixed(1)}%
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleUpdateBonus} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="edit-title">Title*</Label>
+                          <Input
+                            id="edit-title"
+                            value={editBonusForm.title}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, title: e.target.value }))}
+                            placeholder="FanDuel No Sweat First Bet"
+                            required
+                            data-testid="input-edit-title"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-operator">Operator*</Label>
+                          <Select 
+                            value={editBonusForm.operatorId} 
+                            onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, operatorId: value }))}
+                          >
+                            <SelectTrigger data-testid="select-edit-operator">
+                              <SelectValue placeholder="Select operator" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {operators.map((operator: any) => (
+                                <SelectItem key={operator.id} value={operator.id}>
+                                  {operator.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="edit-description">Description</Label>
+                        <Textarea
+                          id="edit-description"
+                          value={editBonusForm.description}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Get a 100% deposit match bonus up to $1,000..."
+                          rows={3}
+                          data-testid="textarea-edit-description"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="edit-bonusType">Bonus Type</Label>
+                          <Select 
+                            value={editBonusForm.bonusType} 
+                            onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, bonusType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-edit-bonus-type">
+                              <SelectValue placeholder="Select bonus type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="welcome">Welcome</SelectItem>
+                              <SelectItem value="deposit">Deposit Match</SelectItem>
+                              <SelectItem value="no-deposit">No Deposit</SelectItem>
+                              <SelectItem value="free-bet">Free Bet</SelectItem>
+                              <SelectItem value="cashback">Cashback</SelectItem>
+                              <SelectItem value="reload">Reload</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-productType">Product Type</Label>
+                          <Select 
+                            value={editBonusForm.productType} 
+                            onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, productType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-edit-product-type">
+                              <SelectValue placeholder="Select product type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="sportsbook">Sportsbook</SelectItem>
+                              <SelectItem value="casino">Casino</SelectItem>
+                              <SelectItem value="poker">Poker</SelectItem>
+                              <SelectItem value="crypto">Crypto</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="edit-matchPercent">Match Percentage (%)</Label>
+                          <Input
+                            id="edit-matchPercent"
+                            type="number"
+                            value={editBonusForm.matchPercent}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, matchPercent: e.target.value }))}
+                            placeholder="100"
+                            data-testid="input-edit-match-percent"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-promoCode">Promo Code</Label>
+                          <Input
+                            id="edit-promoCode"
+                            value={editBonusForm.promoCode}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
+                            placeholder="BONUS1000"
+                            data-testid="input-edit-promo-code"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="edit-wageringRequirement">Wagering Requirement (x)</Label>
+                          <Input
+                            id="edit-wageringRequirement"
+                            type="number"
+                            value={editBonusForm.wageringRequirement}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, wageringRequirement: e.target.value }))}
+                            placeholder="35"
+                            data-testid="input-edit-wagering"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-expiryDays">Expiry (Days)</Label>
+                          <Input
+                            id="edit-expiryDays"
+                            type="number"
+                            value={editBonusForm.expiryDays}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, expiryDays: e.target.value }))}
+                            placeholder="30"
+                            data-testid="input-edit-expiry"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <Label htmlFor="edit-minDeposit">Min Deposit ($)</Label>
+                          <Input
+                            id="edit-minDeposit"
+                            type="number"
+                            value={editBonusForm.minDeposit}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
+                            placeholder="10"
+                            data-testid="input-edit-min-deposit"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-maxBonus">Max Bonus ($)</Label>
+                          <Input
+                            id="edit-maxBonus"
+                            type="number"
+                            value={editBonusForm.maxBonus}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
+                            placeholder="1000"
+                            data-testid="input-edit-max-bonus"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-valueScore">Value Score (Auto-Calculated)</Label>
+                          <Input
+                            id="edit-valueScore"
+                            type="number"
+                            value={editBonusForm.valueScore}
+                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, valueScore: e.target.value }))}
+                            placeholder="88"
+                            data-testid="input-edit-value-score"
+                            className="bg-gray-100 dark:bg-gray-700"
+                            readOnly
+                            title="Automatically calculated based on bonus terms"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Automatically calculated • Higher is better • Based on mathematical expected value
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="edit-landingUrl">Landing URL*</Label>
+                        <Input
+                          id="edit-landingUrl"
+                          type="url"
+                          value={editBonusForm.landingUrl}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, landingUrl: e.target.value }))}
+                          placeholder="https://fanduel.com/promo/no-sweat-first-bet"
+                          required
+                          data-testid="input-edit-landing-url"
+                        />
+                      </div>
+
+                      {/* Terms & Conditions AI Analysis Section */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="h-5 w-5 text-blue-600" />
+                          <Label htmlFor="edit-terms-conditions" className="text-blue-900 dark:text-blue-100 font-medium">
+                            Terms & Conditions (AI Analysis)
+                          </Label>
+                        </div>
+                        <Textarea
+                          id="edit-terms-conditions"
+                          value={editBonusForm.termsAndConditions}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, termsAndConditions: e.target.value }))}
+                          placeholder="Paste the full terms and conditions text here. Our AI will automatically extract bonus parameters like wagering requirements, expiry dates, game restrictions, etc."
+                          rows={6}
+                          className="mb-3"
+                          data-testid="textarea-edit-terms-conditions"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => handleAnalyzeEditTerms()}
+                            disabled={aiAnalysisMutation.isPending || !editBonusForm.termsAndConditions.trim()}
+                            variant="outline"
+                            className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
+                            data-testid="button-analyze-edit-terms"
+                          >
+                            {aiAnalysisMutation.isPending ? (
+                              <>
+                                <Upload className="h-4 w-4 mr-2 animate-spin" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Analyze with AI
+                              </>
+                            )}
+                          </Button>
+                          <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center">
+                            AI will auto-populate form fields from T&C text
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          type="submit" 
+                          disabled={updateBonusMutation.isPending}
+                          data-testid="button-update-bonus"
+                        >
+                          {updateBonusMutation.isPending ? "Updating..." : "Update Bonus"}
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            setShowEditForm(false);
+                            setEditingBonus(null);
+                          }}
+                          data-testid="button-cancel-edit-bonus"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold">Current Bonuses ({bonuses.length})</h3>
                   {loadingBonuses ? (
@@ -784,6 +1101,8 @@ const AdminDashboard = () => {
                               variant="outline"
                               onClick={() => {
                                 setEditingBonus(bonus);
+                                setShowAddForm(false); // Close add form if open
+                                setShowEditForm(true); // Show edit form inline
                                 setEditBonusForm({
                                   title: bonus.title,
                                   operatorId: bonus.operatorId,
