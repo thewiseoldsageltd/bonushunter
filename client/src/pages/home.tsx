@@ -178,6 +178,17 @@ export default function Home() {
               Contact Sales
             </Button>
           </div>
+          
+          {/* Admin Access */}
+          <div className="mt-8 text-center">
+            <a 
+              href="/admin" 
+              className="inline-flex items-center text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              <UserCog className="mr-2 h-4 w-4" />
+              Admin Dashboard
+            </a>
+          </div>
         </div>
       </section>
 
