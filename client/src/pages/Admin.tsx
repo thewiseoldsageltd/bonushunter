@@ -85,19 +85,8 @@ const AdminDashboard = () => {
   // Start scraping mutation
   const startScrapingMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/admin/scraping/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ configs: [] })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
-      }
-      
-      return data;
+      const response = await apiRequest('POST', '/api/admin/scraping/start', { configs: [] });
+      return await response.json();
     },
     onSuccess: () => {
       setScrapingStatus({ isRunning: true });
@@ -119,9 +108,8 @@ const AdminDashboard = () => {
   // Stop scraping mutation
   const stopScrapingMutation = useMutation({
     mutationFn: async () => {
-      return await fetch('/api/admin/scraping/stop', {
-        method: 'POST'
-      }).then(res => res.json());
+      const response = await apiRequest('POST', '/api/admin/scraping/stop');
+      return await response.json();
     },
     onSuccess: () => {
       setScrapingStatus({ isRunning: false });
@@ -135,17 +123,8 @@ const AdminDashboard = () => {
   // Manual scrape mutation
   const manualScrapeMutation = useMutation({
     mutationFn: async (operatorId: string) => {
-      const response = await fetch(`/api/admin/scraping/manual/${operatorId}`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
-      }
-      
-      return data;
+      const response = await apiRequest('POST', `/api/admin/scraping/manual/${operatorId}`);
+      return await response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
