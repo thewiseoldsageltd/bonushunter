@@ -130,180 +130,224 @@ const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Basic Information */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Basic Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Operator Name*</Label>
-            <Input 
-              id="name"
-              placeholder="e.g., Stake.com" 
-              value={operatorForm.name} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, name: e.target.value }))}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="siteUrl">Website URL*</Label>
-            <Input 
-              id="siteUrl"
-              placeholder="https://stake.com" 
-              value={operatorForm.siteUrl} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea 
-            id="description"
-            placeholder="Brief description of the operator..." 
-            value={operatorForm.description} 
-            onChange={(e) => setOperatorForm(prev => ({ ...prev, description: e.target.value }))}
-            rows={3}
-          />
-        </div>
-      </div>
-
-      {/* Company Details */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Company Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="foundedYear">Founded Year</Label>
-            <Input 
-              id="foundedYear"
-              type="number" 
-              placeholder="2020" 
-              value={operatorForm.foundedYear} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, foundedYear: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="headquarters">Headquarters</Label>
-            <Input 
-              id="headquarters"
-              placeholder="Curacao" 
-              value={operatorForm.headquarters} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Regulatory & Business */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Regulatory & Business Details</h3>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="licenses">Licenses (comma-separated)</Label>
-            <Input 
-              id="licenses"
-              placeholder="Curacao Gaming License" 
-              value={operatorForm.licenses} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, licenses: e.target.value }))}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="languages">Languages</Label>
+    <div className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Information */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Basic Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Operator Name*
+              </Label>
               <Input 
-                id="languages"
-                placeholder="English, Spanish, Portuguese" 
-                value={operatorForm.languages} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, languages: e.target.value }))}
+                id="name"
+                placeholder="e.g., Stake.com" 
+                value={operatorForm.name} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, name: e.target.value }))}
+                required
+                className="w-full"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="currencies">Currencies</Label>
+            <div>
+              <Label htmlFor="siteUrl" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Website URL*
+              </Label>
               <Input 
-                id="currencies"
-                placeholder="USD, BTC, ETH" 
-                value={operatorForm.currencies} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, currencies: e.target.value }))}
+                id="siteUrl"
+                placeholder="https://stake.com" 
+                value={operatorForm.siteUrl} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
+                required
+                className="w-full"
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="paymentMethods">Payment Methods</Label>
-            <Input 
-              id="paymentMethods"
-              placeholder="Bitcoin, Ethereum, Visa, Mastercard" 
-              value={operatorForm.paymentMethods} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, paymentMethods: e.target.value }))}
+          <div className="mt-4">
+            <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+              Description
+            </Label>
+            <Textarea 
+              id="description"
+              placeholder="Brief description of the operator..." 
+              value={operatorForm.description} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, description: e.target.value }))}
+              rows={3}
+              className="w-full"
             />
           </div>
         </div>
-      </div>
 
-      {/* Financial Details */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Financial Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="minDeposit">Min Deposit ($)</Label>
-            <Input 
-              id="minDeposit"
-              placeholder="10.00" 
-              value={operatorForm.minDeposit} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="maxWithdrawal">Max Withdrawal ($)</Label>
-            <Input 
-              id="maxWithdrawal"
-              placeholder="10000.00" 
-              value={operatorForm.maxWithdrawal} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, maxWithdrawal: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="withdrawalTimeframe">Withdrawal Time</Label>
-            <Input 
-              id="withdrawalTimeframe"
-              placeholder="Instant" 
-              value={operatorForm.withdrawalTimeframe} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, withdrawalTimeframe: e.target.value }))}
-            />
+        {/* Company Details */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Company Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="foundedYear" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Founded Year
+              </Label>
+              <Input 
+                id="foundedYear"
+                type="number" 
+                placeholder="2020" 
+                value={operatorForm.foundedYear} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, foundedYear: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Label htmlFor="headquarters" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Headquarters
+              </Label>
+              <Input 
+                id="headquarters"
+                placeholder="Curacao" 
+                value={operatorForm.headquarters} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Ratings */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Ratings</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="trustScore">Trust Score (/10)</Label>
-            <Input 
-              id="trustScore"
-              placeholder="8.0" 
-              value={operatorForm.trustScore} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="overallRating">Overall Rating (/5)</Label>
-            <Input 
-              id="overallRating"
-              placeholder="4.0" 
-              value={operatorForm.overallRating} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
-            />
+        {/* Regulatory & Business */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Regulatory & Business Details</h3>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="licenses" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Licenses (comma-separated)
+              </Label>
+              <Input 
+                id="licenses"
+                placeholder="Curacao Gaming License, UK Gambling Commission" 
+                value={operatorForm.licenses} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, licenses: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="languages" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Languages
+                </Label>
+                <Input 
+                  id="languages"
+                  placeholder="English, Spanish, Portuguese" 
+                  value={operatorForm.languages} 
+                  onChange={(e) => setOperatorForm(prev => ({ ...prev, languages: e.target.value }))}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label htmlFor="currencies" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Currencies
+                </Label>
+                <Input 
+                  id="currencies"
+                  placeholder="USD, BTC, ETH" 
+                  value={operatorForm.currencies} 
+                  onChange={(e) => setOperatorForm(prev => ({ ...prev, currencies: e.target.value }))}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="paymentMethods" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Payment Methods
+              </Label>
+              <Input 
+                id="paymentMethods"
+                placeholder="Bitcoin, Ethereum, Visa, Mastercard" 
+                value={operatorForm.paymentMethods} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, paymentMethods: e.target.value }))}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="submit" disabled={createOperatorMutation.isPending}>
-          {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
-        </Button>
-      </div>
-    </form>
+        {/* Financial Details */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Label htmlFor="minDeposit" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Min Deposit ($)
+              </Label>
+              <Input 
+                id="minDeposit"
+                placeholder="10.00" 
+                value={operatorForm.minDeposit} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, minDeposit: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Label htmlFor="maxWithdrawal" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Max Withdrawal ($)
+              </Label>
+              <Input 
+                id="maxWithdrawal"
+                placeholder="10000.00" 
+                value={operatorForm.maxWithdrawal} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, maxWithdrawal: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Label htmlFor="withdrawalTimeframe" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Withdrawal Time
+              </Label>
+              <Input 
+                id="withdrawalTimeframe"
+                placeholder="Instant" 
+                value={operatorForm.withdrawalTimeframe} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, withdrawalTimeframe: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Ratings */}
+        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Ratings</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="trustScore" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Trust Score (/10)
+              </Label>
+              <Input 
+                id="trustScore"
+                placeholder="8.0" 
+                value={operatorForm.trustScore} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Label htmlFor="overallRating" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Overall Rating (/5)
+              </Label>
+              <Input 
+                id="overallRating"
+                placeholder="4.0" 
+                value={operatorForm.overallRating} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-6 border-t">
+          <Button type="submit" disabled={createOperatorMutation.isPending} className="px-8">
+            {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
