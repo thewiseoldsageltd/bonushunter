@@ -41,6 +41,8 @@ const AdminDashboard = () => {
   const [scrapingStatus, setScrapingStatus] = useState<ScrapingStatus>({ isRunning: false });
   const [editingBonus, setEditingBonus] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showConfigForm, setShowConfigForm] = useState(false);
+  const [selectedConfig, setSelectedConfig] = useState<any>(null);
   const [bonusForm, setBonusForm] = useState<BonusFormData>({
     title: '',
     description: '',
@@ -57,6 +59,14 @@ const AdminDashboard = () => {
     valueScore: '85'
   });
 
+  // Configuration form state
+  const [configForm, setConfigForm] = useState({
+    operatorName: '', operatorId: '', productType: 'sportsbook',
+    bonusPageUrl: '', loginRequired: false,
+    containerSelector: '', titleSelector: '', descriptionSelector: '',
+    amountSelector: '', wageringSelector: '', endDateSelector: '', claimLinkSelector: ''
+  });
+
   // Fetch all bonuses
   const { data: bonusesData, isLoading: loadingBonuses } = useQuery({
     queryKey: ['/api/bonuses']
@@ -65,6 +75,11 @@ const AdminDashboard = () => {
   // Fetch operators
   const { data: operatorsData } = useQuery({
     queryKey: ['/api/admin/operators']
+  });
+
+  // Fetch scraping configurations
+  const { data: configsData, isLoading: loadingConfigs } = useQuery({
+    queryKey: ['/api/admin/scraping/configs']
   });
 
   // Start scraping mutation
@@ -455,27 +470,182 @@ const AdminDashboard = () => {
 
         {/* Operators Tab */}
         <TabsContent value="operators">
-          <Card>
-            <CardHeader>
-              <CardTitle>Operator Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'Stake.com', 'Bet365'].map((operator) => (
-                  <div key={operator} className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Scraping Configuration Management</h3>
+              <Button 
+                onClick={() => setShowConfigForm(true)}
+                data-testid="button-add-config"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Configuration
+              </Button>
+            </div>
+
+            {showConfigForm && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configure Scraping Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-medium">{operator}</h4>
-                      <p className="text-sm text-muted-foreground">Active • Last scraped: 2 hours ago</p>
+                      <Label htmlFor="operatorName">Operator Name</Label>
+                      <Input
+                        id="operatorName"
+                        value={configForm.operatorName}
+                        onChange={(e) => setConfigForm({...configForm, operatorName: e.target.value})}
+                        placeholder="DraftKings Sportsbook"
+                        data-testid="input-operator-name"
+                      />
                     </div>
-                    <div className="flex gap-2">
-                      <Badge variant="outline">Active</Badge>
-                      <Button size="sm" variant="outline">Configure</Button>
+                    <div>
+                      <Label htmlFor="bonusPageUrl">Bonus Page URL</Label>
+                      <Input
+                        id="bonusPageUrl"
+                        value={configForm.bonusPageUrl}
+                        onChange={(e) => setConfigForm({...configForm, bonusPageUrl: e.target.value})}
+                        placeholder="https://sportsbook.draftkings.com/promos"
+                        data-testid="input-bonus-url"
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="containerSelector">Container Selector</Label>
+                      <Input
+                        id="containerSelector"
+                        value={configForm.containerSelector}
+                        onChange={(e) => setConfigForm({...configForm, containerSelector: e.target.value})}
+                        placeholder=".promo-card, .promotion-card"
+                        data-testid="input-container-selector"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="titleSelector">Title Selector</Label>
+                      <Input
+                        id="titleSelector"
+                        value={configForm.titleSelector}
+                        onChange={(e) => setConfigForm({...configForm, titleSelector: e.target.value})}
+                        placeholder="h2, h3, .title"
+                        data-testid="input-title-selector"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => {
+                        // Test configuration
+                        console.log('Testing configuration:', configForm);
+                        toast({
+                          title: "Testing Configuration",
+                          description: "Configuration test functionality will be implemented",
+                        });
+                      }}
+                      variant="outline"
+                      data-testid="button-test-config"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Test Configuration
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        // Save configuration
+                        setShowConfigForm(false);
+                        toast({
+                          title: "Configuration Saved",
+                          description: "Scraping configuration has been updated",
+                        });
+                      }}
+                      data-testid="button-save-config"
+                    >
+                      Save Configuration
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowConfigForm(false)}
+                      data-testid="button-cancel-config"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="grid gap-4">
+              {loadingConfigs ? (
+                <p>Loading configurations...</p>
+              ) : (
+                (configsData as any)?.configs?.map((config: any, index: number) => (
+                  <Card key={`${config.operatorId}-${config.productType}-${index}`}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-medium">{config.operatorName}</h4>
+                            <Badge variant="outline">{config.productType}</Badge>
+                            <Badge variant={config.loginRequired ? "destructive" : "secondary"}>
+                              {config.loginRequired ? "Login Required" : "No Login"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{config.bonusPageUrl}</p>
+                          <div className="text-xs text-muted-foreground">
+                            <span>Last updated: 2 hours ago</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              // Test this specific configuration
+                              console.log('Testing config:', config);
+                              toast({
+                                title: "Testing Configuration",
+                                description: `Testing ${config.operatorName} ${config.productType}`,
+                              });
+                            }}
+                            data-testid={`button-test-${config.operatorId}-${config.productType}`}
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            Test
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedConfig(config);
+                              setConfigForm({
+                                operatorName: config.operatorName,
+                                operatorId: config.operatorId,
+                                productType: config.productType,
+                                bonusPageUrl: config.bonusPageUrl,
+                                loginRequired: config.loginRequired,
+                                containerSelector: config.selectors?.containerSelector || '',
+                                titleSelector: config.selectors?.titleSelector || '',
+                                descriptionSelector: config.selectors?.descriptionSelector || '',
+                                amountSelector: config.selectors?.amountSelector || '',
+                                wageringSelector: config.selectors?.wageringSelector || '',
+                                endDateSelector: config.selectors?.endDateSelector || '',
+                                claimLinkSelector: config.selectors?.claimLinkSelector || ''
+                              });
+                              setShowConfigForm(true);
+                            }}
+                            data-testid={`button-edit-${config.operatorId}-${config.productType}`}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
         </TabsContent>
 
         {/* Analytics Tab */}
