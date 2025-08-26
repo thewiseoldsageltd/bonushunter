@@ -5,6 +5,7 @@ import { parseUserIntent, generateBonusExplanation, generateChatResponse } from 
 import type { UserIntent } from "@shared/schema";
 import { filterBonusesByIntent, rankBonuses, calculateBonusValue } from "./services/bonusService";
 import { registerScrapingRoutes } from "./routes/scraping";
+import { aiAnalysisService } from "./services/aiAnalysisService";
 import { z } from "zod";
 import { insertOperatorSchema } from "@shared/schema";
 
@@ -433,6 +434,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete bonus error:", error);
       res.status(500).json({ error: "Failed to delete bonus" });
+    }
+  });
+
+  // AI Analysis endpoint for Terms & Conditions
+  app.post("/api/admin/analyze-terms", async (req, res) => {
+    try {
+      const { termsText } = req.body;
+      
+      if (!termsText || typeof termsText !== 'string') {
+        return res.status(400).json({ error: "Terms and conditions text is required" });
+      }
+
+      const analysisResult = await aiAnalysisService.analyzeBonusTerms(termsText);
+      
+      res.json({
+        success: true,
+        parameters: analysisResult,
+        message: "Terms analyzed successfully"
+      });
+    } catch (error) {
+      console.error("AI Analysis error:", error);
+      res.status(500).json({ 
+        error: "Failed to analyze terms",
+        details: error instanceof Error ? error.message : "AI analysis failed"
+      });
     }
   });
 

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Plus, Edit, Trash2, Eye, Users, Building, Calculator, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Users, Building, Calculator, TrendingUp, Sparkles, Upload } from 'lucide-react';
 import { calculateBonusEV, getEVRating } from '@/lib/evCalculator';
 
 interface BonusFormData {
@@ -28,6 +28,7 @@ interface BonusFormData {
   wageringRequirement: string;
   expiryDays: string;
   valueScore: string;
+  termsAndConditions: string;
 }
 
 interface OperatorFormData {
@@ -391,6 +392,7 @@ const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
   const [editingOperator, setEditingOperator] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   // Edit Bonus State
   const [editBonusForm, setEditBonusForm] = useState<BonusFormData>({
@@ -406,7 +408,8 @@ const AdminDashboard = () => {
     landingUrl: '',
     wageringRequirement: '1',
     expiryDays: '30',
-    valueScore: '85'
+    valueScore: '85',
+    termsAndConditions: ''
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -436,7 +439,8 @@ const AdminDashboard = () => {
     landingUrl: '',
     wageringRequirement: '1',
     expiryDays: '30',
-    valueScore: '85'
+    valueScore: '85',
+    termsAndConditions: ''
   });
 
   // EV Calculation State
@@ -515,7 +519,8 @@ const AdminDashboard = () => {
         landingUrl: editingBonus.landingUrl || '',
         wageringRequirement: editingBonus.wageringRequirement?.toString() || '1',
         expiryDays: editingBonus.expiryDays?.toString() || '30',
-        valueScore: editingBonus.valueScore?.toString() || '85'
+        valueScore: editingBonus.valueScore?.toString() || '85',
+        termsAndConditions: editingBonus.termsAndConditions || ''
       });
     }
   }, [editingBonus]);
@@ -599,6 +604,55 @@ const AdminDashboard = () => {
     }
   });
 
+  // AI Analysis mutation
+  const aiAnalysisMutation = useMutation({
+    mutationFn: async (termsText: string) => {
+      const response = await apiRequest('POST', '/api/admin/analyze-terms', { termsText });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "AI Analysis Complete!",
+        description: "Bonus parameters extracted and form auto-populated.",
+      });
+      
+      // Auto-populate form with AI-extracted parameters
+      const params = data.parameters;
+      setBonusForm(prev => ({
+        ...prev,
+        title: params.title || prev.title,
+        description: params.description || prev.description,
+        bonusType: params.bonusType || prev.bonusType,
+        productType: params.productType || prev.productType,
+        matchPercent: params.matchPercent?.toString() || prev.matchPercent,
+        minDeposit: params.minDeposit?.toString() || prev.minDeposit,
+        maxBonus: params.maxBonus?.toString() || prev.maxBonus,
+        wageringRequirement: params.wageringRequirement?.toString() || prev.wageringRequirement,
+        expiryDays: params.expiryDays?.toString() || prev.expiryDays,
+        promoCode: params.promoCode || prev.promoCode
+      }));
+    },
+    onError: (error: any) => {
+      toast({
+        title: "AI Analysis Failed",
+        description: error.message || "Could not analyze terms. Please check the text and try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAnalyzeTerms = () => {
+    if (!bonusForm.termsAndConditions.trim()) {
+      toast({
+        title: "Missing Terms & Conditions",
+        description: "Please paste the terms and conditions text first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    aiAnalysisMutation.mutate(bonusForm.termsAndConditions);
+  };
+
   const resetForm = () => {
     setBonusForm({
       title: '',
@@ -613,7 +667,8 @@ const AdminDashboard = () => {
       landingUrl: '',
       wageringRequirement: '1',
       expiryDays: '30',
-      valueScore: '85'
+      valueScore: '85',
+      termsAndConditions: ''
     });
   };
 
@@ -871,6 +926,50 @@ const AdminDashboard = () => {
                           required
                           data-testid="input-landing-url"
                         />
+                      </div>
+
+                      {/* Terms & Conditions AI Analysis Section */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="h-5 w-5 text-blue-600" />
+                          <Label htmlFor="terms-conditions" className="text-blue-900 dark:text-blue-100 font-medium">
+                            Terms & Conditions (AI Analysis)
+                          </Label>
+                        </div>
+                        <Textarea
+                          id="terms-conditions"
+                          value={bonusForm.termsAndConditions}
+                          onChange={(e) => setBonusForm(prev => ({ ...prev, termsAndConditions: e.target.value }))}
+                          placeholder="Paste the full terms and conditions text here. Our AI will automatically extract bonus parameters like wagering requirements, expiry dates, game restrictions, etc."
+                          rows={6}
+                          className="mb-3"
+                          data-testid="textarea-terms-conditions"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            onClick={handleAnalyzeTerms}
+                            disabled={aiAnalysisMutation.isPending || !bonusForm.termsAndConditions.trim()}
+                            variant="outline"
+                            className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
+                            data-testid="button-analyze-terms"
+                          >
+                            {aiAnalysisMutation.isPending ? (
+                              <>
+                                <Upload className="h-4 w-4 mr-2 animate-spin" />
+                                Analyzing...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Analyze with AI
+                              </>
+                            )}
+                          </Button>
+                          <div className="text-xs text-blue-700 dark:text-blue-300 flex items-center">
+                            <span>💡 AI will auto-populate form fields from T&C text</span>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="flex gap-2">

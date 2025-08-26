@@ -81,6 +81,7 @@ export const bonuses = pgTable("bonuses", {
   paymentMethodExclusions: jsonb("payment_method_exclusions").$type<string[]>().default([]),
   existingUserEligible: boolean("existing_user_eligible").default(false),
   valueScore: decimal("value_score", { precision: 5, scale: 2 }).default("0.00"),
+  termsAndConditions: text("terms_and_conditions"), // Raw T&C text for AI analysis
   startAt: timestamp("start_at"),
   endAt: timestamp("end_at"),
   status: text("status").default("active"), // active, inactive, expired
