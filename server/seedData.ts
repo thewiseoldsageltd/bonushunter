@@ -242,14 +242,14 @@ export async function seedDatabase() {
       // BetMGM Bonuses
       {
         operatorId: opLookup["BetMGM"].id,
-        title: "Bet $10, Get $200 in Free Bets",
-        description: "Place a $10 first bet and receive $200 in free bets win or lose!",
+        title: "Bet $10, Get $150 in Free Bets",
+        description: "Place a $10 first bet and receive $150 in free bets win or lose!",
         productType: "sportsbook",
         bonusType: "first_bet_bonus",
         matchPercent: "0.00",
         minDeposit: "10.00",
-        maxBonus: "200.00",
-        promoCode: "BETMGM200",
+        maxBonus: "150.00",
+        promoCode: "BETMGM150",
         landingUrl: "https://sports.betmgm.com/promos",
         wageringRequirement: "1.0",
         wageringUnit: "bonus",
