@@ -33,7 +33,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    // Use hardcoded Replit backend URL for all queries
+    const REPLIT_BACKEND = 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev';
+    const url = queryKey.join("/") as string;
+    const fullUrl = url.startsWith('http') ? url : `${REPLIT_BACKEND}${url}`;
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 
