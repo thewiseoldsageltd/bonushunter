@@ -17,9 +17,9 @@ export default function FeaturedBonuses() {
       if (productType !== "all") params.append("productType", productType);
       if (location !== "all") params.append("location", location);
       
-      const url = `/api/bonuses${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `http://localhost:5000/api/bonuses${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch bonuses');
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       return response.json();
     },
     select: (data: any) => ({
