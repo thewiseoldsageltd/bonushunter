@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { Plus, Edit, Trash2, Eye, Users, Building, Calculator, TrendingUp, Sparkles, Upload } from 'lucide-react';
-import { calculateBonusEV, getEVRating } from '@/lib/evCalculator';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Plus, Edit, Eye, Trash2, TrendingUp, BarChart3, Users, Zap, Sparkles, Upload } from "lucide-react";
+import { calculateBonusEV, getEVRating } from "@/lib/evCalculator";
+import { OperatorForm } from "@/components/OperatorForm";
 
 interface BonusFormData {
   title: string;
   description: string;
-  operatorId: string;
-  productType: string;
   bonusType: string;
+  productType: string;
+  operatorId: string;
   matchPercent: string;
   minDeposit: string;
   maxBonus: string;
@@ -35,374 +36,29 @@ interface OperatorFormData {
   name: string;
   siteUrl: string;
   description: string;
+  logoUrl: string;
   trustScore: string;
   overallRating: string;
-  foundedYear: string;
-  headquarters: string;
-  licenses: string;
-  languages: string;
-  currencies: string;
-  paymentMethods: string;
-  minDeposit: string;
-  maxWithdrawal: string;
-  withdrawalTimeframe: string;
+  licenseInfo: string;
+  supportedJurisdictions: string[];
+  isActive: boolean;
 }
-
-// Simple Operator Form Component
-const OperatorForm = ({ 
-  operator, 
-  onSuccess 
-}: { 
-  operator?: any; 
-  onSuccess: () => void 
-}) => {
-  const { toast } = useToast();
-  const [operatorForm, setOperatorForm] = useState<OperatorFormData>(() => {
-    if (operator) {
-      return {
-        name: operator.name || '',
-        siteUrl: operator.siteUrl || '',
-        description: operator.description || '',
-        trustScore: operator.trustScore || '8.0',
-        overallRating: operator.overallRating || '4.0',
-        foundedYear: operator.foundedYear?.toString() || '2020',
-        headquarters: operator.headquarters || '',
-        licenses: Array.isArray(operator.licenses) ? operator.licenses.join(', ') : (operator.licenses || ''),
-        languages: Array.isArray(operator.languages) ? operator.languages.join(', ') : (operator.languages || ''),
-        currencies: Array.isArray(operator.currencies) ? operator.currencies.join(', ') : (operator.currencies || ''),
-        paymentMethods: Array.isArray(operator.paymentMethods) ? operator.paymentMethods.join(', ') : (operator.paymentMethods || ''),
-        minDeposit: operator.minDeposit || '10.00',
-        maxWithdrawal: operator.maxWithdrawal || '10000.00',
-        withdrawalTimeframe: operator.withdrawalTimeframe || '24-48 hours'
-      };
-    }
-    return {
-      name: '',
-      siteUrl: '',
-      description: '',
-      trustScore: '8.0',
-      overallRating: '4.0',
-      foundedYear: '2020',
-      headquarters: '',
-      licenses: '',
-      languages: '',
-      currencies: '',
-      paymentMethods: '',
-      minDeposit: '10.00',
-      maxWithdrawal: '10000.00',
-      withdrawalTimeframe: '24-48 hours'
-    };
-  });
-
-  const operatorMutation = useMutation({
-    mutationFn: async (formData: OperatorFormData) => {
-      const processedData = {
-        ...formData,
-        foundedYear: parseInt(formData.foundedYear),
-        licenses: formData.licenses.split(',').map(s => s.trim()).filter(Boolean),
-        languages: formData.languages.split(',').map(s => s.trim()).filter(Boolean),
-        currencies: formData.currencies.split(',').map(s => s.trim()).filter(Boolean),
-        paymentMethods: formData.paymentMethods.split(',').map(s => s.trim()).filter(Boolean),
-        liveChat: false,
-        mobileApp: false,
-        casinoGames: false,
-        esports: false,
-        active: true
-      };
-      
-      const method = operator ? 'PUT' : 'POST';
-      const url = operator ? `/api/admin/operators/${operator.id}` : '/api/admin/operators';
-      const response = await apiRequest(method, url, processedData);
-      return await response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success!",
-        description: operator ? "Operator updated successfully!" : "Operator added successfully!",
-      });
-      if (!operator) {
-        setOperatorForm({
-          name: '',
-          siteUrl: '',
-          description: '',
-          trustScore: '8.0',
-          overallRating: '4.0',
-          foundedYear: '2020',
-          headquarters: '',
-          licenses: '',
-          languages: '',
-          currencies: '',
-          paymentMethods: '',
-          minDeposit: '10.00',
-          maxWithdrawal: '10000.00',
-          withdrawalTimeframe: '24-48 hours'
-        });
-      }
-      onSuccess();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || `Failed to ${operator ? 'update' : 'create'} operator`,
-        variant: "destructive",
-      });
-    }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!operatorForm.name || !operatorForm.siteUrl) {
-      toast({
-        title: "Error",
-        description: "Name and website URL are required",
-        variant: "destructive",
-      });
-      return;
-    }
-    operatorMutation.mutate(operatorForm);
-  };
-
-  return (
-    <div className="space-y-8">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Basic Information */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Basic Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Operator Name*
-              </Label>
-              <Input 
-                id="name"
-                placeholder="e.g., Stake.com" 
-                value={operatorForm.name} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, name: e.target.value }))}
-                required
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="siteUrl" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Website URL*
-              </Label>
-              <Input 
-                id="siteUrl"
-                placeholder="https://stake.com" 
-                value={operatorForm.siteUrl} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
-                required
-                className="w-full"
-              />
-            </div>
-          </div>
-          <div className="mt-4">
-            <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              Description
-            </Label>
-            <Textarea 
-              id="description"
-              placeholder="Brief description of the operator..." 
-              value={operatorForm.description} 
-              onChange={(e) => setOperatorForm(prev => ({ ...prev, description: e.target.value }))}
-              rows={3}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* Company Details */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Company Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="foundedYear" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Founded Year
-              </Label>
-              <Input 
-                id="foundedYear"
-                type="number" 
-                placeholder="2020" 
-                value={operatorForm.foundedYear} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, foundedYear: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="headquarters" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Headquarters
-              </Label>
-              <Input 
-                id="headquarters"
-                placeholder="Curacao" 
-                value={operatorForm.headquarters} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Regulatory & Business */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Regulatory & Business Details</h3>
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="licenses" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Licenses (comma-separated)
-              </Label>
-              <Input 
-                id="licenses"
-                placeholder="Curacao Gaming License, UK Gambling Commission" 
-                value={operatorForm.licenses} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, licenses: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="languages" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Languages
-                </Label>
-                <Input 
-                  id="languages"
-                  placeholder="English, Spanish, Portuguese" 
-                  value={operatorForm.languages} 
-                  onChange={(e) => setOperatorForm(prev => ({ ...prev, languages: e.target.value }))}
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <Label htmlFor="currencies" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Currencies
-                </Label>
-                <Input 
-                  id="currencies"
-                  placeholder="USD, BTC, ETH" 
-                  value={operatorForm.currencies} 
-                  onChange={(e) => setOperatorForm(prev => ({ ...prev, currencies: e.target.value }))}
-                  className="w-full"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="paymentMethods" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Payment Methods
-              </Label>
-              <Input 
-                id="paymentMethods"
-                placeholder="Bitcoin, Ethereum, Visa, Mastercard" 
-                value={operatorForm.paymentMethods} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, paymentMethods: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Financial Details */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Financial Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <Label htmlFor="minDeposit" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Min Deposit ($)
-              </Label>
-              <Input 
-                id="minDeposit"
-                placeholder="10.00" 
-                value={operatorForm.minDeposit} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="maxWithdrawal" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Max Withdrawal ($)
-              </Label>
-              <Input 
-                id="maxWithdrawal"
-                placeholder="10000.00" 
-                value={operatorForm.maxWithdrawal} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, maxWithdrawal: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="withdrawalTimeframe" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Withdrawal Time
-              </Label>
-              <Input 
-                id="withdrawalTimeframe"
-                placeholder="Instant" 
-                value={operatorForm.withdrawalTimeframe} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, withdrawalTimeframe: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Ratings */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Ratings</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="trustScore" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Trust Score (/10)
-              </Label>
-              <Input 
-                id="trustScore"
-                placeholder="8.0" 
-                value={operatorForm.trustScore} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label htmlFor="overallRating" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                Overall Rating (/5)
-              </Label>
-              <Input 
-                id="overallRating"
-                placeholder="4.0" 
-                value={operatorForm.overallRating} 
-                onChange={(e) => setOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-6 border-t">
-          <Button type="submit" disabled={operatorMutation.isPending} className="px-8">
-            {operatorMutation.isPending 
-              ? (operator ? "Updating..." : "Adding...")
-              : (operator ? "Update Operator" : "Add Operator")
-            }
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-};
 
 const AdminDashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
   const [editingOperator, setEditingOperator] = useState<any>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
-  // Edit Bonus State
-  const [editBonusForm, setEditBonusForm] = useState<BonusFormData>({
+
+  // Form state for new bonus
+  const [bonusForm, setBonusForm] = useState<BonusFormData>({
     title: '',
     description: '',
-    operatorId: '',
+    bonusType: 'welcome',
     productType: 'sportsbook',
-    bonusType: 'first_bet_bonus',
-    matchPercent: '0',
-    minDeposit: '0',
+    operatorId: '',
+    matchPercent: '100',
+    minDeposit: '10',
     maxBonus: '0',
     promoCode: '',
     landingUrl: '',
@@ -414,26 +70,27 @@ const AdminDashboard = () => {
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
     calculateBonusEV({
-      matchPercent: '0',
+      matchPercent: '100',
       maxBonus: '0',
-      minDeposit: '0',
+      minDeposit: '10',
       wageringRequirement: '1',
-      wageringUnit: 'bonus',
       expiryDays: '30',
-      eligibleGames: [],
+      productType: 'sportsbook',
       gameWeightings: {},
+      maxCashout: '',
       paymentMethodExclusions: []
     })
   );
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [bonusForm, setBonusForm] = useState<BonusFormData>({
+
+  // Form state for editing bonus
+  const [editBonusForm, setEditBonusForm] = useState<BonusFormData>({
     title: '',
     description: '',
-    operatorId: '',
+    bonusType: 'welcome',
     productType: 'sportsbook',
-    bonusType: 'first_bet_bonus',
-    matchPercent: '0',
-    minDeposit: '0',
+    operatorId: '',
+    matchPercent: '100',
+    minDeposit: '10',
     maxBonus: '0',
     promoCode: '',
     landingUrl: '',
@@ -446,17 +103,19 @@ const AdminDashboard = () => {
   // EV Calculation State
   const [calculatedEV, setCalculatedEV] = useState(() => 
     calculateBonusEV({
-      matchPercent: '0',
-      maxBonus: '0',
-      minDeposit: '0',
-      wageringRequirement: '1',
-      wageringUnit: 'bonus',
-      expiryDays: '30',
-      eligibleGames: [],
+      matchPercent: bonusForm.matchPercent,
+      maxBonus: bonusForm.maxBonus,
+      minDeposit: bonusForm.minDeposit,
+      wageringRequirement: bonusForm.wageringRequirement,
+      expiryDays: bonusForm.expiryDays,
+      productType: bonusForm.productType,
       gameWeightings: {},
+      maxCashout: '',
       paymentMethodExclusions: []
     })
   );
+
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -465,9 +124,8 @@ const AdminDashboard = () => {
       maxBonus: bonusForm.maxBonus,
       minDeposit: bonusForm.minDeposit,
       wageringRequirement: bonusForm.wageringRequirement,
-      wageringUnit: 'bonus', // Default for now
       expiryDays: bonusForm.expiryDays,
-      eligibleGames: bonusForm.productType === 'casino' ? ['slots'] : ['sports'],
+      productType: bonusForm.productType,
       gameWeightings: {},
       maxCashout: '',
       paymentMethodExclusions: []
@@ -488,9 +146,8 @@ const AdminDashboard = () => {
       maxBonus: editBonusForm.maxBonus,
       minDeposit: editBonusForm.minDeposit,
       wageringRequirement: editBonusForm.wageringRequirement,
-      wageringUnit: 'bonus',
       expiryDays: editBonusForm.expiryDays,
-      eligibleGames: editBonusForm.productType === 'casino' ? ['slots'] : ['sports'],
+      productType: editBonusForm.productType,
       gameWeightings: {},
       maxCashout: '',
       paymentMethodExclusions: []
@@ -509,11 +166,11 @@ const AdminDashboard = () => {
       setEditBonusForm({
         title: editingBonus.title || '',
         description: editingBonus.description || '',
-        operatorId: editingBonus.operatorId || '',
+        bonusType: editingBonus.bonusType || 'welcome',
         productType: editingBonus.productType || 'sportsbook',
-        bonusType: editingBonus.bonusType || 'first_bet_bonus',
-        matchPercent: editingBonus.matchPercent?.toString() || '0',
-        minDeposit: editingBonus.minDeposit?.toString() || '0',
+        operatorId: editingBonus.operatorId || '',
+        matchPercent: editingBonus.matchPercent?.toString() || '100',
+        minDeposit: editingBonus.minDeposit?.toString() || '10',
         maxBonus: editingBonus.maxBonus?.toString() || '0',
         promoCode: editingBonus.promoCode || '',
         landingUrl: editingBonus.landingUrl || '',
@@ -530,7 +187,7 @@ const AdminDashboard = () => {
     queryKey: ['/api/bonuses']
   });
 
-  // Fetch operators
+  // Fetch all operators for the dropdown
   const { data: operatorsData } = useQuery({
     queryKey: ['/api/admin/operators']
   });
@@ -544,16 +201,16 @@ const AdminDashboard = () => {
     onSuccess: () => {
       toast({
         title: "Bonus Added Successfully!",
-        description: "The new bonus is now live and available in chat recommendations.",
+        description: "The bonus has been added with calculated EV score.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-      setShowAddForm(false);
       resetForm();
+      setShowAddForm(false);
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to Add Bonus",
-        description: error.message || "Could not create bonus",
+        title: "Add Failed",
+        description: error.message || "Could not add bonus",
         variant: "destructive",
       });
     }
@@ -562,13 +219,12 @@ const AdminDashboard = () => {
   // Delete bonus mutation
   const deleteBonusMutation = useMutation({
     mutationFn: async (bonusId: string) => {
-      const response = await apiRequest('DELETE', `/api/admin/bonuses/${bonusId}`);
-      return await response.json();
+      await apiRequest('DELETE', `/api/admin/bonuses/${bonusId}`);
     },
     onSuccess: () => {
       toast({
         title: "Bonus Deleted",
-        description: "Bonus has been removed from the system.",
+        description: "The bonus has been removed from your platform.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
     },
@@ -657,11 +313,11 @@ const AdminDashboard = () => {
     setBonusForm({
       title: '',
       description: '',
-      operatorId: '',
+      bonusType: 'welcome',
       productType: 'sportsbook',
-      bonusType: 'first_bet_bonus',
-      matchPercent: '0',
-      minDeposit: '0',
+      operatorId: '',
+      matchPercent: '100',
+      minDeposit: '10',
       maxBonus: '0',
       promoCode: '',
       landingUrl: '',
@@ -689,7 +345,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     if (!editBonusForm.title || !editBonusForm.operatorId || !editBonusForm.landingUrl) {
       toast({
-        title: "Missing Required Fields",
+        title: "Missing Required Fields", 
         description: "Please fill in title, operator, and landing URL.",
         variant: "destructive",
       });
@@ -707,68 +363,70 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bonushunter Admin</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">Manage bonuses and operators</p>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold">Bonushunter Admin</h1>
+            <Badge variant={stats.systemStatus === 'LIVE' ? 'default' : 'outline'} className="ml-2">
+              {stats.systemStatus}
+            </Badge>
           </div>
-          <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-            Manual Management Mode
-          </Badge>
+          <p className="text-gray-600 dark:text-gray-300">
+            Intelligent bonus management with AI-powered EV calculation and analysis
+          </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-4">
-                  <Building className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalBonuses}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Total Bonuses</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Bonuses</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalBonuses}</div>
+              <p className="text-xs text-muted-foreground">
+                Active gambling bonuses
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg mr-4">
-                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeOperators}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Active Operators</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Operators</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.activeOperators}</div>
+              <p className="text-xs text-muted-foreground">
+                Connected gambling sites
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-4">
-                  <Eye className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.systemStatus}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">System Status</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">AI Analysis</CardTitle>
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">GPT-5</div>
+              <p className="text-xs text-muted-foreground">
+                Terms & Conditions parser
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
+        {/* Main Tabs */}
         <Tabs defaultValue="bonuses" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="bonuses">Bonus Management</TabsTrigger>
+            <TabsTrigger value="bonuses">Bonuses</TabsTrigger>
             <TabsTrigger value="operators">Operators</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -777,21 +435,18 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Bonus Management</CardTitle>
-                <Button onClick={() => setShowAddForm(true)} data-testid="button-add-bonus">
+                <Button 
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  data-testid="button-add-bonus"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Bonus
                 </Button>
               </CardHeader>
               <CardContent>
                 {showAddForm && (
-                  <div className="mb-6 p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">Add New Bonus</h3>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calculator className="h-4 w-4" />
-                        <span>Live EV Calculator</span>
-                      </div>
-                    </div>
+                  <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <h3 className="text-lg font-semibold mb-4">Add New Bonus</h3>
 
                     {/* Live EV Display */}
                     <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
@@ -843,9 +498,9 @@ const AdminDashboard = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="operatorId">Operator*</Label>
-                          <Select
-                            value={bonusForm.operatorId}
+                          <Label htmlFor="operator">Operator*</Label>
+                          <Select 
+                            value={bonusForm.operatorId} 
                             onValueChange={(value) => setBonusForm(prev => ({ ...prev, operatorId: value }))}
                           >
                             <SelectTrigger data-testid="select-operator">
@@ -863,15 +518,103 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="description">Description*</Label>
+                        <Label htmlFor="description">Description</Label>
                         <Textarea
                           id="description"
                           value={bonusForm.description}
                           onChange={(e) => setBonusForm(prev => ({ ...prev, description: e.target.value }))}
-                          placeholder="Get up to $1,000 back if your first bet loses"
-                          required
+                          placeholder="Get a 100% deposit match bonus up to $1,000..."
+                          rows={3}
                           data-testid="textarea-description"
                         />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="bonusType">Bonus Type</Label>
+                          <Select 
+                            value={bonusForm.bonusType} 
+                            onValueChange={(value) => setBonusForm(prev => ({ ...prev, bonusType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-bonus-type">
+                              <SelectValue placeholder="Select bonus type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="welcome">Welcome</SelectItem>
+                              <SelectItem value="deposit">Deposit Match</SelectItem>
+                              <SelectItem value="no-deposit">No Deposit</SelectItem>
+                              <SelectItem value="free-bet">Free Bet</SelectItem>
+                              <SelectItem value="cashback">Cashback</SelectItem>
+                              <SelectItem value="reload">Reload</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="productType">Product Type</Label>
+                          <Select 
+                            value={bonusForm.productType} 
+                            onValueChange={(value) => setBonusForm(prev => ({ ...prev, productType: value }))}
+                          >
+                            <SelectTrigger data-testid="select-product-type">
+                              <SelectValue placeholder="Select product type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="sportsbook">Sportsbook</SelectItem>
+                              <SelectItem value="casino">Casino</SelectItem>
+                              <SelectItem value="poker">Poker</SelectItem>
+                              <SelectItem value="crypto">Crypto</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="matchPercent">Match Percentage (%)</Label>
+                          <Input
+                            id="matchPercent"
+                            type="number"
+                            value={bonusForm.matchPercent}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, matchPercent: e.target.value }))}
+                            placeholder="100"
+                            data-testid="input-match-percent"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="promoCode">Promo Code</Label>
+                          <Input
+                            id="promoCode"
+                            value={bonusForm.promoCode}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
+                            placeholder="BONUS1000"
+                            data-testid="input-promo-code"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="wageringRequirement">Wagering Requirement (x)</Label>
+                          <Input
+                            id="wageringRequirement"
+                            type="number"
+                            value={bonusForm.wageringRequirement}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, wageringRequirement: e.target.value }))}
+                            placeholder="35"
+                            data-testid="input-wagering"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="expiryDays">Expiry (Days)</Label>
+                          <Input
+                            id="expiryDays"
+                            type="number"
+                            value={bonusForm.expiryDays}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, expiryDays: e.target.value }))}
+                            placeholder="30"
+                            data-testid="input-expiry"
+                          />
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1135,195 +878,6 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Edit Bonus Dialog */}
-            <Dialog open={!!editingBonus} onOpenChange={(open) => !open && setEditingBonus(null)}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Edit Bonus: {editingBonus?.title}</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4">
-                  {editingBonus && (
-                    <div>
-                      {/* Live EV Display for Edit */}
-                      <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
-                        <div className="flex items-center gap-4 mb-3">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-blue-600" />
-                            <span className="font-semibold">Expected Value Analysis (Edit Mode)</span>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEVRating(editCalculatedEV.valueScore).color} bg-gray-100 dark:bg-gray-800`}>
-                            {getEVRating(editCalculatedEV.valueScore).rating} ({editCalculatedEV.valueScore}/100)
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                          <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
-                            <div className="font-semibold text-green-700 dark:text-green-400">${editCalculatedEV.breakdown.bonusAmount}</div>
-                            <div className="text-gray-600 dark:text-gray-400">Bonus Amount</div>
-                          </div>
-                          <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
-                            <div className="font-semibold text-red-700 dark:text-red-400">${editCalculatedEV.breakdown.wageringCost}</div>
-                            <div className="text-gray-600 dark:text-gray-400">Wagering Cost</div>
-                          </div>
-                          <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
-                            <div className="font-semibold text-orange-700 dark:text-orange-400">${editCalculatedEV.breakdown.penalties}</div>
-                            <div className="text-gray-600 dark:text-gray-400">Penalties</div>
-                          </div>
-                          <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                            <div className="font-semibold text-blue-700 dark:text-blue-400">${editCalculatedEV.expectedValue}</div>
-                            <div className="text-gray-600 dark:text-gray-400">Net EV</div>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                          {getEVRating(editCalculatedEV.valueScore).description} • Based on $100 deposit • RTP: {(editCalculatedEV.breakdown.effectiveRTP * 100).toFixed(1)}%
-                        </div>
-                      </div>
-
-                      <form onSubmit={handleUpdateBonus} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="edit-title">Title*</Label>
-                            <Input
-                              id="edit-title"
-                              value={editBonusForm.title}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, title: e.target.value }))}
-                              placeholder="FanDuel No Sweat First Bet"
-                              required
-                              data-testid="input-edit-title"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-operator">Operator*</Label>
-                            <Select 
-                              value={editBonusForm.operatorId} 
-                              onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, operatorId: value }))}
-                            >
-                              <SelectTrigger data-testid="select-edit-operator">
-                                <SelectValue placeholder="Select operator" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {operators.map((operator: any) => (
-                                  <SelectItem key={operator.id} value={operator.id}>
-                                    {operator.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="edit-description">Description*</Label>
-                          <Textarea
-                            id="edit-description"
-                            value={editBonusForm.description}
-                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="Get up to $1,000 back if your first bet loses"
-                            required
-                            data-testid="textarea-edit-description"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <Label htmlFor="edit-minDeposit">Min Deposit ($)</Label>
-                            <Input
-                              id="edit-minDeposit"
-                              type="number"
-                              value={editBonusForm.minDeposit}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-                              placeholder="10"
-                              data-testid="input-edit-min-deposit"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-maxBonus">Max Bonus ($)</Label>
-                            <Input
-                              id="edit-maxBonus"
-                              type="number"
-                              value={editBonusForm.maxBonus}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
-                              placeholder="1000"
-                              data-testid="input-edit-max-bonus"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-valueScore">Value Score (Auto-Calculated)</Label>
-                            <Input
-                              id="edit-valueScore"
-                              type="number"
-                              value={editBonusForm.valueScore}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, valueScore: e.target.value }))}
-                              placeholder="88"
-                              data-testid="input-edit-value-score"
-                              className="bg-gray-100 dark:bg-gray-700"
-                              readOnly
-                              title="Automatically calculated based on bonus terms"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Automatically calculated • Higher is better • Based on mathematical expected value
-                            </p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="edit-landingUrl">Landing URL*</Label>
-                          <Input
-                            id="edit-landingUrl"
-                            value={editBonusForm.landingUrl}
-                            onChange={(e) => setEditBonusForm(prev => ({ ...prev, landingUrl: e.target.value }))}
-                            placeholder="https://fanduel.com/promo/no-sweat-first-bet"
-                            required
-                            data-testid="input-edit-landing-url"
-                          />
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button 
-                            type="submit" 
-                            disabled={updateBonusMutation.isPending}
-                            data-testid="button-update-bonus"
-                          >
-                            {updateBonusMutation.isPending ? "Updating..." : "Update Bonus"}
-                          </Button>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setEditingBonus(null)}
-                            data-testid="button-cancel-edit-bonus"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            {/* Edit Operator Dialog */}
-            <Dialog open={!!editingOperator} onOpenChange={(open) => !open && setEditingOperator(null)}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Edit Operator: {editingOperator?.name}</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4">
-                  {editingOperator && (
-                    <OperatorForm 
-                      operator={editingOperator}
-                      onSuccess={() => {
-                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-                        setEditingOperator(null);
-                      }} 
-                    />
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
           </TabsContent>
 
           <TabsContent value="analytics">
@@ -1349,6 +903,284 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Edit Bonus Dialog - Outside of all tabs */}
+        <Dialog open={!!editingBonus} onOpenChange={(open) => !open && setEditingBonus(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Bonus: {editingBonus?.title}</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              {editingBonus && (
+                <div>
+                  {/* Live EV Display for Edit */}
+                  <div className="mb-6 p-4 bg-white dark:bg-gray-900 rounded-lg border">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-blue-600" />
+                        <span className="font-semibold">Expected Value Analysis (Edit Mode)</span>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEVRating(editCalculatedEV.valueScore).color} bg-gray-100 dark:bg-gray-800`}>
+                        {getEVRating(editCalculatedEV.valueScore).rating} ({editCalculatedEV.valueScore}/100)
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                      <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                        <div className="font-semibold text-green-700 dark:text-green-400">${editCalculatedEV.breakdown.bonusAmount}</div>
+                        <div className="text-gray-600 dark:text-gray-400">Bonus Amount</div>
+                      </div>
+                      <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                        <div className="font-semibold text-red-700 dark:text-red-400">${editCalculatedEV.breakdown.wageringCost}</div>
+                        <div className="text-gray-600 dark:text-gray-400">Wagering Cost</div>
+                      </div>
+                      <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
+                        <div className="font-semibold text-orange-700 dark:text-orange-400">${editCalculatedEV.breakdown.penalties}</div>
+                        <div className="text-gray-600 dark:text-gray-400">Penalties</div>
+                      </div>
+                      <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                        <div className="font-semibold text-blue-700 dark:text-blue-400">${editCalculatedEV.expectedValue}</div>
+                        <div className="text-gray-600 dark:text-gray-400">Net EV</div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                      {getEVRating(editCalculatedEV.valueScore).description} • Based on $100 deposit • RTP: {(editCalculatedEV.breakdown.effectiveRTP * 100).toFixed(1)}%
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleUpdateBonus} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="edit-title">Title*</Label>
+                        <Input
+                          id="edit-title"
+                          value={editBonusForm.title}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="FanDuel No Sweat First Bet"
+                          required
+                          data-testid="input-edit-title"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-operator">Operator*</Label>
+                        <Select 
+                          value={editBonusForm.operatorId} 
+                          onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, operatorId: value }))}
+                        >
+                          <SelectTrigger data-testid="select-edit-operator">
+                            <SelectValue placeholder="Select operator" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {operators.map((operator: any) => (
+                              <SelectItem key={operator.id} value={operator.id}>
+                                {operator.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="edit-description">Description</Label>
+                      <Textarea
+                        id="edit-description"
+                        value={editBonusForm.description}
+                        onChange={(e) => setEditBonusForm(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Get a 100% deposit match bonus up to $1,000..."
+                        rows={3}
+                        data-testid="textarea-edit-description"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="edit-bonus-type">Bonus Type</Label>
+                        <Select 
+                          value={editBonusForm.bonusType} 
+                          onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, bonusType: value }))}
+                        >
+                          <SelectTrigger data-testid="select-edit-bonus-type">
+                            <SelectValue placeholder="Select bonus type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="welcome">Welcome</SelectItem>
+                            <SelectItem value="deposit">Deposit Match</SelectItem>
+                            <SelectItem value="no-deposit">No Deposit</SelectItem>
+                            <SelectItem value="free-bet">Free Bet</SelectItem>
+                            <SelectItem value="cashback">Cashback</SelectItem>
+                            <SelectItem value="reload">Reload</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-product-type">Product Type</Label>
+                        <Select 
+                          value={editBonusForm.productType} 
+                          onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, productType: value }))}
+                        >
+                          <SelectTrigger data-testid="select-edit-product-type">
+                            <SelectValue placeholder="Select product type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sportsbook">Sportsbook</SelectItem>
+                            <SelectItem value="casino">Casino</SelectItem>
+                            <SelectItem value="poker">Poker</SelectItem>
+                            <SelectItem value="crypto">Crypto</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="edit-match-percent">Match Percentage (%)</Label>
+                        <Input
+                          id="edit-match-percent"
+                          type="number"
+                          value={editBonusForm.matchPercent}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, matchPercent: e.target.value }))}
+                          placeholder="100"
+                          data-testid="input-edit-match-percent"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-promo-code">Promo Code</Label>
+                        <Input
+                          id="edit-promo-code"
+                          value={editBonusForm.promoCode}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
+                          placeholder="BONUS1000"
+                          data-testid="input-edit-promo-code"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="edit-wagering">Wagering Requirement (x)</Label>
+                        <Input
+                          id="edit-wagering"
+                          type="number"
+                          value={editBonusForm.wageringRequirement}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, wageringRequirement: e.target.value }))}
+                          placeholder="35"
+                          data-testid="input-edit-wagering"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-expiry">Expiry (Days)</Label>
+                        <Input
+                          id="edit-expiry"
+                          type="number"
+                          value={editBonusForm.expiryDays}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, expiryDays: e.target.value }))}
+                          placeholder="30"
+                          data-testid="input-edit-expiry"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="edit-min-deposit">Min Deposit ($)</Label>
+                        <Input
+                          id="edit-min-deposit"
+                          type="number"
+                          value={editBonusForm.minDeposit}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
+                          placeholder="10"
+                          data-testid="input-edit-min-deposit"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-max-bonus">Max Bonus ($)</Label>
+                        <Input
+                          id="edit-max-bonus"
+                          type="number"
+                          value={editBonusForm.maxBonus}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
+                          placeholder="1000"
+                          data-testid="input-edit-max-bonus"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-valueScore">Value Score (Auto-Calculated)</Label>
+                        <Input
+                          id="edit-valueScore"
+                          type="number"
+                          value={editBonusForm.valueScore}
+                          onChange={(e) => setEditBonusForm(prev => ({ ...prev, valueScore: e.target.value }))}
+                          placeholder="88"
+                          data-testid="input-edit-value-score"
+                          className="bg-gray-100 dark:bg-gray-700"
+                          readOnly
+                          title="Automatically calculated based on bonus terms"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Automatically calculated • Higher is better • Based on mathematical expected value
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="edit-landing-url">Landing URL*</Label>
+                      <Input
+                        id="edit-landing-url"
+                        type="url"
+                        value={editBonusForm.landingUrl}
+                        onChange={(e) => setEditBonusForm(prev => ({ ...prev, landingUrl: e.target.value }))}
+                        placeholder="https://fanduel.com/promo/no-sweat-first-bet"
+                        required
+                        data-testid="input-edit-landing-url"
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button 
+                        type="submit" 
+                        disabled={updateBonusMutation.isPending}
+                        data-testid="button-update-bonus"
+                      >
+                        {updateBonusMutation.isPending ? "Updating..." : "Update Bonus"}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setEditingBonus(null)}
+                        data-testid="button-cancel-edit-bonus"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Operator Dialog */}
+        <Dialog open={!!editingOperator} onOpenChange={(open) => !open && setEditingOperator(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Operator: {editingOperator?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              {editingOperator && (
+                <OperatorForm 
+                  operator={editingOperator}
+                  onSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                    queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                    setEditingOperator(null);
+                  }} 
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
