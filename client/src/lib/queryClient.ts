@@ -12,9 +12,8 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Direct Replit backend URL - more reliable than environment variables
-  const REPLIT_BACKEND = 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev';
-  const fullUrl = url.startsWith('http') ? url : `${REPLIT_BACKEND}${url}`;
+  // Use the current server URL for development
+  const fullUrl = url.startsWith('http') ? url : url;
   
   const res = await fetch(fullUrl, {
     method,
@@ -33,10 +32,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Use hardcoded Replit backend URL for all queries
-    const REPLIT_BACKEND = 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev';
+    // Use relative URLs that work with the current server
     const url = queryKey.join("/") as string;
-    const fullUrl = url.startsWith('http') ? url : `${REPLIT_BACKEND}${url}`;
+    const fullUrl = url;
     
     const res = await fetch(fullUrl, {
       credentials: "include",
