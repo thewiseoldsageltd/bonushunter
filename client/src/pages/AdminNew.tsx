@@ -4,19 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Plus, Edit, Trash2, Eye, Users, Building } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { insertOperatorSchema, type InsertOperator } from '@shared/schema';
 
 interface BonusFormData {
   title: string;
@@ -34,58 +29,82 @@ interface BonusFormData {
   valueScore: string;
 }
 
-// OperatorForm Component for Adding New Operators
+interface OperatorFormData {
+  name: string;
+  siteUrl: string;
+  description: string;
+  trustScore: string;
+  overallRating: string;
+  foundedYear: string;
+  headquarters: string;
+  licenses: string;
+  languages: string;
+  currencies: string;
+  paymentMethods: string;
+  minDeposit: string;
+  maxWithdrawal: string;
+  withdrawalTimeframe: string;
+}
+
+// Simple Operator Form Component
 const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const form = useForm<InsertOperator>({
-    resolver: zodResolver(insertOperatorSchema),
-    defaultValues: {
-      name: '',
-      siteUrl: '',
-      description: '',
-      trustScore: '8.0',
-      overallRating: '4.0',
-      bonusRating: '4.0',
-      oddsRating: '4.0', 
-      uiRating: '4.0',
-      foundedYear: 2020,
-      headquarters: '',
-      minDeposit: '10.00',
-      maxWithdrawal: '10000.00',
-      withdrawalTimeframe: '24-48 hours',
-      liveChat: false,
-      mobileApp: false,
-      casinoGames: false,
-      liveCasino: false,
-      esports: false,
-      virtuals: false,
-      active: true,
-      licenses: [],
-      languages: [],
-      currencies: [],
-      paymentMethods: [],
-      withdrawalMethods: [],
-      customerSupportMethods: [],
-      sportsOffered: [],
-      prosAndCons: { pros: [], cons: [] },
-      brandCodes: []
-    }
+  const [operatorForm, setOperatorForm] = useState<OperatorFormData>({
+    name: '',
+    siteUrl: '',
+    description: '',
+    trustScore: '8.0',
+    overallRating: '4.0',
+    foundedYear: '2020',
+    headquarters: '',
+    licenses: '',
+    languages: '',
+    currencies: '',
+    paymentMethods: '',
+    minDeposit: '10.00',
+    maxWithdrawal: '10000.00',
+    withdrawalTimeframe: '24-48 hours'
   });
 
   const createOperatorMutation = useMutation({
-    mutationFn: (data: InsertOperator) => apiRequest('/api/admin/operators', {
-      method: 'POST',
-      body: data
-    }),
+    mutationFn: async (formData: OperatorFormData) => {
+      const processedData = {
+        ...formData,
+        foundedYear: parseInt(formData.foundedYear),
+        licenses: formData.licenses.split(',').map(s => s.trim()).filter(Boolean),
+        languages: formData.languages.split(',').map(s => s.trim()).filter(Boolean),
+        currencies: formData.currencies.split(',').map(s => s.trim()).filter(Boolean),
+        paymentMethods: formData.paymentMethods.split(',').map(s => s.trim()).filter(Boolean),
+        liveChat: false,
+        mobileApp: false,
+        casinoGames: false,
+        esports: false,
+        active: true
+      };
+      const response = await apiRequest('POST', '/api/admin/operators', processedData);
+      return await response.json();
+    },
     onSuccess: () => {
       toast({
-        title: "Success",
+        title: "Success!",
         description: "Operator added successfully!",
       });
-      form.reset();
-      setIsOpen(false);
+      setOperatorForm({
+        name: '',
+        siteUrl: '',
+        description: '',
+        trustScore: '8.0',
+        overallRating: '4.0',
+        foundedYear: '2020',
+        headquarters: '',
+        licenses: '',
+        languages: '',
+        currencies: '',
+        paymentMethods: '',
+        minDeposit: '10.00',
+        maxWithdrawal: '10000.00',
+        withdrawalTimeframe: '24-48 hours'
+      });
       onSuccess();
     },
     onError: (error: any) => {
@@ -97,293 +116,194 @@ const OperatorForm = ({ onSuccess }: { onSuccess: () => void }) => {
     }
   });
 
-  const onSubmit = (data: InsertOperator) => {
-    // Parse comma-separated arrays
-    const processedData = {
-      ...data,
-      licenses: typeof data.licenses === 'string' ? data.licenses.split(',').map(s => s.trim()).filter(Boolean) : data.licenses || [],
-      languages: typeof data.languages === 'string' ? data.languages.split(',').map(s => s.trim()).filter(Boolean) : data.languages || [],
-      currencies: typeof data.currencies === 'string' ? data.currencies.split(',').map(s => s.trim()).filter(Boolean) : data.currencies || [],
-      paymentMethods: typeof data.paymentMethods === 'string' ? data.paymentMethods.split(',').map(s => s.trim()).filter(Boolean) : data.paymentMethods || [],
-      withdrawalMethods: typeof data.withdrawalMethods === 'string' ? data.withdrawalMethods.split(',').map(s => s.trim()).filter(Boolean) : data.withdrawalMethods || [],
-      customerSupportMethods: typeof data.customerSupportMethods === 'string' ? data.customerSupportMethods.split(',').map(s => s.trim()).filter(Boolean) : data.customerSupportMethods || [],
-      sportsOffered: typeof data.sportsOffered === 'string' ? data.sportsOffered.split(',').map(s => s.trim()).filter(Boolean) : data.sportsOffered || [],
-    };
-    
-    createOperatorMutation.mutate(processedData);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!operatorForm.name || !operatorForm.siteUrl) {
+      toast({
+        title: "Error",
+        description: "Name and website URL are required",
+        variant: "destructive",
+      });
+      return;
+    }
+    createOperatorMutation.mutate(operatorForm);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Operator Name*</FormLabel>
-                <FormControl>
-                  <Input placeholder="DraftKings" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="siteUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Website URL*</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://draftkings.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Leading sports betting operator..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Company Details */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="foundedYear"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Founded Year</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="2020" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="headquarters"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Headquarters</FormLabel>
-                <FormControl>
-                  <Input placeholder="Boston, Massachusetts, USA" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Arrays - Comma Separated */}
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="licenses"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Licenses (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input placeholder="UK Gambling Commission, Malta Gaming Authority" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="languages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Languages (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input placeholder="English, Spanish, French" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="currencies"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Currencies (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input placeholder="USD, EUR, GBP" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="paymentMethods"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Payment Methods (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Visa, Mastercard, PayPal, Bank Transfer" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : field.value} onChange={(e) => field.onChange(e.target.value)} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Financial Details */}
-        <div className="grid grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="minDeposit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Min Deposit ($)</FormLabel>
-                <FormControl>
-                  <Input placeholder="10.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="maxWithdrawal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Max Withdrawal ($)</FormLabel>
-                <FormControl>
-                  <Input placeholder="10000.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="withdrawalTimeframe"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Withdrawal Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="24-48 hours" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Ratings */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="trustScore"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Trust Score (/10)</FormLabel>
-                <FormControl>
-                  <Input placeholder="8.0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="overallRating"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Overall Rating (/5)</FormLabel>
-                <FormControl>
-                  <Input placeholder="4.0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Features */}
-        <div className="space-y-3">
-          <h4 className="font-semibold">Features Available</h4>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="liveChat"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormLabel>Live Chat Support</FormLabel>
-                </FormItem>
-              )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Information */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Operator Name*</Label>
+            <Input 
+              id="name"
+              placeholder="e.g., Stake.com" 
+              value={operatorForm.name} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, name: e.target.value }))}
+              required
             />
-            <FormField
-              control={form.control}
-              name="mobileApp"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormLabel>Mobile App</FormLabel>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="casinoGames"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormLabel>Casino Games</FormLabel>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="esports"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormLabel>Esports Betting</FormLabel>
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="siteUrl">Website URL*</Label>
+            <Input 
+              id="siteUrl"
+              placeholder="https://stake.com" 
+              value={operatorForm.siteUrl} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
+              required
             />
           </div>
         </div>
-
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={createOperatorMutation.isPending}>
-            {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
-          </Button>
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea 
+            id="description"
+            placeholder="Brief description of the operator..." 
+            value={operatorForm.description} 
+            onChange={(e) => setOperatorForm(prev => ({ ...prev, description: e.target.value }))}
+            rows={3}
+          />
         </div>
-      </form>
-    </Form>
+      </div>
+
+      {/* Company Details */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Company Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="foundedYear">Founded Year</Label>
+            <Input 
+              id="foundedYear"
+              type="number" 
+              placeholder="2020" 
+              value={operatorForm.foundedYear} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, foundedYear: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="headquarters">Headquarters</Label>
+            <Input 
+              id="headquarters"
+              placeholder="Curacao" 
+              value={operatorForm.headquarters} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Regulatory & Business */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Regulatory & Business Details</h3>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="licenses">Licenses (comma-separated)</Label>
+            <Input 
+              id="licenses"
+              placeholder="Curacao Gaming License" 
+              value={operatorForm.licenses} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, licenses: e.target.value }))}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="languages">Languages</Label>
+              <Input 
+                id="languages"
+                placeholder="English, Spanish, Portuguese" 
+                value={operatorForm.languages} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, languages: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="currencies">Currencies</Label>
+              <Input 
+                id="currencies"
+                placeholder="USD, BTC, ETH" 
+                value={operatorForm.currencies} 
+                onChange={(e) => setOperatorForm(prev => ({ ...prev, currencies: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="paymentMethods">Payment Methods</Label>
+            <Input 
+              id="paymentMethods"
+              placeholder="Bitcoin, Ethereum, Visa, Mastercard" 
+              value={operatorForm.paymentMethods} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, paymentMethods: e.target.value }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Financial Details */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Financial Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="minDeposit">Min Deposit ($)</Label>
+            <Input 
+              id="minDeposit"
+              placeholder="10.00" 
+              value={operatorForm.minDeposit} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, minDeposit: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="maxWithdrawal">Max Withdrawal ($)</Label>
+            <Input 
+              id="maxWithdrawal"
+              placeholder="10000.00" 
+              value={operatorForm.maxWithdrawal} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, maxWithdrawal: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="withdrawalTimeframe">Withdrawal Time</Label>
+            <Input 
+              id="withdrawalTimeframe"
+              placeholder="Instant" 
+              value={operatorForm.withdrawalTimeframe} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, withdrawalTimeframe: e.target.value }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Ratings */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Ratings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="trustScore">Trust Score (/10)</Label>
+            <Input 
+              id="trustScore"
+              placeholder="8.0" 
+              value={operatorForm.trustScore} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="overallRating">Overall Rating (/5)</Label>
+            <Input 
+              id="overallRating"
+              placeholder="4.0" 
+              value={operatorForm.overallRating} 
+              onChange={(e) => setOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="submit" disabled={createOperatorMutation.isPending}>
+          {createOperatorMutation.isPending ? "Adding..." : "Add Operator"}
+        </Button>
+      </div>
+    </form>
   );
 };
 
@@ -482,12 +402,12 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAddBonus = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bonusForm.title || !bonusForm.operatorId) {
+    if (!bonusForm.title || !bonusForm.operatorId || !bonusForm.landingUrl) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
+        title: "Missing Required Fields",
+        description: "Please fill in title, operator, and landing URL.",
         variant: "destructive",
       });
       return;
@@ -497,355 +417,339 @@ const AdminDashboard = () => {
 
   const bonuses = (bonusesData as any)?.bonuses || [];
   const operators = (operatorsData as any)?.operators || [];
+  const stats = {
+    totalBonuses: bonuses.length,
+    activeOperators: operators.length,
+    systemStatus: bonuses.length > 0 ? 'LIVE' : 'SETUP'
+  };
 
   return (
-    <div className="container mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Bonushunter Admin
-        </h1>
-        <Badge variant="secondary" className="px-3 py-1">
-          Manual Management Mode
-        </Badge>
-      </div>
-
-      <Tabs defaultValue="bonuses" className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
-          <TabsTrigger value="bonuses" data-testid="tab-bonuses">
-            Bonus Management
-          </TabsTrigger>
-          <TabsTrigger value="operators" data-testid="tab-operators">
-            Operators
-          </TabsTrigger>
-          <TabsTrigger value="analytics" data-testid="tab-analytics">
-            Analytics
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="bonuses" className="space-y-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="flex items-center justify-between p-6">
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {bonuses.length}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Total Bonuses
-                  </p>
-                </div>
-                <Building className="h-8 w-8 text-blue-500" />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="flex items-center justify-between p-6">
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {operators.length}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Active Operators
-                  </p>
-                </div>
-                <Users className="h-8 w-8 text-green-500" />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="flex items-center justify-between p-6">
-                <div>
-                  <p className="text-2xl font-bold text-green-600">
-                    LIVE
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    System Status
-                  </p>
-                </div>
-                <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />
-              </CardContent>
-            </Card>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bonushunter Admin</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Manage bonuses and operators</p>
           </div>
+          <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+            Manual Management Mode
+          </Badge>
+        </div>
 
-          {/* Add Bonus Section */}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Bonus Management</CardTitle>
-              <Button
-                onClick={() => setShowAddForm(!showAddForm)}
-                size="sm"
-                data-testid="button-add-bonus"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Bonus
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {showAddForm && (
-                <div className="border-t pt-6 mt-4">
-                  <h3 className="text-lg font-semibold mb-4">Add New Bonus</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Bonus Title *</Label>
-                        <Input
-                          id="title"
-                          placeholder="e.g., DraftKings Welcome Bonus"
-                          value={bonusForm.title}
-                          onChange={(e) => setBonusForm({ ...bonusForm, title: e.target.value })}
-                          data-testid="input-bonus-title"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="operator">Operator *</Label>
-                        <Select
-                          value={bonusForm.operatorId}
-                          onValueChange={(value) => setBonusForm({ ...bonusForm, operatorId: value })}
-                        >
-                          <SelectTrigger data-testid="select-operator">
-                            <SelectValue placeholder="Choose operator" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {operators.map((op: any) => (
-                              <SelectItem key={op.id} value={op.id}>
-                                {op.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="e.g., Bet $5, Get $150 in Bonus Bets"
-                        value={bonusForm.description}
-                        onChange={(e) => setBonusForm({ ...bonusForm, description: e.target.value })}
-                        data-testid="input-bonus-description"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="minDeposit">Min Deposit ($)</Label>
-                        <Input
-                          id="minDeposit"
-                          type="number"
-                          value={bonusForm.minDeposit}
-                          onChange={(e) => setBonusForm({ ...bonusForm, minDeposit: e.target.value })}
-                          data-testid="input-min-deposit"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="maxBonus">Max Bonus ($)</Label>
-                        <Input
-                          id="maxBonus"
-                          type="number"
-                          value={bonusForm.maxBonus}
-                          onChange={(e) => setBonusForm({ ...bonusForm, maxBonus: e.target.value })}
-                          data-testid="input-max-bonus"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="wageringRequirement">Wagering</Label>
-                        <Input
-                          id="wageringRequirement"
-                          type="number"
-                          step="0.1"
-                          value={bonusForm.wageringRequirement}
-                          onChange={(e) => setBonusForm({ ...bonusForm, wageringRequirement: e.target.value })}
-                          data-testid="input-wagering"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="valueScore">Value Score</Label>
-                        <Input
-                          id="valueScore"
-                          type="number"
-                          max="100"
-                          value={bonusForm.valueScore}
-                          onChange={(e) => setBonusForm({ ...bonusForm, valueScore: e.target.value })}
-                          data-testid="input-value-score"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="landingUrl">Landing URL</Label>
-                      <Input
-                        id="landingUrl"
-                        placeholder="https://operator.com/bonus"
-                        value={bonusForm.landingUrl}
-                        onChange={(e) => setBonusForm({ ...bonusForm, landingUrl: e.target.value })}
-                        data-testid="input-landing-url"
-                      />
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={addBonusMutation.isPending}
-                        data-testid="button-save-bonus"
-                      >
-                        {addBonusMutation.isPending ? "Adding..." : "Add Bonus"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowAddForm(false)}
-                        data-testid="button-cancel-bonus"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-4">
+                  <Building className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
-              )}
+                <div>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalBonuses}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Total Bonuses</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Existing Bonuses */}
           <Card>
-            <CardHeader>
-              <CardTitle>Current Bonuses ({bonuses.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingBonuses ? (
-                <p className="text-center py-4">Loading bonuses...</p>
-              ) : bonuses.length === 0 ? (
-                <p className="text-center py-8 text-gray-500">
-                  No bonuses added yet. Click "Add New Bonus" to get started!
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {bonuses.map((bonus: any) => (
-                    <div
-                      key={bonus.id}
-                      className="flex items-start justify-between p-4 border rounded-lg bg-white dark:bg-gray-800"
-                    >
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{bonus.title}</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-2">
-                          {bonus.operator?.name} • {bonus.description}
-                        </p>
-                        <div className="flex gap-4 text-sm text-gray-500">
-                          <span>Min: ${bonus.minDeposit}</span>
-                          <span>Max: ${bonus.maxBonus}</span>
-                          <span>Wagering: {bonus.wageringRequirement}x</span>
-                          <Badge variant="outline">
-                            Score: {bonus.valueScore}
-                          </Badge>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg mr-4">
+                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeOperators}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Active Operators</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-4">
+                  <Eye className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.systemStatus}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">System Status</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="bonuses" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="bonuses">Bonus Management</TabsTrigger>
+            <TabsTrigger value="operators">Operators</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="bonuses">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Bonus Management</CardTitle>
+                <Button onClick={() => setShowAddForm(true)} data-testid="button-add-bonus">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Bonus
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {showAddForm && (
+                  <div className="mb-6 p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <h3 className="text-lg font-semibold mb-4">Add New Bonus</h3>
+                    <form onSubmit={handleAddBonus} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="title">Title*</Label>
+                          <Input
+                            id="title"
+                            value={bonusForm.title}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, title: e.target.value }))}
+                            placeholder="FanDuel No Sweat First Bet"
+                            required
+                            data-testid="input-title"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="operatorId">Operator*</Label>
+                          <Select
+                            value={bonusForm.operatorId}
+                            onValueChange={(value) => setBonusForm(prev => ({ ...prev, operatorId: value }))}
+                          >
+                            <SelectTrigger data-testid="select-operator">
+                              <SelectValue placeholder="Select operator" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {operators.map((operator: any) => (
+                                <SelectItem key={operator.id} value={operator.id}>
+                                  {operator.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
+
+                      <div>
+                        <Label htmlFor="description">Description*</Label>
+                        <Textarea
+                          id="description"
+                          value={bonusForm.description}
+                          onChange={(e) => setBonusForm(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Get up to $1,000 back if your first bet loses"
+                          required
+                          data-testid="textarea-description"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <Label htmlFor="minDeposit">Min Deposit ($)</Label>
+                          <Input
+                            id="minDeposit"
+                            type="number"
+                            value={bonusForm.minDeposit}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
+                            placeholder="10"
+                            data-testid="input-min-deposit"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="maxBonus">Max Bonus ($)</Label>
+                          <Input
+                            id="maxBonus"
+                            type="number"
+                            value={bonusForm.maxBonus}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
+                            placeholder="1000"
+                            data-testid="input-max-bonus"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="valueScore">Value Score (0-100)</Label>
+                          <Input
+                            id="valueScore"
+                            type="number"
+                            value={bonusForm.valueScore}
+                            onChange={(e) => setBonusForm(prev => ({ ...prev, valueScore: e.target.value }))}
+                            placeholder="88"
+                            data-testid="input-value-score"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="landingUrl">Landing URL*</Label>
+                        <Input
+                          id="landingUrl"
+                          value={bonusForm.landingUrl}
+                          onChange={(e) => setBonusForm(prev => ({ ...prev, landingUrl: e.target.value }))}
+                          placeholder="https://fanduel.com/promo/no-sweat-first-bet"
+                          required
+                          data-testid="input-landing-url"
+                        />
+                      </div>
+
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(bonus.landingUrl, '_blank')}
-                          data-testid={`button-view-${bonus.id}`}
+                        <Button 
+                          type="submit" 
+                          disabled={addBonusMutation.isPending}
+                          data-testid="button-submit-bonus"
                         >
-                          <Eye className="h-4 w-4" />
+                          {addBonusMutation.isPending ? "Adding..." : "Add Bonus"}
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteBonusMutation.mutate(bonus.id)}
-                          disabled={deleteBonusMutation.isPending}
-                          data-testid={`button-delete-${bonus.id}`}
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => setShowAddForm(false)}
+                          data-testid="button-cancel-bonus"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          Cancel
                         </Button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold">Current Bonuses ({bonuses.length})</h3>
+                  {loadingBonuses ? (
+                    <p className="text-gray-500">Loading bonuses...</p>
+                  ) : bonuses.length === 0 ? (
+                    <p className="text-gray-500">No bonuses yet. Add your first bonus!</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {bonuses.map((bonus: any) => (
+                        <div
+                          key={bonus.id}
+                          className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{bonus.title}</h3>
+                            <p className="text-gray-600 dark:text-gray-300 mb-2">
+                              {bonus.operator?.name} • {bonus.description}
+                            </p>
+                            <div className="flex gap-4 text-sm text-gray-500">
+                              <span>Min: ${bonus.minDeposit}</span>
+                              <span>Max: ${bonus.maxBonus}</span>
+                              <span>Wagering: {bonus.wageringRequirement}x</span>
+                              <Badge variant="outline">
+                                Score: {bonus.valueScore}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(bonus.landingUrl, '_blank')}
+                              data-testid={`button-view-${bonus.id}`}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteBonusMutation.mutate(bonus.id)}
+                              disabled={deleteBonusMutation.isPending}
+                              data-testid={`button-delete-${bonus.id}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="operators">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Operators ({operators.length})</CardTitle>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button data-testid="button-add-operator">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New Operator
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Add New Operator</DialogTitle>
+                    </DialogHeader>
+                    <div className="mt-4">
+                      <OperatorForm onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                      }} />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {operators.map((operator: any) => (
+                    <div
+                      key={operator.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <div>
+                        <h3 className="font-semibold">{operator.name}</h3>
+                        <p className="text-sm text-gray-500">{operator.siteUrl}</p>
+                        {operator.description && (
+                          <p className="text-sm text-gray-400 mt-1">{operator.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">
+                          Trust: {operator.trustScore}/10
+                        </Badge>
+                        {operator.overallRating && operator.overallRating !== "0.0" && (
+                          <Badge variant="outline">
+                            Rating: {operator.overallRating}/5
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="operators">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Operators ({operators.length})</CardTitle>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button data-testid="button-add-operator">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Operator
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Add New Operator</DialogTitle>
-                  </DialogHeader>
-                  <OperatorForm onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                  }} />
-                </DialogContent>
-              </Dialog>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {operators.map((operator: any) => (
-                  <div
-                    key={operator.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div>
-                      <h3 className="font-semibold">{operator.name}</h3>
-                      <p className="text-sm text-gray-500">{operator.siteUrl}</p>
-                      {operator.description && (
-                        <p className="text-sm text-gray-400 mt-1">{operator.description}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">
-                        Trust: {operator.trustScore}/10
-                      </Badge>
-                      {operator.overallRating && operator.overallRating !== "0.0" && (
-                        <Badge variant="outline">
-                          Rating: {operator.overallRating}/5
-                        </Badge>
-                      )}
-                    </div>
+          <TabsContent value="analytics">
+            <Card>
+              <CardHeader>
+                <CardTitle>System Analytics</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center py-8">
+                <p className="text-gray-500 mb-4">
+                  Your platform is live and collecting bonus data!
+                </p>
+                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                  <div className="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">✓</p>
+                    <p className="text-sm">Chat AI Working</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Analytics</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center py-8">
-              <p className="text-gray-500 mb-4">
-                Your platform is live and collecting bonus data!
-              </p>
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                <div className="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
-                  <p className="text-2xl font-bold text-green-600">✓</p>
-                  <p className="text-sm">Chat AI Working</p>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                    <p className="text-2xl font-bold text-blue-600">✓</p>
+                    <p className="text-sm">Database Connected</p>
+                  </div>
                 </div>
-                <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                  <p className="text-2xl font-bold text-blue-600">✓</p>
-                  <p className="text-sm">Database Connected</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
