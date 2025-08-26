@@ -191,7 +191,8 @@ export function registerScrapingRoutes(app: Express) {
         operatorId: config.operatorId,
         productType: config.productType,
         bonusPageUrl: config.bonusPageUrl,
-        loginRequired: config.loginRequired
+        loginRequired: config.loginRequired,
+        selectors: config.selectors
       }))
     });
   });
