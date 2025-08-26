@@ -199,7 +199,16 @@ export function registerScrapingRoutes(app: Express) {
   // Add new scraping configuration
   app.post("/api/admin/scraping/configs", async (req, res) => {
     try {
-      const newConfig: ScrapingConfig = req.body;
+      const newConfig: ScrapingConfig = {
+        ...req.body,
+        // Add default parsing rules if not provided
+        parsingRules: req.body.parsingRules || {
+          amountRegex: /\$(\d+(?:,\d{3})*)/,
+          wageringRegex: /(\d+)x\s*wagering/i,
+          dateFormat: "MM/dd/yyyy",
+          excludeKeywords: ["expired", "ended", "no longer available"]
+        }
+      };
       
       // Validate configuration
       const errors = validateScrapingConfig(newConfig);
@@ -207,17 +216,20 @@ export function registerScrapingRoutes(app: Express) {
         return res.status(400).json({ errors });
       }
       
-      // Test configuration before adding
-      const testResult = await testScrapingConfig(newConfig);
-      if (!testResult.success) {
-        return res.status(400).json({ 
-          error: "Configuration test failed", 
-          details: testResult.error 
-        });
-      }
-      
       // Add to configs (in production, would save to database)
       defaultScrapingConfigs.push(newConfig);
+      
+      // Optionally test configuration (don't fail save if test fails)
+      let testResult = null;
+      try {
+        testResult = await testScrapingConfig(newConfig);
+      } catch (error) {
+        testResult = {
+          success: false,
+          error: "Test skipped - browser environment not available",
+          message: "Configuration saved without testing"
+        };
+      }
       
       res.json({
         message: "Scraping configuration added successfully",

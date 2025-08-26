@@ -80,9 +80,9 @@ export function validateScrapingConfig(config: ScrapingConfig): string[] {
   if (!config.operatorName) errors.push("Operator name is required");
   if (!config.operatorId) errors.push("Operator ID is required");
   if (!config.bonusPageUrl) errors.push("Bonus page URL is required");
-  if (!config.selectors.containerSelector) errors.push("Container selector is required");
-  if (!config.selectors.titleSelector) errors.push("Title selector is required");
-  if (!config.parsingRules.amountRegex) errors.push("Amount regex is required");
+  if (!config.selectors?.containerSelector) errors.push("Container selector is required");
+  if (!config.selectors?.titleSelector) errors.push("Title selector is required");
+  if (!config.parsingRules?.amountRegex) errors.push("Amount regex is required");
   
   // Validate URL format
   try {
