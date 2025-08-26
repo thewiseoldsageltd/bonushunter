@@ -578,7 +578,10 @@ const AdminDashboard = () => {
                       Test Configuration
                     </Button>
                     <Button 
-                      onClick={async () => {
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        console.log('Save button clicked:', { selectedConfig, configForm });
+                        
                         try {
                           const isEditing = selectedConfig !== null;
                           const url = isEditing 
@@ -586,28 +589,39 @@ const AdminDashboard = () => {
                             : '/api/admin/scraping/configs';
                           const method = isEditing ? 'PUT' : 'POST';
                           
+                          console.log('Making request:', { method, url });
+                          
+                          const requestBody = {
+                            operatorName: configForm.operatorName,
+                            operatorId: configForm.operatorId || configForm.operatorName.toLowerCase().replace(/\s+/g, '-'),
+                            productType: configForm.productType,
+                            bonusPageUrl: configForm.bonusPageUrl,
+                            loginRequired: configForm.loginRequired,
+                            selectors: {
+                              containerSelector: configForm.containerSelector,
+                              titleSelector: configForm.titleSelector,
+                              descriptionSelector: configForm.descriptionSelector,
+                              amountSelector: configForm.amountSelector,
+                              wageringSelector: configForm.wageringSelector,
+                              endDateSelector: configForm.endDateSelector,
+                              claimLinkSelector: configForm.claimLinkSelector
+                            }
+                          };
+                          
+                          console.log('Request body:', requestBody);
+                          
                           const response = await fetch(url, {
                             method,
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              operatorName: configForm.operatorName,
-                              operatorId: configForm.operatorId || configForm.operatorName.toLowerCase().replace(/\s+/g, '-'),
-                              productType: configForm.productType,
-                              bonusPageUrl: configForm.bonusPageUrl,
-                              loginRequired: configForm.loginRequired,
-                              selectors: {
-                                containerSelector: configForm.containerSelector,
-                                titleSelector: configForm.titleSelector,
-                                descriptionSelector: configForm.descriptionSelector,
-                                amountSelector: configForm.amountSelector,
-                                wageringSelector: configForm.wageringSelector,
-                                endDateSelector: configForm.endDateSelector,
-                                claimLinkSelector: configForm.claimLinkSelector
-                              }
-                            })
+                            body: JSON.stringify(requestBody)
                           });
                           
+                          console.log('Response status:', response.status);
+                          
                           if (response.ok) {
+                            const result = await response.json();
+                            console.log('Success result:', result);
+                            
                             setShowConfigForm(false);
                             setSelectedConfig(null);
                             setConfigForm({
@@ -623,16 +637,18 @@ const AdminDashboard = () => {
                             });
                           } else {
                             const error = await response.json();
+                            console.error('API error:', error);
                             toast({
                               title: "Save Failed",
-                              description: error.message || "Failed to save configuration",
+                              description: error.message || error.error || "Failed to save configuration",
                               variant: "destructive"
                             });
                           }
                         } catch (error) {
+                          console.error('Save error:', error);
                           toast({
                             title: "Save Failed", 
-                            description: "Failed to save configuration",
+                            description: `Failed to save configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
                             variant: "destructive"
                           });
                         }
