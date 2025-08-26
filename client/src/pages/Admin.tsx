@@ -513,6 +513,32 @@ const AdminDashboard = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
+                      <Label htmlFor="operatorId">Operator ID</Label>
+                      <Input
+                        id="operatorId"
+                        value={configForm.operatorId}
+                        onChange={(e) => setConfigForm({...configForm, operatorId: e.target.value})}
+                        placeholder="op-2"
+                        data-testid="input-operator-id"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="productType">Product Type</Label>
+                      <Select value={configForm.productType} onValueChange={(value) => setConfigForm({...configForm, productType: value})}>
+                        <SelectTrigger data-testid="select-config-product-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sportsbook">Sportsbook</SelectItem>
+                          <SelectItem value="casino">Casino</SelectItem>
+                          <SelectItem value="poker">Poker</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <Label htmlFor="containerSelector">Container Selector</Label>
                       <Input
                         id="containerSelector"
@@ -532,6 +558,63 @@ const AdminDashboard = () => {
                         data-testid="input-title-selector"
                       />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="descriptionSelector">Description Selector</Label>
+                      <Input
+                        id="descriptionSelector"
+                        value={configForm.descriptionSelector}
+                        onChange={(e) => setConfigForm({...configForm, descriptionSelector: e.target.value})}
+                        placeholder=".description, p"
+                        data-testid="input-description-selector"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="amountSelector">Amount Selector</Label>
+                      <Input
+                        id="amountSelector"
+                        value={configForm.amountSelector}
+                        onChange={(e) => setConfigForm({...configForm, amountSelector: e.target.value})}
+                        placeholder=".amount, .bonus-amount"
+                        data-testid="input-amount-selector"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="wageringSelector">Wagering Selector</Label>
+                      <Input
+                        id="wageringSelector"
+                        value={configForm.wageringSelector}
+                        onChange={(e) => setConfigForm({...configForm, wageringSelector: e.target.value})}
+                        placeholder=".terms, .wagering"
+                        data-testid="input-wagering-selector"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="endDateSelector">End Date Selector</Label>
+                      <Input
+                        id="endDateSelector"
+                        value={configForm.endDateSelector}
+                        onChange={(e) => setConfigForm({...configForm, endDateSelector: e.target.value})}
+                        placeholder=".expires, .end-date"
+                        data-testid="input-end-date-selector"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="claimLinkSelector">Claim Link Selector</Label>
+                    <Input
+                      id="claimLinkSelector"
+                      value={configForm.claimLinkSelector}
+                      onChange={(e) => setConfigForm({...configForm, claimLinkSelector: e.target.value})}
+                      placeholder="a[href*='signup'], .cta-button"
+                      data-testid="input-claim-link-selector"
+                    />
                   </div>
 
                   <div className="flex gap-2">
