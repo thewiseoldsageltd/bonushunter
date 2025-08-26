@@ -116,18 +116,19 @@ export function rankBonuses(
   
   return bonuses
     .map(bonus => {
-      const calculation = calculateBonusValue(bonus, budget);
+      // Use stored valueScore instead of calculating new one
+      const storedValueScore = Number(bonus.valueScore || 0);
       
-      // Generate rationale
-      let rationale = `Value score: ${calculation.valueScore}/100`;
-      if (calculation.valueScore > 90) rationale += " - Excellent value with low wagering requirements";
-      else if (calculation.valueScore > 75) rationale += " - Good value with reasonable terms";
-      else if (calculation.valueScore > 50) rationale += " - Fair value bonus";
+      // Generate rationale based on stored value score
+      let rationale = `Value score: ${storedValueScore}/100`;
+      if (storedValueScore > 90) rationale += " - Excellent value with low wagering requirements";
+      else if (storedValueScore > 75) rationale += " - Good value with reasonable terms";
+      else if (storedValueScore > 50) rationale += " - Fair value bonus";
       else rationale += " - Lower value due to high wagering or restrictions";
       
       return {
         ...bonus,
-        valueScore: calculation.valueScore,
+        valueScore: storedValueScore,
         rationale
       };
     })
