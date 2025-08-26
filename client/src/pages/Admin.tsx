@@ -70,11 +70,11 @@ const AdminDashboard = () => {
   // Start scraping mutation
   const startScrapingMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/admin/scraping/start', {
+      return await fetch('/api/admin/scraping/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ configs: [] })
-      });
+      }).then(res => res.json());
     },
     onSuccess: () => {
       setScrapingStatus({ isRunning: true });
@@ -95,9 +95,9 @@ const AdminDashboard = () => {
   // Stop scraping mutation
   const stopScrapingMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/admin/scraping/stop', {
+      return await fetch('/api/admin/scraping/stop', {
         method: 'POST'
-      });
+      }).then(res => res.json());
     },
     onSuccess: () => {
       setScrapingStatus({ isRunning: false });
@@ -111,9 +111,9 @@ const AdminDashboard = () => {
   // Manual scrape mutation
   const manualScrapeMutation = useMutation({
     mutationFn: async (operatorId: string) => {
-      return await apiRequest(`/api/admin/scraping/manual/${operatorId}`, {
+      return await fetch(`/api/admin/scraping/manual/${operatorId}`, {
         method: 'POST'
-      });
+      }).then(res => res.json());
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
@@ -127,11 +127,11 @@ const AdminDashboard = () => {
   // Add bonus mutation
   const addBonusMutation = useMutation({
     mutationFn: async (bonusData: any) => {
-      return await apiRequest('/api/admin/bonuses', {
+      return await fetch('/api/admin/bonuses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bonusData)
-      });
+      }).then(res => res.json());
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });

@@ -261,6 +261,17 @@ export class MemStorage implements IStorage {
       maxCashout: insertBonus.maxCashout || null,
       startAt: insertBonus.startAt || null,
       endAt: insertBonus.endAt || null,
+      matchPercent: insertBonus.matchPercent || "0.00",
+      minDeposit: insertBonus.minDeposit || "0.00",
+      maxBonus: insertBonus.maxBonus || null,
+      wageringRequirement: insertBonus.wageringRequirement || "1.0",
+      wageringUnit: insertBonus.wageringUnit || "bonus",
+      eligibleGames: insertBonus.eligibleGames || [],
+      gameWeightings: insertBonus.gameWeightings || {},
+      expiryDays: insertBonus.expiryDays || 30,
+      paymentMethodExclusions: insertBonus.paymentMethodExclusions || [],
+      existingUserEligible: insertBonus.existingUserEligible || false,
+      valueScore: insertBonus.valueScore || "0.00",
       createdAt: new Date()
     };
     this.bonuses.set(id, bonus);
