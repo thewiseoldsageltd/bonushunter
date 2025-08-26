@@ -70,6 +70,30 @@ export const defaultScrapingConfigs: ScrapingConfig[] = [
       wageringRegex: /(\d+)x/i,
       excludeKeywords: ["expired", "ended"]
     }
+  },
+  
+  // BetMGM Sportsbook 
+  {
+    operatorName: "BetMGM Sportsbook",
+    operatorId: "betmgm-sportsbook",
+    bonusPageUrl: "https://www.nj.betmgm.com/en/promo/offers/p/sportsbook",
+    loginRequired: false,
+    productType: "sportsbook",
+    selectors: {
+      containerSelector: ".promo-card, .offer-card, .promotion-item",
+      titleSelector: "h2, h3, .title, .promo-title",
+      descriptionSelector: ".description, .promo-description, .offer-description",
+      amountSelector: ".amount, .bonus-amount, .offer-amount",
+      wageringSelector: ".terms, .wagering-requirements",
+      endDateSelector: ".expiry, .end-date, .expires",
+      claimLinkSelector: "a[href*='signup'], .cta-button, .claim-button"
+    },
+    parsingRules: {
+      amountRegex: /\$(\d+(?:,\d{3})*)/,
+      wageringRegex: /(\d+)x\s*wagering/i,
+      dateFormat: "MM/dd/yyyy",
+      excludeKeywords: ["expired", "ended", "no longer available"]
+    }
   }
 ];
 
