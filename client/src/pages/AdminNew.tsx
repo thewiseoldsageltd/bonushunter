@@ -242,7 +242,9 @@ const AdminDashboard = () => {
         expiryDays: editingBonus.expiryDays?.toString() || '30',
         valueScore: editingBonus.valueScore?.toString() || '85',
         termsAndConditions: editingBonus.termsAndConditions || '',
-        existingUserEligible: editingBonus.existingUserEligible || false
+        existingUserEligible: editingBonus.existingUserEligible || false,
+        startAt: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[0] : '',
+        endAt: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[0] : ''
       });
     }
   }, [editingBonus]);
@@ -1408,7 +1410,9 @@ const AdminDashboard = () => {
                                   valueScore: bonus.valueScore || '',
                                   landingUrl: bonus.landingUrl,
                                   termsAndConditions: bonus.termsAndConditions || '',
-                                  existingUserEligible: bonus.existingUserEligible || false
+                                  existingUserEligible: bonus.existingUserEligible || false,
+                                  startAt: bonus.startAt ? new Date(bonus.startAt).toISOString().split('T')[0] : '',
+                                  endAt: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[0] : ''
                                 });
                               }}
                               data-testid={`button-edit-${bonus.id}`}
