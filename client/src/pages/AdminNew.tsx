@@ -36,6 +36,7 @@ interface BonusFormData {
   endAt: string;
   startTime: string;
   endTime: string;
+  timezone: string;
 }
 
 interface OperatorFormData {
@@ -96,7 +97,8 @@ const AdminDashboard = () => {
     startAt: '',
     endAt: '',
     startTime: '00:00',
-    endTime: '23:59'
+    endTime: '23:59',
+    timezone: 'America/New_York'
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -133,7 +135,8 @@ const AdminDashboard = () => {
     startAt: '',
     endAt: '',
     startTime: '00:00',
-    endTime: '23:59'
+    endTime: '23:59',
+    timezone: 'America/New_York'
   });
 
   // Form state for editing operator
@@ -252,7 +255,8 @@ const AdminDashboard = () => {
         startAt: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[0] : '',
         endAt: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[0] : '',
         startTime: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[1].substring(0, 5) : '00:00',
-        endTime: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[1].substring(0, 5) : '23:59'
+        endTime: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[1].substring(0, 5) : '23:59',
+        timezone: editingBonus.timezone || 'America/New_York'
       });
     }
   }, [editingBonus]);
@@ -319,7 +323,7 @@ const AdminDashboard = () => {
         endAt: formData.endAt ? combineDateAndTime(formData.endAt, formData.endTime) : ''
       };
       
-      // Remove time fields from request
+      // Remove time fields from request, keep timezone
       const { startTime, endTime, ...dataToSend } = processedData;
       
       const response = await apiRequest('POST', '/api/admin/bonuses', dataToSend);
@@ -375,7 +379,7 @@ const AdminDashboard = () => {
         endAt: data.endAt ? combineDateAndTime(data.endAt, data.endTime) : ''
       };
       
-      // Remove time fields from request
+      // Remove time fields from request, keep timezone
       const { startTime, endTime, ...dataToSend } = processedData;
       
       const response = await apiRequest('PUT', `/api/admin/bonuses/${id}`, dataToSend);
@@ -543,7 +547,8 @@ const AdminDashboard = () => {
       startAt: '',
       endAt: '',
       startTime: '00:00',
-      endTime: '23:59'
+      endTime: '23:59',
+      timezone: 'America/New_York'
     });
   };
 
@@ -897,6 +902,27 @@ const AdminDashboard = () => {
                             </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
                           </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="timezone">Timezone</Label>
+                          <Select value={bonusForm.timezone} onValueChange={(value) => setBonusForm(prev => ({ ...prev, timezone: value }))}>
+                            <SelectTrigger data-testid="select-timezone">
+                              <SelectValue placeholder="Select timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                              <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                              <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                              <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                              <SelectItem value="Europe/London">Greenwich Mean Time (GMT/BST)</SelectItem>
+                              <SelectItem value="Europe/Paris">Central European Time (CET)</SelectItem>
+                              <SelectItem value="Europe/Berlin">Central European Time (CET)</SelectItem>
+                              <SelectItem value="Australia/Sydney">Australian Eastern Time (AET)</SelectItem>
+                              <SelectItem value="Asia/Tokyo">Japan Standard Time (JST)</SelectItem>
+                              <SelectItem value="UTC">Coordinated Universal Time (UTC)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500 mt-1">Timezone for promotion start/end times</p>
                         </div>
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                           <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -1258,12 +1284,33 @@ const AdminDashboard = () => {
                                 type="time"
                                 value={editBonusForm.endTime || "23:59"}
                                 onChange={(e) => setEditBonusForm(prev => ({ ...prev, endTime: e.target.value }))}
-                                data-testid="input-edit-end-time"
+                                data-testid="input-edit-time"
                                 className="text-sm"
                               />
                             </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
                           </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="edit-timezone">Timezone</Label>
+                          <Select value={editBonusForm.timezone} onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, timezone: value }))}>
+                            <SelectTrigger data-testid="select-edit-timezone">
+                              <SelectValue placeholder="Select timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                              <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                              <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                              <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                              <SelectItem value="Europe/London">Greenwich Mean Time (GMT/BST)</SelectItem>
+                              <SelectItem value="Europe/Paris">Central European Time (CET)</SelectItem>
+                              <SelectItem value="Europe/Berlin">Central European Time (CET)</SelectItem>
+                              <SelectItem value="Australia/Sydney">Australian Eastern Time (AET)</SelectItem>
+                              <SelectItem value="Asia/Tokyo">Japan Standard Time (JST)</SelectItem>
+                              <SelectItem value="UTC">Coordinated Universal Time (UTC)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500 mt-1">Timezone for promotion start/end times</p>
                         </div>
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                           <p className="text-sm text-blue-800 dark:text-blue-200">

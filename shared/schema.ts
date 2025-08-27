@@ -84,6 +84,7 @@ export const bonuses = pgTable("bonuses", {
   termsAndConditions: text("terms_and_conditions"), // Raw T&C text for AI analysis
   startAt: timestamp("start_at"),
   endAt: timestamp("end_at"),
+  timezone: varchar("timezone", { length: 50 }).default("America/New_York"),
   status: text("status").default("active"), // active, inactive, expired
   createdAt: timestamp("created_at").defaultNow(),
 });
