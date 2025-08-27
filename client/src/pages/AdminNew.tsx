@@ -49,6 +49,7 @@ const AdminDashboard = () => {
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
   const [editingOperator, setEditingOperator] = useState<any>(null);
+  const [showEditOperatorForm, setShowEditOperatorForm] = useState(false);
 
   // Form state for new bonus
   const [bonusForm, setBonusForm] = useState<BonusFormData>({
@@ -100,6 +101,19 @@ const AdminDashboard = () => {
     termsAndConditions: ''
   });
 
+  // Form state for editing operator
+  const [editOperatorForm, setEditOperatorForm] = useState<OperatorFormData>({
+    name: '',
+    siteUrl: '',
+    description: '',
+    logoUrl: '',
+    trustScore: '8',
+    overallRating: '4.5',
+    licenseInfo: '',
+    supportedJurisdictions: [],
+    isActive: true
+  });
+
   // EV Calculation State
   const [calculatedEV, setCalculatedEV] = useState(() => 
     calculateBonusEV({
@@ -117,6 +131,7 @@ const AdminDashboard = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showAddOperatorForm, setShowAddOperatorForm] = useState(false);
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -182,6 +197,23 @@ const AdminDashboard = () => {
       });
     }
   }, [editingBonus]);
+
+  // Pre-populate edit form when editing operator changes
+  React.useEffect(() => {
+    if (editingOperator) {
+      setEditOperatorForm({
+        name: editingOperator.name || '',
+        siteUrl: editingOperator.siteUrl || '',
+        description: editingOperator.description || '',
+        logoUrl: editingOperator.logoUrl || '',
+        trustScore: editingOperator.trustScore?.toString() || '8',
+        overallRating: editingOperator.overallRating?.toString() || '4.5',
+        licenseInfo: editingOperator.licenseInfo || '',
+        supportedJurisdictions: editingOperator.supportedJurisdictions || [],
+        isActive: editingOperator.isActive ?? true
+      });
+    }
+  }, [editingOperator]);
 
   // Fetch all bonuses
   const { data: bonusesData, isLoading: loadingBonuses } = useQuery({
@@ -251,11 +283,37 @@ const AdminDashboard = () => {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
       setEditingBonus(null);
+      setShowEditForm(false);
     },
     onError: (error: any) => {
       toast({
         title: "Update Failed",
         description: error.message || "Could not update bonus",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const updateOperatorMutation = useMutation({
+    mutationFn: async (formData: OperatorFormData & { id: string }) => {
+      const { id, ...data } = formData;
+      const response = await apiRequest('PUT', `/api/admin/operators/${id}`, data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Operator Updated Successfully!",
+        description: "The operator information has been saved.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      setEditingOperator(null);
+      setShowEditOperatorForm(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Could not update operator",
         variant: "destructive",
       });
     }
@@ -372,6 +430,19 @@ const AdminDashboard = () => {
       return;
     }
     updateBonusMutation.mutate({ ...editBonusForm, id: editingBonus.id });
+  };
+
+  const handleUpdateOperator = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editOperatorForm.name || !editOperatorForm.siteUrl) {
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in operator name and site URL.",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateOperatorMutation.mutate({ ...editOperatorForm, id: editingOperator.id });
   };
 
   const bonuses = (bonusesData as any)?.bonuses || [];
@@ -1156,62 +1227,193 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Operators ({operators.length})</CardTitle>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button data-testid="button-add-operator">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add New Operator
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Add New Operator</DialogTitle>
-                    </DialogHeader>
-                    <div className="mt-4">
-                      <OperatorForm onSuccess={() => {
-                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-                      }} />
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  onClick={() => {
+                    setShowEditOperatorForm(false); // Close edit form if open
+                    setShowAddOperatorForm(!showAddOperatorForm);
+                  }}
+                  data-testid="button-add-operator"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Operator
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {operators.map((operator: any) => (
-                    <div
-                      key={operator.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div>
-                        <h3 className="font-semibold">{operator.name}</h3>
-                        <p className="text-sm text-gray-500">{operator.siteUrl}</p>
-                        {operator.description && (
-                          <p className="text-sm text-gray-400 mt-1">{operator.description}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-2 mr-4">
-                          <Badge variant="secondary">
-                            Trust: {operator.trustScore}/10
-                          </Badge>
-                          {operator.overallRating && operator.overallRating !== "0.0" && (
-                            <Badge variant="outline">
-                              Rating: {operator.overallRating}/5
-                            </Badge>
-                          )}
+                {/* Inline Add Form */}
+                {showAddOperatorForm && (
+                  <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <h3 className="text-lg font-semibold mb-4">Add New Operator</h3>
+                    <OperatorForm onSuccess={() => {
+                      queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                      setShowAddOperatorForm(false);
+                    }} />
+                  </div>
+                )}
+
+                {/* Inline Edit Form */}
+                {showEditOperatorForm && editingOperator && (
+                  <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <h3 className="text-lg font-semibold mb-4">Edit Operator: {editingOperator.name}</h3>
+
+                    <form onSubmit={handleUpdateOperator} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-operator-name">Operator Name*</Label>
+                          <Input
+                            id="edit-operator-name"
+                            value={editOperatorForm.name}
+                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="e.g., DraftKings"
+                            data-testid="input-edit-operator-name"
+                          />
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingOperator(operator)}
-                          data-testid={`button-edit-operator-${operator.id}`}
+
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-operator-siteUrl">Site URL*</Label>
+                          <Input
+                            id="edit-operator-siteUrl"
+                            value={editOperatorForm.siteUrl}
+                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
+                            placeholder="https://draftkings.com"
+                            data-testid="input-edit-operator-site-url"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-operator-trustScore">Trust Score (1-10)</Label>
+                          <Input
+                            id="edit-operator-trustScore"
+                            type="number"
+                            min="1"
+                            max="10"
+                            step="0.1"
+                            value={editOperatorForm.trustScore}
+                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
+                            data-testid="input-edit-operator-trust-score"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-operator-overallRating">Overall Rating (1-5)</Label>
+                          <Input
+                            id="edit-operator-overallRating"
+                            type="number"
+                            min="1"
+                            max="5"
+                            step="0.1"
+                            value={editOperatorForm.overallRating}
+                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
+                            data-testid="input-edit-operator-overall-rating"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-operator-description">Description</Label>
+                        <Textarea
+                          id="edit-operator-description"
+                          value={editOperatorForm.description}
+                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Brief description of the operator"
+                          rows={3}
+                          data-testid="input-edit-operator-description"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-operator-logoUrl">Logo URL</Label>
+                        <Input
+                          id="edit-operator-logoUrl"
+                          value={editOperatorForm.logoUrl}
+                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, logoUrl: e.target.value }))}
+                          placeholder="https://example.com/logo.png"
+                          data-testid="input-edit-operator-logo-url"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-operator-licenseInfo">License Information</Label>
+                        <Textarea
+                          id="edit-operator-licenseInfo"
+                          value={editOperatorForm.licenseInfo}
+                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, licenseInfo: e.target.value }))}
+                          placeholder="Licensing and regulatory information"
+                          rows={2}
+                          data-testid="input-edit-operator-license-info"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          type="submit" 
+                          disabled={updateOperatorMutation.isPending}
+                          data-testid="button-update-operator"
                         >
-                          <Edit className="h-4 w-4" />
+                          {updateOperatorMutation.isPending ? "Updating..." : "Update Operator"}
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            setShowEditOperatorForm(false);
+                            setEditingOperator(null);
+                          }}
+                          data-testid="button-cancel-edit-operator"
+                        >
+                          Cancel
                         </Button>
                       </div>
+                    </form>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {operators.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No operators added yet.</p>
+                      <p className="text-sm">Add your first operator to get started!</p>
                     </div>
-                  ))}
+                  ) : (
+                    operators.map((operator: any) => (
+                      <div
+                        key={operator.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div>
+                          <h3 className="font-semibold">{operator.name}</h3>
+                          <p className="text-sm text-gray-500">{operator.siteUrl}</p>
+                          {operator.description && (
+                            <p className="text-sm text-gray-400 mt-1">{operator.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mr-4">
+                            <Badge variant="secondary">
+                              Trust: {operator.trustScore}/10
+                            </Badge>
+                            {operator.overallRating && operator.overallRating !== "0.0" && (
+                              <Badge variant="outline">
+                                Rating: {operator.overallRating}/5
+                              </Badge>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setShowAddOperatorForm(false); // Close add form if open
+                              setShowEditOperatorForm(true); // Show edit form inline
+                              setEditingOperator(operator); // Store editing operator for inline form
+                            }}
+                            data-testid={`button-edit-operator-${operator.id}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -1241,26 +1443,6 @@ const AdminDashboard = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Edit Operator Dialog */}
-        <Dialog open={!!editingOperator} onOpenChange={(open) => !open && setEditingOperator(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Operator: {editingOperator?.name}</DialogTitle>
-            </DialogHeader>
-            <div className="mt-4">
-              {editingOperator && (
-                <OperatorForm 
-                  operator={editingOperator}
-                  onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                    queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-                    setEditingOperator(null);
-                  }} 
-                />
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
