@@ -69,17 +69,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Parse user intent
       const intent = await parseUserIntent(message);
-      console.log("🔍 DEBUG - Parsed intent:", JSON.stringify(intent, null, 2));
       
       // Get all bonuses and filter/rank them
       const allBonuses = await storage.getAllBonuses();
-      console.log("📊 DEBUG - Total bonuses found:", allBonuses.length);
-      console.log("🎯 DEBUG - Operator names:", allBonuses.map(b => b.operator?.name).filter(Boolean));
-      
       const filteredBonuses = filterBonusesByIntent(allBonuses, intent);
-      console.log("🔍 DEBUG - Bonuses after filtering:", filteredBonuses.length);
-      console.log("🔍 DEBUG - Filtered bonus operators:", filteredBonuses.map(b => b.operator?.name).filter(Boolean));
-      
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
       
       // Take top 5 recommendations (show more bonuses when available)
@@ -108,12 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userIntent: intent
       };
       
-      console.log("🤖 DEBUG - Sending to AI:", topRecommendations.length, "recommendations");
-      console.log("🤖 DEBUG - Context:", JSON.stringify(context, null, 2));
-      
       const aiResponse = await generateChatResponse(message, context);
-      
-      console.log("🤖 DEBUG - AI Response length:", aiResponse.length);
       
       // Save AI message
       await storage.createChatMessage({
