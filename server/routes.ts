@@ -59,16 +59,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Save user message
+      // Save user message with analytics tracking for business intelligence
       await storage.createChatMessage({
         sessionId: session.id,
         role: "user",
         content: message,
-        metadata: {} as any
+        metadata: { userLocation } as any
       });
 
       // Parse user intent
       const intent = await parseUserIntent(message);
+      
+      // Analytics: Track user status for retention revenue model analysis
+      if (intent.userStatus === "existing") {
+        // Track existing user searches for operator CPC/retainer discussions
+        console.log(`📊 RETENTION ANALYTICS: Existing user search - Budget: ${intent.budget}, Location: ${intent.location}, Product: ${intent.productType}`);
+      }
       
       // Get all bonuses and filter/rank them
       const allBonuses = await storage.getAllBonuses();

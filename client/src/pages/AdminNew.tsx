@@ -31,6 +31,7 @@ interface BonusFormData {
   expiryDays: string;
   valueScore: string;
   termsAndConditions: string;
+  existingUserEligible: boolean;
 }
 
 interface OperatorFormData {
@@ -86,7 +87,8 @@ const AdminDashboard = () => {
     wageringRequirement: '1',
     expiryDays: '30',
     valueScore: '85',
-    termsAndConditions: ''
+    termsAndConditions: '',
+    existingUserEligible: false
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -118,7 +120,8 @@ const AdminDashboard = () => {
     wageringRequirement: '1',
     expiryDays: '30',
     valueScore: '85',
-    termsAndConditions: ''
+    termsAndConditions: '',
+    existingUserEligible: false
   });
 
   // Form state for editing operator
@@ -232,7 +235,8 @@ const AdminDashboard = () => {
         wageringRequirement: editingBonus.wageringRequirement?.toString() || '1',
         expiryDays: editingBonus.expiryDays?.toString() || '30',
         valueScore: editingBonus.valueScore?.toString() || '85',
-        termsAndConditions: editingBonus.termsAndConditions || ''
+        termsAndConditions: editingBonus.termsAndConditions || '',
+        existingUserEligible: editingBonus.existingUserEligible || false
       });
     }
   }, [editingBonus]);
@@ -491,7 +495,8 @@ const AdminDashboard = () => {
       wageringRequirement: '1',
       expiryDays: '30',
       valueScore: '85',
-      termsAndConditions: ''
+      termsAndConditions: '',
+      existingUserEligible: false
     });
   };
 
@@ -895,6 +900,24 @@ const AdminDashboard = () => {
                         </div>
                       </div>
 
+                      {/* User Eligibility Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="existing-user-eligible"
+                            checked={bonusForm.existingUserEligible}
+                            onCheckedChange={(checked) => setBonusForm(prev => ({ ...prev, existingUserEligible: checked === true }))}
+                            data-testid="checkbox-existing-user-eligible"
+                          />
+                          <Label htmlFor="existing-user-eligible" className="text-sm font-medium">
+                            Available to Existing Customers
+                          </Label>
+                        </div>
+                        <p className="text-xs text-gray-500 pl-6">
+                          💡 Enable analytics tracking for retention value — Track existing customer engagement to support new CPC/retainer revenue models with operators
+                        </p>
+                      </div>
+
                       <div className="flex gap-2">
                         <Button 
                           type="submit" 
@@ -1189,6 +1212,24 @@ const AdminDashboard = () => {
                         </div>
                       </div>
 
+                      {/* User Eligibility Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="edit-existing-user-eligible"
+                            checked={editBonusForm.existingUserEligible}
+                            onCheckedChange={(checked) => setEditBonusForm(prev => ({ ...prev, existingUserEligible: checked === true }))}
+                            data-testid="checkbox-edit-existing-user-eligible"
+                          />
+                          <Label htmlFor="edit-existing-user-eligible" className="text-sm font-medium">
+                            Available to Existing Customers
+                          </Label>
+                        </div>
+                        <p className="text-xs text-gray-500 pl-6">
+                          💡 Enable analytics tracking for retention value — Track existing customer engagement to support new CPC/retainer revenue models with operators
+                        </p>
+                      </div>
+
                       <div className="flex gap-2">
                         <Button 
                           type="submit" 
@@ -1238,6 +1279,11 @@ const AdminDashboard = () => {
                               <div className={`px-3 py-1 rounded-full text-xs font-bold ${evRating.color} bg-white dark:bg-gray-800 shadow-sm border`}>
                                 {evRating.rating} • {Number(bonus.valueScore || 0).toFixed(1)}/100
                               </div>
+                              {bonus.existingUserEligible && (
+                                <div className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
+                                  👥 Existing Users
+                                </div>
+                              )}
                             </div>
                             <p className="text-gray-600 dark:text-gray-300 mb-2">
                               {bonus.operator?.name} • {bonus.description}
@@ -1277,7 +1323,8 @@ const AdminDashboard = () => {
                                   maxBonus: bonus.maxBonus || '',
                                   valueScore: bonus.valueScore || '',
                                   landingUrl: bonus.landingUrl,
-                                  termsAndConditions: bonus.termsAndConditions || ''
+                                  termsAndConditions: bonus.termsAndConditions || '',
+                                  existingUserEligible: bonus.existingUserEligible || false
                                 });
                               }}
                               data-testid={`button-edit-${bonus.id}`}
