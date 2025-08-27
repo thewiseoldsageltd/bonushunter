@@ -411,22 +411,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const bonusData = req.body;
       
+      // Convert date strings to Date objects for PostgreSQL
+      const processedBonusData = {
+        ...bonusData,
+        startAt: bonusData.startAt ? new Date(bonusData.startAt) : undefined,
+        endAt: bonusData.endAt ? new Date(bonusData.endAt) : undefined,
+      };
+      
+      // Get the existing bonus to merge with update data for EV calculation
+      const existingBonus = await storage.getBonus(id);
+      if (!existingBonus) {
+        return res.status(404).json({ error: "Bonus not found" });
+      }
+      
+      // Merge existing bonus data with updates for EV calculation
+      const completeData = { ...existingBonus, ...processedBonusData };
+      
       // Auto-calculate EV score based on updated bonus terms
-      const calculatedEV = calculateBonusValue(bonusData as any);
+      const calculatedEV = calculateBonusValue(completeData as any);
       
       // Update the valueScore with calculated value
       const bonusDataWithEV = {
-        ...bonusData,
+        ...processedBonusData,
         valueScore: calculatedEV.valueScore.toString()
       };
       
-      const updated = await storage.updateBonus(id, bonusDataWithEV);
+      // Remove undefined values to avoid issues
+      const cleanedData = Object.fromEntries(
+        Object.entries(bonusDataWithEV).filter(([_, value]) => value !== undefined)
+      );
+      
+      const updated = await storage.updateBonus(id, cleanedData);
       if (!updated) {
-        return res.status(404).json({ error: "Bonus not found" });
+        return res.status(500).json({ error: "Failed to update bonus" });
       }
       
       res.json({ 
         bonus: updated, 
+        message: "Bonus updated successfully",
         calculatedEV: {
           valueScore: calculatedEV.valueScore,
           expectedValue: calculatedEV.expectedValue,

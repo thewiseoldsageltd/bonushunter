@@ -220,6 +220,21 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async updateBonus(id: string, bonus: Partial<InsertBonus>): Promise<Bonus | undefined> {
+    const result = await db.update(schema.bonuses)
+      .set(bonus)
+      .where(eq(schema.bonuses.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteBonus(id: string): Promise<boolean> {
+    const result = await db.delete(schema.bonuses)
+      .where(eq(schema.bonuses.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
   // Chat Sessions
   async getChatSession(id: string): Promise<ChatSession | undefined> {
     const result = await db.select().from(schema.chatSessions).where(eq(schema.chatSessions.id, id)).limit(1);
