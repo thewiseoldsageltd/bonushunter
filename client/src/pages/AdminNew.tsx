@@ -805,6 +805,44 @@ const AdminDashboard = () => {
                             placeholder="30"
                             data-testid="input-expiry"
                           />
+                          <p className="text-xs text-gray-500 mt-1">Customer completion timeframe</p>
+                        </div>
+                      </div>
+
+                      {/* Promotion Availability Dates */}
+                      <div className="space-y-4 border-t pt-4">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100">📅 Promotion Dates</h4>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Operator Controls</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="start-date">Start Date (Optional)</Label>
+                            <Input
+                              id="start-date"
+                              type="date"
+                              value={bonusForm.startAt}
+                              onChange={(e) => setBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
+                              data-testid="input-start-date"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">When promotion becomes available</p>
+                          </div>
+                          <div>
+                            <Label htmlFor="end-date">End Date (Optional)</Label>
+                            <Input
+                              id="end-date"
+                              type="date"
+                              value={bonusForm.endAt}
+                              onChange={(e) => setBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
+                              data-testid="input-end-date"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
+                          </div>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                          <p className="text-sm text-blue-800 dark:text-blue-200">
+                            🤖 <strong>AI Auto-Extract:</strong> Dates are automatically extracted from Terms & Conditions. Override here if needed.
+                          </p>
                         </div>
                       </div>
 
@@ -1116,6 +1154,44 @@ const AdminDashboard = () => {
                             placeholder="30"
                             data-testid="input-edit-expiry"
                           />
+                          <p className="text-xs text-gray-500 mt-1">Customer completion timeframe</p>
+                        </div>
+                      </div>
+
+                      {/* Promotion Availability Dates - Edit Form */}
+                      <div className="space-y-4 border-t pt-4">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100">📅 Promotion Dates</h4>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Operator Controls</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="edit-start-date">Start Date (Optional)</Label>
+                            <Input
+                              id="edit-start-date"
+                              type="date"
+                              value={editBonusForm.startAt}
+                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
+                              data-testid="input-edit-start-date"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">When promotion becomes available</p>
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-end-date">End Date (Optional)</Label>
+                            <Input
+                              id="edit-end-date"
+                              type="date"
+                              value={editBonusForm.endAt}
+                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
+                              data-testid="input-edit-end-date"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
+                          </div>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                          <p className="text-sm text-blue-800 dark:text-blue-200">
+                            🤖 <strong>AI Auto-Extract:</strong> Dates are automatically extracted from Terms & Conditions. Override here if needed.
+                          </p>
                         </div>
                       </div>
 
