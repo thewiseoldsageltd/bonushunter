@@ -75,12 +75,12 @@ export default function BonusCard({
         <h3 className={`font-display font-semibold ${compact ? 'text-lg' : 'text-xl'}`} data-testid={`text-operator-name-${bonus.id}`}>
           {bonus.operator.name}
         </h3>
-        {bonus.existingUserEligible ? (
-          <div className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+        {bonus.existingUserEligible === true ? (
+          <div className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30" title={`Debug: existingUserEligible = ${bonus.existingUserEligible}`}>
             👥 Existing Users
           </div>
         ) : (
-          <div className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30">
+          <div className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30" title={`Debug: existingUserEligible = ${bonus.existingUserEligible}`}>
             🎁 New Users
           </div>
         )}
