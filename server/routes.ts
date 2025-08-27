@@ -8,6 +8,8 @@ import { registerScrapingRoutes } from "./routes/scraping";
 import { aiAnalysisService } from "./services/aiAnalysisService";
 import { z } from "zod";
 import { insertOperatorSchema } from "@shared/schema";
+import { db } from "./db";
+import { users } from "@shared/schema";
 
 const chatRequestSchema = z.object({
   message: z.string(),
@@ -462,9 +464,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Health check endpoint for Railway
-  app.get('/health', (_req, res) => {
-    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  // Enhanced health check endpoint with database connectivity
+  app.get('/health', async (_req, res) => {
+    try {
+      // Test database connection by doing a simple query
+      await db.select().from(users).limit(1);
+      
+      res.status(200).json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        database: 'connected',
+        uptime: process.uptime()
+      });
+    } catch (error) {
+      console.error('Health check failed - database connection error:', error);
+      res.status(500).json({ 
+        status: 'error', 
+        timestamp: new Date().toISOString(),
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown database error'
+      });
+    }
+  });
+
+  // Keepalive endpoint to prevent sleeping
+  app.get('/keepalive', (_req, res) => {
+    res.status(200).json({ 
+      status: 'alive', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
   });
 
   const httpServer = createServer(app);

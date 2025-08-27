@@ -187,4 +187,22 @@ app.use((req, res, next) => {
   server.on('error', (error) => {
     console.error('❌ Server error:', error);
   });
+
+  // Add keepalive in production to prevent sleeping
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔄 Setting up keepalive pings to prevent server sleep...');
+    setInterval(async () => {
+      try {
+        // Self-ping to keep the server alive
+        const response = await fetch(`http://localhost:${port}/keepalive`);
+        if (response.ok) {
+          console.log('💓 Keepalive ping successful');
+        } else {
+          console.log('⚠️ Keepalive ping failed:', response.status);
+        }
+      } catch (error) {
+        console.log('⚠️ Keepalive ping error:', error);
+      }
+    }, 5 * 60 * 1000); // Ping every 5 minutes
+  }
 })();
