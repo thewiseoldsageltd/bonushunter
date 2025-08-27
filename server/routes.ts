@@ -72,7 +72,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get all bonuses and filter/rank them
       const allBonuses = await storage.getAllBonuses();
-      const filteredBonuses = filterBonusesByIntent(allBonuses, intent);
+      let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
+      
+      // Fallback: if strict filtering returns no results, relax user status requirement
+      if (filteredBonuses.length === 0 && intent.userStatus === "existing") {
+        const relaxedIntent = { ...intent, userStatus: undefined };
+        filteredBonuses = filterBonusesByIntent(allBonuses, relaxedIntent);
+      }
+      
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
       
       // Take top 5 recommendations (show more bonuses when available)
