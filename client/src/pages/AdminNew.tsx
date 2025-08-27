@@ -32,6 +32,8 @@ interface BonusFormData {
   valueScore: string;
   termsAndConditions: string;
   existingUserEligible: boolean;
+  startAt: string;
+  endAt: string;
 }
 
 interface OperatorFormData {
@@ -88,7 +90,9 @@ const AdminDashboard = () => {
     expiryDays: '30',
     valueScore: '85',
     termsAndConditions: '',
-    existingUserEligible: false
+    existingUserEligible: false,
+    startAt: '',
+    endAt: ''
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -121,7 +125,9 @@ const AdminDashboard = () => {
     expiryDays: '30',
     valueScore: '85',
     termsAndConditions: '',
-    existingUserEligible: false
+    existingUserEligible: false,
+    startAt: '',
+    endAt: ''
   });
 
   // Form state for editing operator

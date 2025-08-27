@@ -125,6 +125,15 @@ export function filterBonusesByIntent(
       return false;
     }
     
+    // Filter by expiration date - exclude expired bonuses
+    if (bonus.endAt) {
+      const now = new Date();
+      const endDate = new Date(bonus.endAt);
+      if (endDate <= now) {
+        return false; // Bonus is expired
+      }
+    }
+    
     return bonus.status === "active";
   });
 }

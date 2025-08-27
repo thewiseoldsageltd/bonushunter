@@ -21,6 +21,8 @@ export interface BonusParameters {
   paymentMethodExclusions: string[];
   existingUserEligible: boolean;
   promoCode?: string;
+  startAt?: string;
+  endAt?: string;
 }
 
 export class AIAnalysisService {
@@ -46,6 +48,8 @@ Return a JSON object with these exact fields:
 - paymentMethodExclusions: Array of excluded payment methods
 - existingUserEligible: Boolean if existing users can claim
 - promoCode: Promo code if mentioned (null if none)
+- startAt: Promotion start date in ISO format (e.g., "2025-08-20T00:00:00.000Z") or null if not mentioned
+- endAt: Promotion end date in ISO format (e.g., "2025-08-26T23:59:59.000Z") or null if not mentioned
 
 Terms and Conditions:
 ${termsText}
@@ -89,6 +93,8 @@ Respond with valid JSON only:`;
         paymentMethodExclusions: Array.isArray(result.paymentMethodExclusions) ? result.paymentMethodExclusions : [],
         existingUserEligible: Boolean(result.existingUserEligible),
         promoCode: result.promoCode || undefined,
+        startAt: result.startAt || undefined,
+        endAt: result.endAt || undefined,
       };
     } catch (error) {
       console.error("AI Analysis error:", error);
