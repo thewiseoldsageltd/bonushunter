@@ -26,13 +26,14 @@ export async function parseUserIntent(userMessage: string): Promise<UserIntent> 
           - budget: numeric amount user wants to deposit/spend
           - currency: currency code (default USD)
           - location: state, country, or jurisdiction mentioned
+          - operator: gambling operator/site mentioned (DraftKings, FanDuel, BetMGM, Caesars, Bet365, William Hill, Stake, etc.)
           - productType: casino, sportsbook, poker, bingo, crypto
           - games: specific games mentioned (blackjack, slots, roulette, etc.)
           - userStatus: new or existing player
           - preferences: any specific requirements (low wagering, fast cashout, etc.)
           - riskTolerance: low, medium, or high based on preferences
           
-          Return JSON in this exact format: { "budget": number, "currency": "string", "location": "string", "productType": "string", "games": ["string"], "userStatus": "string", "preferences": ["string"], "riskTolerance": "string" }`
+          Return JSON in this exact format: { "budget": number, "currency": "string", "location": "string", "operator": "string", "productType": "string", "games": ["string"], "userStatus": "string", "preferences": ["string"], "riskTolerance": "string" }`
         },
         {
           role: "user",

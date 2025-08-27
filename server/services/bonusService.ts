@@ -85,6 +85,13 @@ export function filterBonusesByIntent(
   intent: UserIntent
 ): BonusWithOperator[] {
   return bonuses.filter(bonus => {
+    // Filter by operator (most important - user asking for specific site)
+    if (intent.operator && bonus.operator?.name) {
+      const operatorMatch = bonus.operator.name.toLowerCase().includes(intent.operator.toLowerCase()) ||
+                           intent.operator.toLowerCase().includes(bonus.operator.name.toLowerCase());
+      if (!operatorMatch) return false;
+    }
+    
     // Filter by product type
     if (intent.productType && bonus.productType !== intent.productType) {
       return false;

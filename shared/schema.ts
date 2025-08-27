@@ -198,6 +198,7 @@ export interface UserIntent {
   budget?: number;
   currency?: string;
   location?: string;
+  operator?: string;
   productType?: string;
   games?: string[];
   userStatus?: "new" | "existing";
