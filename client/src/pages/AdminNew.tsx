@@ -426,7 +426,10 @@ const AdminDashboard = () => {
     aiAnalysisMutation.mutate(bonusForm.termsAndConditions);
   };
 
-  const handleAnalyzeEditTerms = () => {
+  // Add state for edit analysis loading
+  const [isEditAnalyzing, setIsEditAnalyzing] = useState(false);
+
+  const handleAnalyzeEditTerms = async () => {
     if (!editBonusForm.termsAndConditions.trim()) {
       toast({
         title: "Missing Terms & Conditions", 
@@ -436,44 +439,41 @@ const AdminDashboard = () => {
       return;
     }
     
-    // Use the same AI analysis but update the edit form instead
-    const editAnalysisMutation = {
-      mutate: async (termsText: string) => {
-        try {
-          const response = await apiRequest('POST', '/api/admin/analyze-terms', { termsText });
-          const data = await response.json();
-          
-          toast({
-            title: "AI Analysis Complete!",
-            description: "Bonus parameters extracted and edit form auto-populated.",
-          });
-          
-          // Auto-populate edit form with AI-extracted parameters
-          const params = data.parameters;
-          setEditBonusForm(prev => ({
-            ...prev,
-            title: params.title || prev.title,
-            description: params.description || prev.description,
-            bonusType: params.bonusType || prev.bonusType,
-            productType: params.productType || prev.productType,
-            matchPercent: params.matchPercent?.toString() || prev.matchPercent,
-            minDeposit: params.minDeposit?.toString() || prev.minDeposit,
-            maxBonus: params.maxBonus?.toString() || prev.maxBonus,
-            wageringRequirement: params.wageringRequirement?.toString() || prev.wageringRequirement,
-            expiryDays: params.expiryDays?.toString() || prev.expiryDays,
-            promoCode: params.promoCode || prev.promoCode
-          }));
-        } catch (error: any) {
-          toast({
-            title: "AI Analysis Failed",
-            description: error.message || "Could not analyze terms. Please check the text and try again.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
+    setIsEditAnalyzing(true);
     
-    editAnalysisMutation.mutate(editBonusForm.termsAndConditions);
+    try {
+      const response = await apiRequest('POST', '/api/admin/analyze-terms', { termsText: editBonusForm.termsAndConditions });
+      const data = await response.json();
+      
+      toast({
+        title: "AI Analysis Complete!",
+        description: "Bonus parameters extracted and edit form auto-populated.",
+      });
+      
+      // Auto-populate edit form with AI-extracted parameters
+      const params = data.parameters;
+      setEditBonusForm(prev => ({
+        ...prev,
+        title: params.title || prev.title,
+        description: params.description || prev.description,
+        bonusType: params.bonusType || prev.bonusType,
+        productType: params.productType || prev.productType,
+        matchPercent: params.matchPercent?.toString() || prev.matchPercent,
+        minDeposit: params.minDeposit?.toString() || prev.minDeposit,
+        maxBonus: params.maxBonus?.toString() || prev.maxBonus,
+        wageringRequirement: params.wageringRequirement?.toString() || prev.wageringRequirement,
+        expiryDays: params.expiryDays?.toString() || prev.expiryDays,
+        promoCode: params.promoCode || prev.promoCode
+      }));
+    } catch (error: any) {
+      toast({
+        title: "AI Analysis Failed",
+        description: error.message || "Could not analyze terms. Please check the text and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEditAnalyzing(false);
+    }
   };
 
   const resetForm = () => {
@@ -1166,12 +1166,12 @@ const AdminDashboard = () => {
                           <Button
                             type="button"
                             onClick={() => handleAnalyzeEditTerms()}
-                            disabled={aiAnalysisMutation.isPending || !editBonusForm.termsAndConditions.trim()}
+                            disabled={isEditAnalyzing || !editBonusForm.termsAndConditions.trim()}
                             variant="outline"
                             className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
                             data-testid="button-analyze-edit-terms"
                           >
-                            {aiAnalysisMutation.isPending ? (
+                            {isEditAnalyzing ? (
                               <>
                                 <Upload className="h-4 w-4 mr-2 animate-spin" />
                                 Analyzing...
