@@ -34,6 +34,8 @@ interface BonusFormData {
   existingUserEligible: boolean;
   startAt: string;
   endAt: string;
+  startTime: string;
+  endTime: string;
 }
 
 interface OperatorFormData {
@@ -92,7 +94,9 @@ const AdminDashboard = () => {
     termsAndConditions: '',
     existingUserEligible: false,
     startAt: '',
-    endAt: ''
+    endAt: '',
+    startTime: '00:00',
+    endTime: '23:59'
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -127,7 +131,9 @@ const AdminDashboard = () => {
     termsAndConditions: '',
     existingUserEligible: false,
     startAt: '',
-    endAt: ''
+    endAt: '',
+    startTime: '00:00',
+    endTime: '23:59'
   });
 
   // Form state for editing operator
@@ -244,7 +250,9 @@ const AdminDashboard = () => {
         termsAndConditions: editingBonus.termsAndConditions || '',
         existingUserEligible: editingBonus.existingUserEligible || false,
         startAt: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[0] : '',
-        endAt: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[0] : ''
+        endAt: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[0] : '',
+        startTime: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[1].substring(0, 5) : '00:00',
+        endTime: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[1].substring(0, 5) : '23:59'
       });
     }
   }, [editingBonus]);
@@ -295,10 +303,26 @@ const AdminDashboard = () => {
     queryKey: ['/api/admin/operators']
   });
 
+  // Helper function to combine date and time
+  const combineDateAndTime = (date: string, time: string): string => {
+    if (!date) return '';
+    return `${date}T${time}:00`;
+  };
+
   // Add bonus mutation
   const addBonusMutation = useMutation({
     mutationFn: async (formData: BonusFormData) => {
-      const response = await apiRequest('POST', '/api/admin/bonuses', formData);
+      // Combine date + time for datetime fields
+      const processedData = {
+        ...formData,
+        startAt: formData.startAt ? combineDateAndTime(formData.startAt, formData.startTime) : '',
+        endAt: formData.endAt ? combineDateAndTime(formData.endAt, formData.endTime) : ''
+      };
+      
+      // Remove time fields from request
+      const { startTime, endTime, ...dataToSend } = processedData;
+      
+      const response = await apiRequest('POST', '/api/admin/bonuses', dataToSend);
       return await response.json();
     },
     onSuccess: () => {
@@ -343,7 +367,18 @@ const AdminDashboard = () => {
   const updateBonusMutation = useMutation({
     mutationFn: async (formData: BonusFormData & { id: string }) => {
       const { id, ...data } = formData;
-      const response = await apiRequest('PUT', `/api/admin/bonuses/${id}`, data);
+      
+      // Combine date + time for datetime fields
+      const processedData = {
+        ...data,
+        startAt: data.startAt ? combineDateAndTime(data.startAt, data.startTime) : '',
+        endAt: data.endAt ? combineDateAndTime(data.endAt, data.endTime) : ''
+      };
+      
+      // Remove time fields from request
+      const { startTime, endTime, ...dataToSend } = processedData;
+      
+      const response = await apiRequest('PUT', `/api/admin/bonuses/${id}`, dataToSend);
       return await response.json();
     },
     onSuccess: () => {
@@ -506,7 +541,9 @@ const AdminDashboard = () => {
       termsAndConditions: '',
       existingUserEligible: false,
       startAt: '',
-      endAt: ''
+      endAt: '',
+      startTime: '00:00',
+      endTime: '23:59'
     });
   };
 
@@ -819,27 +856,45 @@ const AdminDashboard = () => {
                           <h4 className="font-medium text-gray-900 dark:text-gray-100">📅 Promotion Dates</h4>
                           <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Operator Controls</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-6">
                           <div>
                             <Label htmlFor="start-date">Start Date (Optional)</Label>
-                            <Input
-                              id="start-date"
-                              type="date"
-                              value={bonusForm.startAt}
-                              onChange={(e) => setBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
-                              data-testid="input-start-date"
-                            />
+                            <div className="space-y-2">
+                              <Input
+                                id="start-date"
+                                type="date"
+                                value={bonusForm.startAt}
+                                onChange={(e) => setBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
+                                data-testid="input-start-date"
+                              />
+                              <Input
+                                type="time"
+                                value={bonusForm.startTime || "00:00"}
+                                onChange={(e) => setBonusForm(prev => ({ ...prev, startTime: e.target.value }))}
+                                data-testid="input-start-time"
+                                className="text-sm"
+                              />
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion becomes available</p>
                           </div>
                           <div>
                             <Label htmlFor="end-date">End Date (Optional)</Label>
-                            <Input
-                              id="end-date"
-                              type="date"
-                              value={bonusForm.endAt}
-                              onChange={(e) => setBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
-                              data-testid="input-end-date"
-                            />
+                            <div className="space-y-2">
+                              <Input
+                                id="end-date"
+                                type="date"
+                                value={bonusForm.endAt}
+                                onChange={(e) => setBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
+                                data-testid="input-end-date"
+                              />
+                              <Input
+                                type="time"
+                                value={bonusForm.endTime || "23:59"}
+                                onChange={(e) => setBonusForm(prev => ({ ...prev, endTime: e.target.value }))}
+                                data-testid="input-end-time"
+                                className="text-sm"
+                              />
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
                           </div>
                         </div>
@@ -1168,27 +1223,45 @@ const AdminDashboard = () => {
                           <h4 className="font-medium text-gray-900 dark:text-gray-100">📅 Promotion Dates</h4>
                           <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Operator Controls</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-6">
                           <div>
                             <Label htmlFor="edit-start-date">Start Date (Optional)</Label>
-                            <Input
-                              id="edit-start-date"
-                              type="date"
-                              value={editBonusForm.startAt}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
-                              data-testid="input-edit-start-date"
-                            />
+                            <div className="space-y-2">
+                              <Input
+                                id="edit-start-date"
+                                type="date"
+                                value={editBonusForm.startAt}
+                                onChange={(e) => setEditBonusForm(prev => ({ ...prev, startAt: e.target.value }))}
+                                data-testid="input-edit-start-date"
+                              />
+                              <Input
+                                type="time"
+                                value={editBonusForm.startTime || "00:00"}
+                                onChange={(e) => setEditBonusForm(prev => ({ ...prev, startTime: e.target.value }))}
+                                data-testid="input-edit-start-time"
+                                className="text-sm"
+                              />
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion becomes available</p>
                           </div>
                           <div>
                             <Label htmlFor="edit-end-date">End Date (Optional)</Label>
-                            <Input
-                              id="edit-end-date"
-                              type="date"
-                              value={editBonusForm.endAt}
-                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
-                              data-testid="input-edit-end-date"
-                            />
+                            <div className="space-y-2">
+                              <Input
+                                id="edit-end-date"
+                                type="date"
+                                value={editBonusForm.endAt}
+                                onChange={(e) => setEditBonusForm(prev => ({ ...prev, endAt: e.target.value }))}
+                                data-testid="input-edit-end-date"
+                              />
+                              <Input
+                                type="time"
+                                value={editBonusForm.endTime || "23:59"}
+                                onChange={(e) => setEditBonusForm(prev => ({ ...prev, endTime: e.target.value }))}
+                                data-testid="input-edit-end-time"
+                                className="text-sm"
+                              />
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">When promotion stops accepting new signups</p>
                           </div>
                         </div>
