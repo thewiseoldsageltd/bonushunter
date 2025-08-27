@@ -151,7 +151,7 @@ export function rankBonuses(
         ...bonus,
         valueScore: storedValueScore,
         rationale
-      };
+      } as BonusWithOperator & { valueScore: number; rationale: string };
     })
     .sort((a, b) => b.valueScore - a.valueScore);
 }
