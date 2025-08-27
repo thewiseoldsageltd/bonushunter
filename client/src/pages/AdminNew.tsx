@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Edit, Eye, Trash2, TrendingUp, BarChart3, Users, Zap, Sparkles, Upload } from "lucide-react";
@@ -1538,7 +1539,7 @@ const AdminDashboard = () => {
                               <Checkbox
                                 id={`edit-${key}`}
                                 checked={editOperatorForm[key as keyof typeof editOperatorForm] as boolean}
-                                onCheckedChange={(checked) => setEditOperatorForm(prev => ({ ...prev, [key]: checked }))}
+                                onCheckedChange={(checked: boolean) => setEditOperatorForm(prev => ({ ...prev, [key]: checked }))}
                                 data-testid={`checkbox-edit-operator-${key}`}
                               />
                               <Label htmlFor={`edit-${key}`}>{label}</Label>
