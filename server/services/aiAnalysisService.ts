@@ -65,7 +65,7 @@ Respond with valid JSON only:`;
           },
         ],
         response_format: { type: "json_object" },
-        temperature: 0.1, // Low temperature for consistent extraction
+        // GPT-5 only supports default temperature (1), removing custom temperature
       });
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
