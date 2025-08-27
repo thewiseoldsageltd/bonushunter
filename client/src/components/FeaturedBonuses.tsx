@@ -35,7 +35,8 @@ export default function FeaturedBonuses() {
         wageringRequirement: bonus.wageringRequirement,
         expiryDays: bonus.expiryDays,
         landingUrl: bonus.landingUrl,
-        productType: bonus.productType
+        productType: bonus.productType,
+        existingUserEligible: bonus.existingUserEligible
       }))
     })
   });
