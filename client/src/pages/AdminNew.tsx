@@ -502,7 +502,9 @@ const AdminDashboard = () => {
       expiryDays: '30',
       valueScore: '85',
       termsAndConditions: '',
-      existingUserEligible: false
+      existingUserEligible: false,
+      startAt: '',
+      endAt: ''
     });
   };
 
