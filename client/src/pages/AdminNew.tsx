@@ -427,8 +427,6 @@ const AdminDashboard = () => {
   };
 
   const handleAnalyzeEditTerms = () => {
-    // For now, just use the regular analyze function
-    // The AI will analyze and update the add form, then user can copy values
     if (!editBonusForm.termsAndConditions.trim()) {
       toast({
         title: "Missing Terms & Conditions", 
@@ -438,11 +436,44 @@ const AdminDashboard = () => {
       return;
     }
     
-    toast({
-      title: "Feature Coming Soon",
-      description: "AI analysis for edit form will be available soon. For now, please manually update the fields.",
-      variant: "default",
-    });
+    // Use the same AI analysis but update the edit form instead
+    const editAnalysisMutation = {
+      mutate: async (termsText: string) => {
+        try {
+          const response = await apiRequest('POST', '/api/admin/analyze-terms', { termsText });
+          const data = await response.json();
+          
+          toast({
+            title: "AI Analysis Complete!",
+            description: "Bonus parameters extracted and edit form auto-populated.",
+          });
+          
+          // Auto-populate edit form with AI-extracted parameters
+          const params = data.parameters;
+          setEditBonusForm(prev => ({
+            ...prev,
+            title: params.title || prev.title,
+            description: params.description || prev.description,
+            bonusType: params.bonusType || prev.bonusType,
+            productType: params.productType || prev.productType,
+            matchPercent: params.matchPercent?.toString() || prev.matchPercent,
+            minDeposit: params.minDeposit?.toString() || prev.minDeposit,
+            maxBonus: params.maxBonus?.toString() || prev.maxBonus,
+            wageringRequirement: params.wageringRequirement?.toString() || prev.wageringRequirement,
+            expiryDays: params.expiryDays?.toString() || prev.expiryDays,
+            promoCode: params.promoCode || prev.promoCode
+          }));
+        } catch (error: any) {
+          toast({
+            title: "AI Analysis Failed",
+            description: error.message || "Could not analyze terms. Please check the text and try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+    
+    editAnalysisMutation.mutate(editBonusForm.termsAndConditions);
   };
 
   const resetForm = () => {
