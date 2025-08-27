@@ -73,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Analytics: Track user status for retention revenue model analysis
       if (intent.userStatus === "existing") {
         // Track existing user searches for operator CPC/retainer discussions
-        console.log(`📊 RETENTION ANALYTICS: Existing user search - Budget: ${intent.budget}, Location: ${intent.location}, Product: ${intent.productType}`);
+        // TODO: Implement proper analytics tracking for retention revenue model
       }
       
       // Get all bonuses and filter/rank them
@@ -139,7 +139,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           minDeposit: bonus.minDeposit,
           wageringRequirement: bonus.wageringRequirement,
           expiryDays: bonus.expiryDays,
-          landingUrl: bonus.landingUrl
+          landingUrl: bonus.landingUrl,
+          existingUserEligible: bonus.existingUserEligible
         })),
         intent
       });
@@ -188,7 +189,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         wageringRequirement: bonus.wageringRequirement,
         expiryDays: bonus.expiryDays,
         landingUrl: bonus.landingUrl,
-        productType: bonus.productType
+        productType: bonus.productType,
+        existingUserEligible: bonus.existingUserEligible
       }));
 
       res.json({

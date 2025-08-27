@@ -71,9 +71,20 @@ export default function BonusCard({
         </div>
       </div>
       
-      <h3 className={`font-display font-semibold ${compact ? 'text-lg' : 'text-xl'} mb-2`} data-testid={`text-operator-name-${bonus.id}`}>
-        {bonus.operator.name}
-      </h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className={`font-display font-semibold ${compact ? 'text-lg' : 'text-xl'}`} data-testid={`text-operator-name-${bonus.id}`}>
+          {bonus.operator.name}
+        </h3>
+        {bonus.existingUserEligible ? (
+          <div className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            👥 Existing Users
+          </div>
+        ) : (
+          <div className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 border border-green-500/30">
+            🎁 New Users
+          </div>
+        )}
+      </div>
       <p className="text-gray-300 mb-4" data-testid={`text-bonus-title-${bonus.id}`}>
         {bonus.title}
       </p>

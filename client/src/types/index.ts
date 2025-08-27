@@ -17,6 +17,7 @@ export interface BonusRecommendation {
   expiryDays: number;
   landingUrl: string;
   productType: string;
+  existingUserEligible?: boolean;
 }
 
 export interface ChatMessage {
