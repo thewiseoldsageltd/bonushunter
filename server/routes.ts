@@ -322,8 +322,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/bulk-extract-dates", async (req, res) => {
     try {
       const bonuses = await storage.getAllBonuses();
-      const { AiAnalysisService } = await import('./services/aiAnalysisService');
-      const aiService = new AiAnalysisService();
+      const { aiAnalysisService } = await import('./services/aiAnalysisService');
+      const aiService = aiAnalysisService;
       let updated = 0;
       
       for (const bonus of bonuses) {
