@@ -82,8 +82,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
       
-      // Take top 3 recommendations
-      const topRecommendations = rankedBonuses.slice(0, 3);
+      // Take top 5 recommendations (show more bonuses when available)
+      const topRecommendations = rankedBonuses.slice(0, 5);
       
       // Save recommendations
       for (let i = 0; i < topRecommendations.length; i++) {
