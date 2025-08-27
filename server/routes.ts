@@ -318,46 +318,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bulk extract dates for existing bonuses
-  app.post("/api/admin/bulk-extract-dates", async (req, res) => {
-    try {
-      const bonuses = await storage.getAllBonuses();
-      const { aiAnalysisService } = await import('./services/aiAnalysisService');
-      const aiService = aiAnalysisService;
-      let updated = 0;
-      
-      for (const bonus of bonuses) {
-        if (bonus.termsAndConditions && (!bonus.startAt || !bonus.endAt)) {
-          try {
-            const analysis = await aiService.analyzeBonusTerms({
-              title: bonus.title,
-              description: bonus.description || '',
-              termsAndConditions: bonus.termsAndConditions
-            });
-            
-            if (analysis.startAt || analysis.endAt) {
-              await storage.updateBonus(bonus.id, {
-                ...bonus,
-                startAt: analysis.startAt || bonus.startAt,
-                endAt: analysis.endAt || bonus.endAt
-              });
-              updated++;
-            }
-          } catch (error) {
-            console.warn(`Failed to extract dates for bonus ${bonus.id}:`, error);
-          }
-        }
-      }
-      
-      res.json({ 
-        message: `Successfully extracted dates for ${updated} bonuses`,
-        updated 
-      });
-    } catch (error) {
-      console.error("Bulk extract dates error:", error);
-      res.status(500).json({ error: "Failed to extract dates" });
-    }
-  });
 
   // Admin API endpoints for bonus management
   app.get("/api/admin/operators", async (req, res) => {

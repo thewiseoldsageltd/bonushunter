@@ -576,50 +576,6 @@ const AdminDashboard = () => {
           </p>
         </div>
 
-        {/* Bulk Actions */}
-        <div className="mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>🤖 Bulk AI Operations</CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Extract promotion dates from existing bonus Terms & Conditions
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/admin/bulk-extract-dates', {
-                      method: 'POST'
-                    });
-                    const data = await response.json();
-                    toast({
-                      title: "Date Extraction Complete",
-                      description: data.message,
-                      variant: "default",
-                    });
-                    queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-                  } catch (error) {
-                    toast({
-                      title: "Extraction Failed",
-                      description: "Could not extract dates from Terms & Conditions",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="w-full sm:w-auto"
-                data-testid="button-bulk-extract-dates"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Extract Dates from All Bonuses
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">
-                This will analyze Terms & Conditions for all existing bonuses and populate start/end dates automatically.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
