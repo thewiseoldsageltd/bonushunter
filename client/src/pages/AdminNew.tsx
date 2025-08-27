@@ -36,12 +36,31 @@ interface OperatorFormData {
   name: string;
   siteUrl: string;
   description: string;
-  logoUrl: string;
+  logo: string;
   trustScore: string;
   overallRating: string;
-  licenseInfo: string;
-  supportedJurisdictions: string[];
-  isActive: boolean;
+  foundedYear: string;
+  headquarters: string;
+  licenses: string[];
+  languages: string[];
+  currencies: string[];
+  paymentMethods: string[];
+  withdrawalMethods: string[];
+  minDeposit: string;
+  maxWithdrawal: string;
+  withdrawalTimeframe: string;
+  customerSupportMethods: string[];
+  liveChat: boolean;
+  mobileApp: boolean;
+  sportsOffered: string[];
+  casinoGames: boolean;
+  liveCasino: boolean;
+  esports: boolean;
+  virtuals: boolean;
+  bonusRating: string;
+  oddsRating: string;
+  uiRating: string;
+  active: boolean;
 }
 
 const AdminDashboard = () => {
@@ -106,12 +125,31 @@ const AdminDashboard = () => {
     name: '',
     siteUrl: '',
     description: '',
-    logoUrl: '',
+    logo: '',
     trustScore: '8',
     overallRating: '4.5',
-    licenseInfo: '',
-    supportedJurisdictions: [],
-    isActive: true
+    foundedYear: '',
+    headquarters: '',
+    licenses: [],
+    languages: [],
+    currencies: [],
+    paymentMethods: [],
+    withdrawalMethods: [],
+    minDeposit: '',
+    maxWithdrawal: '',
+    withdrawalTimeframe: '',
+    customerSupportMethods: [],
+    liveChat: false,
+    mobileApp: false,
+    sportsOffered: [],
+    casinoGames: false,
+    liveCasino: false,
+    esports: false,
+    virtuals: false,
+    bonusRating: '4.0',
+    oddsRating: '4.0',
+    uiRating: '4.0',
+    active: true
   });
 
   // EV Calculation State
@@ -205,12 +243,31 @@ const AdminDashboard = () => {
         name: editingOperator.name || '',
         siteUrl: editingOperator.siteUrl || '',
         description: editingOperator.description || '',
-        logoUrl: editingOperator.logoUrl || '',
+        logo: editingOperator.logo || '',
         trustScore: editingOperator.trustScore?.toString() || '8',
         overallRating: editingOperator.overallRating?.toString() || '4.5',
-        licenseInfo: editingOperator.licenseInfo || '',
-        supportedJurisdictions: editingOperator.supportedJurisdictions || [],
-        isActive: editingOperator.isActive ?? true
+        foundedYear: editingOperator.foundedYear?.toString() || '',
+        headquarters: editingOperator.headquarters || '',
+        licenses: editingOperator.licenses || [],
+        languages: editingOperator.languages || [],
+        currencies: editingOperator.currencies || [],
+        paymentMethods: editingOperator.paymentMethods || [],
+        withdrawalMethods: editingOperator.withdrawalMethods || [],
+        minDeposit: editingOperator.minDeposit?.toString() || '',
+        maxWithdrawal: editingOperator.maxWithdrawal?.toString() || '',
+        withdrawalTimeframe: editingOperator.withdrawalTimeframe || '',
+        customerSupportMethods: editingOperator.customerSupportMethods || [],
+        liveChat: editingOperator.liveChat ?? false,
+        mobileApp: editingOperator.mobileApp ?? false,
+        sportsOffered: editingOperator.sportsOffered || [],
+        casinoGames: editingOperator.casinoGames ?? false,
+        liveCasino: editingOperator.liveCasino ?? false,
+        esports: editingOperator.esports ?? false,
+        virtuals: editingOperator.virtuals ?? false,
+        bonusRating: editingOperator.bonusRating?.toString() || '4.0',
+        oddsRating: editingOperator.oddsRating?.toString() || '4.0',
+        uiRating: editingOperator.uiRating?.toString() || '4.0',
+        active: editingOperator.active ?? true
       });
     }
   }, [editingOperator]);
@@ -1322,25 +1379,25 @@ const AdminDashboard = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="edit-operator-logoUrl">Logo URL</Label>
+                        <Label htmlFor="edit-operator-logo">Logo URL</Label>
                         <Input
-                          id="edit-operator-logoUrl"
-                          value={editOperatorForm.logoUrl}
-                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, logoUrl: e.target.value }))}
+                          id="edit-operator-logo"
+                          value={editOperatorForm.logo}
+                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, logo: e.target.value }))}
                           placeholder="https://example.com/logo.png"
-                          data-testid="input-edit-operator-logo-url"
+                          data-testid="input-edit-operator-logo"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="edit-operator-licenseInfo">License Information</Label>
+                        <Label htmlFor="edit-operator-headquarters">Headquarters</Label>
                         <Textarea
-                          id="edit-operator-licenseInfo"
-                          value={editOperatorForm.licenseInfo}
-                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, licenseInfo: e.target.value }))}
-                          placeholder="Licensing and regulatory information"
+                          id="edit-operator-headquarters"
+                          value={editOperatorForm.headquarters}
+                          onChange={(e) => setEditOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
+                          placeholder="Boston, MA, USA"
                           rows={2}
-                          data-testid="input-edit-operator-license-info"
+                          data-testid="input-edit-operator-headquarters"
                         />
                       </div>
 
