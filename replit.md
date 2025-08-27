@@ -8,6 +8,14 @@ Bonushunter is a comprehensive conversational AI platform designed to help users
 
 Preferred communication style: Simple, everyday language.
 
+## Deployment Strategy
+
+**Current Setup**: Vercel frontend + Replit backend for MVP development
+- Previously used Railway but found deployments unreliable
+- Staying with current solution until MVP is complete
+- Plan to move to more robust deployment (Replit Reserved VM) post-MVP
+- Added reliability improvements: health checks, keepalive endpoints, self-ping system
+
 ## System Architecture
 
 ### Frontend Architecture
