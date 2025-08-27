@@ -6,16 +6,18 @@ Bonushunter is a comprehensive conversational AI platform designed to help users
 
 ## Recent Changes
 
-### August 27, 2025 - Admin Interface Fixes & Content Creation Phase
-- **Fixed operator pencil edit functionality**: Resolved TypeScript errors that prevented inline editing (missing Checkbox import, type annotation issues)
-- **Confirmed reliability system**: Health checks, keepalive endpoints, and self-ping system working effectively to prevent server sleep
-- **Validated data persistence**: PostgreSQL retains all data during server restarts - confirmed no actual data loss during temporary loading phases
-- **Content creation ready**: Platform stable and ready for operator and bonus database population
-- **Deployment workflow**: User manages Git commits through Shell with automatic Vercel frontend deployment
-- **Admin interface status**: Both bonus and operator management have fully functional inline edit capabilities
+### August 27, 2025 - Complete Automatic Bonus Expiration System Implementation
+- **Implemented automatic bonus expiration system**: AI extracts promotion start/end dates from Terms & Conditions text
+- **Added promotion date fields to admin interface**: Clean calendar inputs with clear operator vs customer timeframe distinction
+- **Backend expiration filtering**: System automatically excludes expired bonuses from chat responses in real-time
+- **AI date extraction working**: GPT-5 parses dates like "Expires August 26, 2025" and converts to database ISO format
+- **Manual date control**: User prefers manual population of existing bonus dates over bulk automation
+- **Clean user experience**: Fixed eligibility badges showing "🎁 New Users" vs "👥 Existing Users" without debug clutter
+- **React Query caching fix**: Resolved infinite stale time preventing fresh data updates
+- **Deployment workflow confirmed**: Shell commit → Vercel automatic frontend deployment working perfectly
 
-### Current Phase: Content Creation
-User is now focused on populating the platform with real operator and bonus data to establish base content before moving to refinements and enhancements.
+### Current Phase: Content Creation & Date Population  
+Platform ready for manual population of existing bonus dates and automatic handling of new bonuses. User taking break to return later with full context preserved.
 
 ## User Preferences
 
