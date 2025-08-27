@@ -108,7 +108,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userIntent: intent
       };
       
+      console.log("🤖 DEBUG - Sending to AI:", topRecommendations.length, "recommendations");
+      console.log("🤖 DEBUG - Context:", JSON.stringify(context, null, 2));
+      
       const aiResponse = await generateChatResponse(message, context);
+      
+      console.log("🤖 DEBUG - AI Response length:", aiResponse.length);
       
       // Save AI message
       await storage.createChatMessage({
