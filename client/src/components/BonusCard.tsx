@@ -71,22 +71,17 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} border border-red-500 rounded-xl overflow-hidden`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden flex items-center justify-center`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
-              src={`http://localhost:5000${bonus.operator.logo}`} 
+              src={bonus.operator.logo} 
               alt={`${bonus.operator.name} logo`}
-              style={{ 
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                backgroundColor: 'white'
-              }}
+              className="w-full h-full object-contain"
               onLoad={() => {
-                console.log(`🎯 ABSOLUTE URL LOGO VISIBLE: ${bonus.operator.name}`);
+                console.log(`🎯 RELATIVE URL SUCCESS: ${bonus.operator.name}`);
               }}
               onError={() => {
-                console.log(`❌ ABSOLUTE URL Logo failed: ${bonus.operator.name}`);
+                console.log(`❌ RELATIVE URL failed: ${bonus.operator.name}`);
               }}
             />
           ) : (
