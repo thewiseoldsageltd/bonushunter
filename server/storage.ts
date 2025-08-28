@@ -399,7 +399,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-import { SimpleDbStorage } from './simpleDbStorage';
+import { DatabaseStorage } from './dbStorage';
 
 // Safely initialize storage with fallback
 let storage: IStorage;
@@ -407,7 +407,7 @@ let storage: IStorage;
 try {
   if (process.env.DATABASE_URL) {
     console.log('🗄️ Using PostgreSQL database storage');
-    storage = new SimpleDbStorage();
+    storage = new DatabaseStorage();
   } else {
     console.log('💾 Using memory storage');
     storage = new MemStorage();
