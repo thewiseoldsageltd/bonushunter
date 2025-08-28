@@ -111,38 +111,43 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllBonuses(): Promise<BonusWithOperator[]> {
-    const result = await db.select({
-      id: schema.bonuses.id,
-      operatorId: schema.bonuses.operatorId,
-      title: schema.bonuses.title,
-      description: schema.bonuses.description,
-      productType: schema.bonuses.productType,
-      bonusType: schema.bonuses.bonusType,
-      matchPercent: schema.bonuses.matchPercent,
-      minDeposit: schema.bonuses.minDeposit,
-      maxBonus: schema.bonuses.maxBonus,
-      promoCode: schema.bonuses.promoCode,
-      landingUrl: schema.bonuses.landingUrl,
-      wageringRequirement: schema.bonuses.wageringRequirement,
-      wageringUnit: schema.bonuses.wageringUnit,
-      eligibleGames: schema.bonuses.eligibleGames,
-      gameWeightings: schema.bonuses.gameWeightings,
-      minOdds: schema.bonuses.minOdds,
-      maxCashout: schema.bonuses.maxCashout,
-      expiryDays: schema.bonuses.expiryDays,
-      paymentMethodExclusions: schema.bonuses.paymentMethodExclusions,
-      existingUserEligible: schema.bonuses.existingUserEligible,
-      valueScore: schema.bonuses.valueScore,
-      startAt: schema.bonuses.startAt,
-      endAt: schema.bonuses.endAt,
-      status: schema.bonuses.status,
-      createdAt: schema.bonuses.createdAt,
-      operator: schema.operators
-    }).from(schema.bonuses)
+    const result = await db.select().from(schema.bonuses)
       .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
       .where(eq(schema.bonuses.status, 'active'));
     
-    return result as BonusWithOperator[];
+    return result.map(row => ({
+      ...row.bonuses,
+      operator: row.operators || {
+        id: '',
+        name: 'Unknown Operator',
+        siteUrl: '',
+        description: null,
+        logo: null,
+        trustScore: null,
+        overallRating: null,
+        headquarters: null,
+        foundedYear: null,
+        paymentMethods: [],
+        withdrawalMethods: [],
+        withdrawalTimeframe: null,
+        minDeposit: null,
+        maxWithdrawal: null,
+        liveChat: false,
+        mobileApp: false,
+        casinoGames: false,
+        liveCasino: false,
+        esports: false,
+        virtuals: false,
+        bonusRating: null,
+        oddsRating: null,
+        uiRating: null,
+        prosAndCons: null,
+        active: false,
+        createdAt: new Date(),
+        updatedAt: null
+      },
+      jurisdictions: []
+    })) as BonusWithOperator[];
   }
 
   async getBonusesByOperator(operatorId: string): Promise<BonusWithOperator[]> {
