@@ -71,28 +71,23 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-red-100 rounded-xl overflow-visible border-2 border-green-500`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden flex items-center justify-center`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
-              src={bonus.operator.logo} 
+              src={(() => {
+                // Use Replit backend in production, relative URLs in development
+                const BACKEND_URL = import.meta.env.PROD 
+                  ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
+                  : '';
+                return `${BACKEND_URL}${bonus.operator.logo}`;
+              })()} 
               alt={`${bonus.operator.name} logo`}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                display: 'block',
-                backgroundColor: 'yellow',
-                border: '2px solid red',
-                opacity: 1,
-                zIndex: 999
-              }}
+              className="w-full h-full object-contain"
               onLoad={(e) => {
-                console.log(`✅ IMAGE LOADED SUCCESSFULLY: ${bonus.operator.name}`);
+                console.log(`✅ LOGO LOADED: ${bonus.operator.name}`);
               }}
               onError={(e) => {
-                console.log(`❌ Image loading error for ${bonus.operator.name}`);
-                console.log(`Failed URL: ${e.currentTarget.src}`);
-                console.log(`Original logo value: ${bonus.operator.logo}`);
+                console.log(`❌ Logo failed: ${bonus.operator.name} - ${e.currentTarget.src}`);
               }}
             />
           ) : (
