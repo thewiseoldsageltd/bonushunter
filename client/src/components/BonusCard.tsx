@@ -87,24 +87,12 @@ export default function BonusCard({
                 zIndex: 999
               }}
               onLoad={(e) => {
-                console.log(`🎯 IMAGE LOADED: ${bonus.operator.name}`);
-                console.log('Container dimensions:', e.currentTarget.offsetWidth, 'x', e.currentTarget.offsetHeight);
-                console.log('Natural dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
-                console.log('Computed style display:', window.getComputedStyle(e.currentTarget).display);
-                console.log('Computed style visibility:', window.getComputedStyle(e.currentTarget).visibility);
-                console.log('Computed style opacity:', window.getComputedStyle(e.currentTarget).opacity);
-                
-                // Force visibility if hidden
-                if (e.currentTarget.offsetWidth === 0 || e.currentTarget.offsetHeight === 0) {
-                  console.log('🚨 ZERO DIMENSIONS - FORCING SIZE');
-                  e.currentTarget.style.minWidth = '48px';
-                  e.currentTarget.style.minHeight = '48px';
-                  e.currentTarget.style.width = '48px';
-                  e.currentTarget.style.height = '48px';
-                }
+                console.log(`✅ IMAGE LOADED SUCCESSFULLY: ${bonus.operator.name}`);
               }}
-              onError={() => {
-                console.log(`❌ Image loading error: ${bonus.operator.name}`);
+              onError={(e) => {
+                console.log(`❌ Image loading error for ${bonus.operator.name}`);
+                console.log(`Failed URL: ${e.currentTarget.src}`);
+                console.log(`Original logo value: ${bonus.operator.logo}`);
               }}
             />
           ) : (
