@@ -10,6 +10,7 @@ import { z } from "zod";
 import { insertOperatorSchema } from "@shared/schema";
 import { db } from "./db";
 import { users } from "@shared/schema";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 
 const chatRequestSchema = z.object({
   message: z.string(),
@@ -526,6 +527,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keepalive endpoint to prevent sleeping
+  // Logo upload endpoint
+  app.post("/api/admin/logos/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting logo upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Update operator logo endpoint
+  app.put("/api/admin/operators/:id/logo", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { logoURL } = req.body;
+
+      if (!logoURL) {
+        return res.status(400).json({ error: "logoURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const logoPath = objectStorageService.normalizeLogoPath(logoURL);
+
+      // Update operator with new logo path
+      const operator = await storage.getOperator(id);
+      if (!operator) {
+        return res.status(404).json({ error: "Operator not found" });
+      }
+      
+      await storage.updateOperator(id, { 
+        ...operator, 
+        logo: logoPath 
+      });
+
+      res.json({ logoPath });
+    } catch (error) {
+      console.error("Error updating operator logo:", error);
+      res.status(500).json({ error: "Failed to update logo" });
+    }
+  });
+
+  // Serve public objects (logos)
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get('/keepalive', (_req, res) => {
     res.status(200).json({ 
       status: 'alive', 

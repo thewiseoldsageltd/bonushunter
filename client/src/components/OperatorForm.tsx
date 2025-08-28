@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ObjectUploader } from "./ObjectUploader";
+import { Upload } from "lucide-react";
 
 interface OperatorFormProps {
   operator?: any;
@@ -153,14 +155,58 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="logo">Logo URL</Label>
-          <Input
-            id="logo"
-            value={formData.logo}
-            onChange={(e) => setFormData(prev => ({ ...prev, logo: e.target.value }))}
-            placeholder="https://example.com/logo.png"
-            data-testid="input-operator-logo"
-          />
+          <Label htmlFor="logo">Logo</Label>
+          <div className="space-y-3">
+            <Input
+              id="logo"
+              value={formData.logo}
+              onChange={(e) => setFormData(prev => ({ ...prev, logo: e.target.value }))}
+              placeholder="Logo URL or upload a file below"
+              data-testid="input-operator-logo"
+            />
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">or</span>
+              <ObjectUploader
+                maxNumberOfFiles={1}
+                maxFileSize={5242880} // 5MB
+                onGetUploadParameters={async () => {
+                  const response = await apiRequest('POST', '/api/admin/logos/upload');
+                  const data = await response.json();
+                  return {
+                    method: 'PUT' as const,
+                    url: data.uploadURL,
+                  };
+                }}
+                onComplete={(result: any) => {
+                  if (result.successful && result.successful.length > 0) {
+                    const uploadedFileURL = result.successful[0].uploadURL;
+                    // Update the operator logo via API
+                    if (operator?.id) {
+                      apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
+                        logoURL: uploadedFileURL
+                      }).then(async (res) => {
+                        const data = await res.json();
+                        setFormData(prev => ({ ...prev, logo: data.logoPath }));
+                      });
+                    } else {
+                      // For new operators, just set the URL for now
+                      setFormData(prev => ({ ...prev, logo: uploadedFileURL }));
+                    }
+                  }
+                }}
+                buttonClassName="text-sm"
+              >
+                <Upload className="w-4 h-4 mr-1" />
+                Upload Logo
+              </ObjectUploader>
+            </div>
+            {formData.logo && formData.logo.startsWith('/public-objects/') && (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <span>✓</span>
+                <span>Logo uploaded successfully</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -38,7 +38,23 @@ export default function BonusCard({
   };
 
   const getIconFromLogo = (logo: string | null) => {
-    // NUCLEAR OPTION - Force Railway to serve new bundle
+    // If there's an uploaded logo (starts with /public-objects/), show it as an image
+    if (logo && logo.startsWith('/public-objects/')) {
+      return (
+        <img 
+          src={logo} 
+          alt={`${bonus.operator.name} logo`}
+          className="w-full h-full object-contain"
+          onError={(e) => {
+            // Fallback to emoji if image fails to load
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextSibling!.style.display = 'block';
+          }}
+        />
+      );
+    }
+    
+    // Fallback to emoji icons
     if (!logo) return '🎯';
     if (logo.includes('draftkings') || logo.includes('crown')) return '👑';
     if (logo.includes('dice')) return '🎲';
@@ -55,8 +71,23 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center`}>
-          <span className="text-lg">{getIconFromLogo(bonus.operator.logo)}</span>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center overflow-hidden`}>
+          {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
+            <>
+              <img 
+                src={bonus.operator.logo} 
+                alt={`${bonus.operator.name} logo`}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  (e.currentTarget.nextElementSibling as HTMLElement)!.style.display = 'block';
+                }}
+              />
+              <span className="text-lg hidden">{getIconFromLogo(null)}</span>
+            </>
+          ) : (
+            <span className="text-lg">{getIconFromLogo(bonus.operator.logo)}</span>
+          )}
         </div>
         <div className="text-right">
           <div className="flex items-center space-x-1">
