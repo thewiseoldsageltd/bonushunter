@@ -55,15 +55,16 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         ...data,
         paymentMethods: data.paymentMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
         withdrawalMethods: data.withdrawalMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
-        // Convert numeric fields - only if they have values
+        // Convert only foundedYear to integer, keep decimal fields as strings for database
         foundedYear: data.foundedYear && data.foundedYear.trim() ? parseInt(data.foundedYear) : undefined,
-        trustScore: data.trustScore && data.trustScore.trim() ? parseFloat(data.trustScore) : undefined,
-        overallRating: data.overallRating && data.overallRating.trim() ? parseFloat(data.overallRating) : undefined,
-        bonusRating: data.bonusRating && data.bonusRating.trim() ? parseFloat(data.bonusRating) : undefined,
-        oddsRating: data.oddsRating && data.oddsRating.trim() ? parseFloat(data.oddsRating) : undefined,
-        uiRating: data.uiRating && data.uiRating.trim() ? parseFloat(data.uiRating) : undefined,
-        minDeposit: data.minDeposit && data.minDeposit.trim() ? parseFloat(data.minDeposit) : undefined,
-        maxWithdrawal: data.maxWithdrawal && data.maxWithdrawal.trim() ? parseFloat(data.maxWithdrawal) : undefined,
+        // Keep these as strings since the database expects decimal strings
+        trustScore: data.trustScore && data.trustScore.trim() ? data.trustScore : undefined,
+        overallRating: data.overallRating && data.overallRating.trim() ? data.overallRating : undefined,
+        bonusRating: data.bonusRating && data.bonusRating.trim() ? data.bonusRating : undefined,
+        oddsRating: data.oddsRating && data.oddsRating.trim() ? data.oddsRating : undefined,
+        uiRating: data.uiRating && data.uiRating.trim() ? data.uiRating : undefined,
+        minDeposit: data.minDeposit && data.minDeposit.trim() ? data.minDeposit : undefined,
+        maxWithdrawal: data.maxWithdrawal && data.maxWithdrawal.trim() ? data.maxWithdrawal : undefined,
       };
       
       // Debug: log the processed data
