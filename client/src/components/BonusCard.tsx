@@ -71,22 +71,23 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-xl overflow-hidden`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-xl overflow-hidden flex items-center justify-center`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
               src={bonus.operator.logo} 
               alt={`${bonus.operator.name} logo`}
-              className="w-full h-full object-cover bg-white"
-              onLoad={() => console.log(`✅ Logo displayed: ${bonus.operator.logo}`)}
+              className="w-full h-full object-contain bg-white rounded-xl"
+              style={{ minHeight: '100%', minWidth: '100%' }}
+              onLoad={() => console.log(`✅ Logo now visible: ${bonus.operator.logo}`)}
               onError={(e) => {
-                console.log(`❌ Logo failed, showing fallback: ${bonus.operator.logo}`);
+                console.log(`❌ Logo failed, showing emoji fallback`);
                 const parent = e.currentTarget.parentElement!;
-                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center"><span class="text-lg">${getIconFromLogo(null)}</span></div>`;
+                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center"><span class="text-lg text-white">👑</span></div>`;
               }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-lg">{getIconFromLogo(bonus.operator.logo)}</span>
+              <span className="text-lg text-white">{getIconFromLogo(bonus.operator.logo)}</span>
             </div>
           )}
         </div>
