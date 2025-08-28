@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,6 +88,26 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
     }
     mutation.mutate(formData);
   };
+
+  // Global protection against space bar interference
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ') {
+        const target = e.target as HTMLElement;
+        // If user is typing in an input or textarea, prevent any other handlers
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          e.stopImmediatePropagation();
+        }
+      }
+    };
+
+    // Add capturing event listener to catch events before any other handlers
+    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
+    
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
+    };
+  }, []);
 
   // Prevent space bar from triggering upload when typing in form fields
   const handleFormKeyDown = (e: React.KeyboardEvent) => {

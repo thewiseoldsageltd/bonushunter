@@ -66,6 +66,7 @@ export function ObjectUploader({
         allowedFileTypes: ['image/*'], // Only allow images for logos
       },
       autoProceed: false,
+      allowMultipleUploadBatches: false,
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
@@ -87,12 +88,16 @@ export function ObjectUploader({
         {children}
       </Button>
 
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-      />
+      {showModal && (
+        <DashboardModal
+          uppy={uppy}
+          open={showModal}
+          onRequestClose={() => setShowModal(false)}
+          proudlyDisplayPoweredByUppy={false}
+          disablePageScrollWhenModalOpen={true}
+          closeAfterFinish={true}
+        />
+      )}
     </div>
   );
 }
