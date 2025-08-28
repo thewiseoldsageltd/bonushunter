@@ -350,12 +350,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/operators/:id", async (req, res) => {
     try {
       const operatorId = req.params.id;
+      console.log('Received operator update data:', req.body);
       const operatorData = insertOperatorSchema.parse(req.body);
       const operator = await storage.updateOperator(operatorId, operatorData);
       res.json({ operator, message: "Operator updated successfully" });
     } catch (error) {
       console.error("Update operator error:", error);
       if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: "Invalid operator data", details: error.errors });
       }
       res.status(500).json({ error: "Failed to update operator" });

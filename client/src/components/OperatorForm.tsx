@@ -55,16 +55,19 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         ...data,
         paymentMethods: data.paymentMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
         withdrawalMethods: data.withdrawalMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
-        // Convert numeric fields
-        foundedYear: data.foundedYear ? parseInt(data.foundedYear) : null,
-        trustScore: data.trustScore ? parseFloat(data.trustScore) : null,
-        overallRating: data.overallRating ? parseFloat(data.overallRating) : null,
-        bonusRating: data.bonusRating ? parseFloat(data.bonusRating) : null,
-        oddsRating: data.oddsRating ? parseFloat(data.oddsRating) : null,
-        uiRating: data.uiRating ? parseFloat(data.uiRating) : null,
-        minDeposit: data.minDeposit ? parseFloat(data.minDeposit) : null,
-        maxWithdrawal: data.maxWithdrawal ? parseFloat(data.maxWithdrawal) : null,
+        // Convert numeric fields - only if they have values
+        foundedYear: data.foundedYear && data.foundedYear.trim() ? parseInt(data.foundedYear) : undefined,
+        trustScore: data.trustScore && data.trustScore.trim() ? parseFloat(data.trustScore) : undefined,
+        overallRating: data.overallRating && data.overallRating.trim() ? parseFloat(data.overallRating) : undefined,
+        bonusRating: data.bonusRating && data.bonusRating.trim() ? parseFloat(data.bonusRating) : undefined,
+        oddsRating: data.oddsRating && data.oddsRating.trim() ? parseFloat(data.oddsRating) : undefined,
+        uiRating: data.uiRating && data.uiRating.trim() ? parseFloat(data.uiRating) : undefined,
+        minDeposit: data.minDeposit && data.minDeposit.trim() ? parseFloat(data.minDeposit) : undefined,
+        maxWithdrawal: data.maxWithdrawal && data.maxWithdrawal.trim() ? parseFloat(data.maxWithdrawal) : undefined,
       };
+      
+      // Debug: log the processed data
+      console.log('Sending operator data:', processedData);
       
       const response = await apiRequest(method, url, processedData);
       return await response.json();
@@ -98,42 +101,30 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
     mutation.mutate(formData);
   };
 
-  // Enhanced global protection against space bar interference
+  // Simplified space bar protection - disable Uppy when form is active
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Completely block space bar from doing anything except in input fields
       if (e.key === ' ') {
         const target = e.target as HTMLElement;
-        // Comprehensive check for form input elements
-        if (
-          target.tagName === 'INPUT' || 
-          target.tagName === 'TEXTAREA' ||
-          target.contentEditable === 'true' ||
-          target.classList.contains('input') ||
-          target.closest('input') ||
-          target.closest('textarea')
-        ) {
-          e.stopImmediatePropagation();
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          // Allow normal space behavior in input fields
+          return;
+        } else {
+          // Block space bar everywhere else
           e.preventDefault();
-          // Force the space character to be inserted
-          if (target.tagName === 'INPUT') {
-            const input = target as HTMLInputElement;
-            const start = input.selectionStart || 0;
-            const end = input.selectionEnd || 0;
-            const currentValue = input.value;
-            input.value = currentValue.slice(0, start) + ' ' + currentValue.slice(end);
-            input.setSelectionRange(start + 1, start + 1);
-          }
+          e.stopPropagation();
+          e.stopImmediatePropagation();
         }
       }
     };
 
-    // Add multiple event listeners for comprehensive coverage
-    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
-    document.addEventListener('keypress', handleGlobalKeyDown, { capture: true });
+    document.addEventListener('keydown', handleGlobalKeyDown, true);
+    document.addEventListener('keypress', handleGlobalKeyDown, true); 
     
     return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
-      document.removeEventListener('keypress', handleGlobalKeyDown, { capture: true });
+      document.removeEventListener('keydown', handleGlobalKeyDown, true);
+      document.removeEventListener('keypress', handleGlobalKeyDown, true);
     };
   }, []);
 
