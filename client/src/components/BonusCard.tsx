@@ -71,18 +71,18 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-xl overflow-hidden flex items-center justify-center`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl flex items-center justify-center overflow-hidden`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
               src={bonus.operator.logo} 
               alt={`${bonus.operator.name} logo`}
-              className="w-full h-full object-contain bg-white rounded-xl"
-              style={{ minHeight: '100%', minWidth: '100%' }}
-              onLoad={() => console.log(`✅ Logo now visible: ${bonus.operator.logo}`)}
-              onError={(e) => {
-                console.log(`❌ Logo failed, showing emoji fallback`);
-                const parent = e.currentTarget.parentElement!;
-                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center"><span class="text-lg text-white">👑</span></div>`;
+              className="w-full h-full object-contain"
+              onLoad={(e) => {
+                console.log(`🎯 DraftKings logo SUCCESS: ${bonus.operator.logo}`);
+                e.currentTarget.style.display = 'block';
+              }}
+              onError={() => {
+                console.log(`❌ Logo loading failed for ${bonus.operator.name}`);
               }}
             />
           ) : (
