@@ -70,7 +70,7 @@ interface OperatorFormData {
   active: boolean;
 }
 
-const AdminDashboard = () => {
+const AdminNew = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
@@ -1600,261 +1600,15 @@ const AdminDashboard = () => {
                   <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">Edit Operator: {editingOperator.name}</h3>
 
-                    <form onSubmit={handleUpdateOperator} className="space-y-6">
-                      {/* Basic Information */}
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-lg">Basic Information</h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-name">Operator Name*</Label>
-                            <Input
-                              id="edit-operator-name"
-                              value={editOperatorForm.name}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, name: e.target.value }))}
-                              placeholder="e.g., DraftKings"
-                              data-testid="input-edit-operator-name"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-siteUrl">Site URL*</Label>
-                            <Input
-                              id="edit-operator-siteUrl"
-                              value={editOperatorForm.siteUrl}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, siteUrl: e.target.value }))}
-                              placeholder="https://draftkings.com"
-                              data-testid="input-edit-operator-site-url"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-foundedYear">Founded Year</Label>
-                            <Input
-                              id="edit-operator-foundedYear"
-                              type="number"
-                              value={editOperatorForm.foundedYear}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, foundedYear: e.target.value }))}
-                              placeholder="2012"
-                              data-testid="input-edit-operator-founded-year"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-headquarters">Headquarters</Label>
-                            <Input
-                              id="edit-operator-headquarters"
-                              value={editOperatorForm.headquarters}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, headquarters: e.target.value }))}
-                              placeholder="Boston, MA, USA"
-                              data-testid="input-edit-operator-headquarters"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-operator-description">Description</Label>
-                          <Textarea
-                            id="edit-operator-description"
-                            value={editOperatorForm.description}
-                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="Brief description of the operator"
-                            rows={3}
-                            data-testid="input-edit-operator-description"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-operator-logo">Logo URL</Label>
-                          <Input
-                            id="edit-operator-logo"
-                            value={editOperatorForm.logo}
-                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, logo: e.target.value }))}
-                            placeholder="https://example.com/logo.png"
-                            data-testid="input-edit-operator-logo"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Ratings */}
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-lg">Ratings</h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-trustScore">Trust Score (1-10)</Label>
-                            <Input
-                              id="edit-operator-trustScore"
-                              type="number"
-                              min="1"
-                              max="10"
-                              step="0.1"
-                              value={editOperatorForm.trustScore}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, trustScore: e.target.value }))}
-                              data-testid="input-edit-operator-trust-score"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-overallRating">Overall Rating (1-5)</Label>
-                            <Input
-                              id="edit-operator-overallRating"
-                              type="number"
-                              min="1"
-                              max="5"
-                              step="0.1"
-                              value={editOperatorForm.overallRating}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, overallRating: e.target.value }))}
-                              data-testid="input-edit-operator-overall-rating"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-bonusRating">Bonus Rating (1-5)</Label>
-                            <Input
-                              id="edit-operator-bonusRating"
-                              type="number"
-                              min="1"
-                              max="5"
-                              step="0.1"
-                              value={editOperatorForm.bonusRating}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, bonusRating: e.target.value }))}
-                              data-testid="input-edit-operator-bonus-rating"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-oddsRating">Odds Rating (1-5)</Label>
-                            <Input
-                              id="edit-operator-oddsRating"
-                              type="number"
-                              min="1"
-                              max="5"
-                              step="0.1"
-                              value={editOperatorForm.oddsRating}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, oddsRating: e.target.value }))}
-                              data-testid="input-edit-operator-odds-rating"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Payment Information */}
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-lg">Payment Information</h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-paymentMethods">Payment Methods (comma separated)</Label>
-                            <Textarea
-                              id="edit-operator-paymentMethods"
-                              value={editOperatorForm.paymentMethods.join(', ')}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, paymentMethods: e.target.value.split(',').map(s => s.trim()).filter(s => s) }))}
-                              placeholder="Credit Card, PayPal, Bank Transfer, Crypto"
-                              rows={3}
-                              data-testid="input-edit-operator-payment-methods"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-withdrawalMethods">Withdrawal Methods (comma separated)</Label>
-                            <Textarea
-                              id="edit-operator-withdrawalMethods"
-                              value={editOperatorForm.withdrawalMethods.join(', ')}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, withdrawalMethods: e.target.value.split(',').map(s => s.trim()).filter(s => s) }))}
-                              placeholder="Bank Transfer, PayPal, Check, Crypto"
-                              rows={3}
-                              data-testid="input-edit-operator-withdrawal-methods"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-minDeposit">Minimum Deposit</Label>
-                            <Input
-                              id="edit-operator-minDeposit"
-                              type="number"
-                              step="0.01"
-                              value={editOperatorForm.minDeposit}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-                              placeholder="10.00"
-                              data-testid="input-edit-operator-min-deposit"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="edit-operator-maxWithdrawal">Maximum Withdrawal</Label>
-                            <Input
-                              id="edit-operator-maxWithdrawal"
-                              type="number"
-                              step="0.01"
-                              value={editOperatorForm.maxWithdrawal}
-                              onChange={(e) => setEditOperatorForm(prev => ({ ...prev, maxWithdrawal: e.target.value }))}
-                              placeholder="50000.00"
-                              data-testid="input-edit-operator-max-withdrawal"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-operator-withdrawalTimeframe">Withdrawal Timeframe</Label>
-                          <Input
-                            id="edit-operator-withdrawalTimeframe"
-                            value={editOperatorForm.withdrawalTimeframe}
-                            onChange={(e) => setEditOperatorForm(prev => ({ ...prev, withdrawalTimeframe: e.target.value }))}
-                            placeholder="1-3 business days"
-                            data-testid="input-edit-operator-withdrawal-timeframe"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Features */}
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-lg">Features</h4>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          {[
-                            { key: 'liveChat', label: 'Live Chat' },
-                            { key: 'mobileApp', label: 'Mobile App' },
-                            { key: 'casinoGames', label: 'Casino Games' },
-                            { key: 'liveCasino', label: 'Live Casino' },
-                            { key: 'esports', label: 'Esports' },
-                            { key: 'virtuals', label: 'Virtual Sports' },
-                            { key: 'active', label: 'Active' }
-                          ].map(({ key, label }) => (
-                            <div key={key} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`edit-${key}`}
-                                checked={editOperatorForm[key as keyof typeof editOperatorForm] as boolean}
-                                onCheckedChange={(checked: boolean) => setEditOperatorForm(prev => ({ ...prev, [key]: checked }))}
-                                data-testid={`checkbox-edit-operator-${key}`}
-                              />
-                              <Label htmlFor={`edit-${key}`}>{label}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button 
-                          type="submit" 
-                          disabled={updateOperatorMutation.isPending}
-                          data-testid="button-update-operator"
-                        >
-                          {updateOperatorMutation.isPending ? "Updating..." : "Update Operator"}
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => {
-                            setShowEditOperatorForm(false);
-                            setEditingOperator(null);
-                          }}
-                          data-testid="button-cancel-edit-operator"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+                    <OperatorForm 
+                      operator={editingOperator} 
+                      onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                        setShowEditOperatorForm(false);
+                        setEditingOperator(null);
+                      }} 
+                    />
                   </div>
                 )}
 
@@ -1924,18 +1678,17 @@ const AdminDashboard = () => {
                     <p className="text-sm">Chat AI Working</p>
                   </div>
                   <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">✓</p>
-                    <p className="text-sm">Database Connected</p>
+                    <p className="text-2xl font-bold text-blue-600">📊</p>
+                    <p className="text-sm">Data Tracking</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
       </div>
     </div>
   );
-};
+}
 
-export default AdminDashboard;
+export default AdminNew;
