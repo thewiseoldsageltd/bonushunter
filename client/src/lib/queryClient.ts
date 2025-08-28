@@ -61,7 +61,7 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes - allows fresh data when API changes
+      staleTime: 0, // Always fetch fresh data to see operator logo updates
       retry: false,
     },
     mutations: {

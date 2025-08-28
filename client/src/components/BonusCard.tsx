@@ -78,7 +78,9 @@ export default function BonusCard({
                 src={bonus.operator.logo} 
                 alt={`${bonus.operator.name} logo`}
                 className="w-full h-full object-contain"
+                onLoad={() => console.log(`✅ Logo loaded: ${bonus.operator.logo}`)}
                 onError={(e) => {
+                  console.log(`❌ Logo failed to load: ${bonus.operator.logo}`);
                   e.currentTarget.style.display = 'none';
                   (e.currentTarget.nextElementSibling as HTMLElement)!.style.display = 'block';
                 }}
