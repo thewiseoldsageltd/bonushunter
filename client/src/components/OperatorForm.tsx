@@ -89,8 +89,20 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
     mutation.mutate(formData);
   };
 
+  // Prevent space bar from triggering upload when typing in form fields
+  const handleFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === ' ') {
+      const target = e.target as HTMLElement;
+      // Allow space bar in input fields and textareas
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        e.stopPropagation();
+        return;
+      }
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="space-y-6">
       {/* Basic Information */}
       <div className="space-y-4">
         <h4 className="font-semibold text-lg">Basic Information</h4>

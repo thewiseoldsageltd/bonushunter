@@ -77,31 +77,12 @@ export function ObjectUploader({
       })
   );
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowModal(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Only allow space bar when the button is focused and prevent it from bubbling
-    if (e.key === ' ') {
-      e.preventDefault();
-      e.stopPropagation();
-      if (document.activeElement === e.currentTarget) {
-        setShowModal(true);
-      }
-    }
-  };
-
   return (
     <div>
       <Button 
-        onClick={handleButtonClick}
-        onKeyDown={handleKeyDown}
+        onClick={() => setShowModal(true)}
         className={buttonClassName} 
         type="button"
-        tabIndex={0}
       >
         {children}
       </Button>
