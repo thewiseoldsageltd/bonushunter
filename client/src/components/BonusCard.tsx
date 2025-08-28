@@ -71,17 +71,28 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden flex items-center justify-center`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-red-100 rounded-xl overflow-visible border-2 border-green-500`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
               src={bonus.operator.logo} 
               alt={`${bonus.operator.name} logo`}
-              className="w-full h-full object-contain"
-              onLoad={() => {
-                console.log(`🎯 RELATIVE URL SUCCESS: ${bonus.operator.name}`);
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                display: 'block',
+                backgroundColor: 'yellow',
+                border: '2px solid red',
+                opacity: 1,
+                zIndex: 999
+              }}
+              onLoad={(e) => {
+                console.log(`🎯 IMAGE LOADED AND SHOULD BE VISIBLE: ${bonus.operator.name}`);
+                console.log('Image dimensions:', e.currentTarget.offsetWidth, 'x', e.currentTarget.offsetHeight);
+                console.log('Image natural dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
               }}
               onError={() => {
-                console.log(`❌ RELATIVE URL failed: ${bonus.operator.name}`);
+                console.log(`❌ Image loading error: ${bonus.operator.name}`);
               }}
             />
           ) : (
