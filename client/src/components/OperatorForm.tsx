@@ -50,11 +50,20 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
       const url = operator ? `/api/admin/operators/${operator.id}` : '/api/admin/operators';
       const method = operator ? 'PUT' : 'POST';
       
-      // Process arrays
+      // Process arrays and convert numeric fields
       const processedData = {
         ...data,
         paymentMethods: data.paymentMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
         withdrawalMethods: data.withdrawalMethods.split(',').map((s: string) => s.trim()).filter((s: string) => s),
+        // Convert numeric fields
+        foundedYear: data.foundedYear ? parseInt(data.foundedYear) : null,
+        trustScore: data.trustScore ? parseFloat(data.trustScore) : null,
+        overallRating: data.overallRating ? parseFloat(data.overallRating) : null,
+        bonusRating: data.bonusRating ? parseFloat(data.bonusRating) : null,
+        oddsRating: data.oddsRating ? parseFloat(data.oddsRating) : null,
+        uiRating: data.uiRating ? parseFloat(data.uiRating) : null,
+        minDeposit: data.minDeposit ? parseFloat(data.minDeposit) : null,
+        maxWithdrawal: data.maxWithdrawal ? parseFloat(data.maxWithdrawal) : null,
       };
       
       const response = await apiRequest(method, url, processedData);
@@ -89,23 +98,42 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
     mutation.mutate(formData);
   };
 
-  // Global protection against space bar interference
+  // Enhanced global protection against space bar interference
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ') {
         const target = e.target as HTMLElement;
-        // If user is typing in an input or textarea, prevent any other handlers
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        // Comprehensive check for form input elements
+        if (
+          target.tagName === 'INPUT' || 
+          target.tagName === 'TEXTAREA' ||
+          target.contentEditable === 'true' ||
+          target.classList.contains('input') ||
+          target.closest('input') ||
+          target.closest('textarea')
+        ) {
           e.stopImmediatePropagation();
+          e.preventDefault();
+          // Force the space character to be inserted
+          if (target.tagName === 'INPUT') {
+            const input = target as HTMLInputElement;
+            const start = input.selectionStart || 0;
+            const end = input.selectionEnd || 0;
+            const currentValue = input.value;
+            input.value = currentValue.slice(0, start) + ' ' + currentValue.slice(end);
+            input.setSelectionRange(start + 1, start + 1);
+          }
         }
       }
     };
 
-    // Add capturing event listener to catch events before any other handlers
+    // Add multiple event listeners for comprehensive coverage
     document.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
+    document.addEventListener('keypress', handleGlobalKeyDown, { capture: true });
     
     return () => {
       document.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
+      document.removeEventListener('keypress', handleGlobalKeyDown, { capture: true });
     };
   }, []);
 
