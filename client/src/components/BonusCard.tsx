@@ -71,24 +71,19 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-xl flex items-center justify-center overflow-hidden relative`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} rounded-xl overflow-hidden`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
-            <>
-              <img 
-                src={bonus.operator.logo} 
-                alt={`${bonus.operator.name} logo`}
-                className="w-full h-full object-contain absolute inset-0 z-10"
-                onLoad={() => console.log(`✅ Logo loaded: ${bonus.operator.logo}`)}
-                onError={(e) => {
-                  console.log(`❌ Logo failed to load: ${bonus.operator.logo}`);
-                  e.currentTarget.style.display = 'none';
-                  (e.currentTarget.nextElementSibling as HTMLElement)!.style.display = 'flex';
-                }}
-              />
-              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center hidden">
-                <span className="text-lg">{getIconFromLogo(null)}</span>
-              </div>
-            </>
+            <img 
+              src={bonus.operator.logo} 
+              alt={`${bonus.operator.name} logo`}
+              className="w-full h-full object-cover bg-white"
+              onLoad={() => console.log(`✅ Logo displayed: ${bonus.operator.logo}`)}
+              onError={(e) => {
+                console.log(`❌ Logo failed, showing fallback: ${bonus.operator.logo}`);
+                const parent = e.currentTarget.parentElement!;
+                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center"><span class="text-lg">${getIconFromLogo(null)}</span></div>`;
+              }}
+            />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
               <span className="text-lg">{getIconFromLogo(bonus.operator.logo)}</span>
