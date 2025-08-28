@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
@@ -58,6 +58,7 @@ export function ObjectUploader({
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
+  const [hasFiles, setHasFiles] = useState(false);
   const [uppy] = useState(() =>
     new Uppy({
       restrictions: {
@@ -72,11 +73,31 @@ export function ObjectUploader({
         shouldUseMultipart: false,
         getUploadParameters: onGetUploadParameters,
       })
+      .on("file-added", () => {
+        setHasFiles(true);
+      })
+      .on("file-removed", () => {
+        setHasFiles(uppy.getFiles().length > 1);
+      })
       .on("complete", (result: any) => {
         onComplete?.(result);
         setShowModal(false);
+        setHasFiles(false);
       })
   );
+
+  // Disable global space bar protection when files are selected
+  React.useEffect(() => {
+    if (hasFiles) {
+      document.body.setAttribute('data-uppy-active', 'true');
+    } else {
+      document.body.removeAttribute('data-uppy-active');
+    }
+    
+    return () => {
+      document.body.removeAttribute('data-uppy-active');
+    };
+  }, [hasFiles]);
 
   return (
     <div>

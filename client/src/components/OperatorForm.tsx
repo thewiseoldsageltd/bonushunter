@@ -102,7 +102,7 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
     mutation.mutate(formData);
   };
 
-  // Simplified space bar protection - disable Uppy when form is active
+  // Simplified space bar protection - disable when Uppy is active
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       // Completely block space bar from doing anything except in input fields
@@ -116,12 +116,10 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
           return;
         }
         
-        // Don't interfere with Uppy modal or dashboard components
-        const isInUppy = target.closest('.uppy-Root') || 
-                        target.closest('[class*="uppy-"]') ||
-                        document.querySelector('.uppy-Dashboard-isOpen');
-        if (isInUppy) {
-          return;
+        // Check if Uppy is active (files selected)
+        const isUppyActive = document.body.hasAttribute('data-uppy-active');
+        if (isUppyActive) {
+          return; // Let Uppy handle its own events
         }
         
         // Block space bar everywhere else
@@ -241,20 +239,44 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   };
                 }}
                 onComplete={(result: any) => {
+                  console.log('Upload complete result:', result);
                   if (result.successful && result.successful.length > 0) {
                     const uploadedFileURL = result.successful[0].uploadURL;
+                    console.log('Uploaded file URL:', uploadedFileURL);
+                    
                     // Update the operator logo via API
                     if (operator?.id) {
+                      console.log('Updating existing operator logo...');
                       apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
                         logoURL: uploadedFileURL
                       }).then(async (res) => {
                         const data = await res.json();
+                        console.log('Logo update response:', data);
                         setFormData(prev => ({ ...prev, logo: data.logoPath }));
+                        toast({
+                          title: "Logo Updated!",
+                          description: "The operator logo has been updated successfully.",
+                        });
+                      }).catch(error => {
+                        console.error('Logo update error:', error);
+                        toast({
+                          title: "Logo Update Failed",
+                          description: "Failed to update the operator logo.",
+                          variant: "destructive",
+                        });
                       });
                     } else {
                       // For new operators, just set the URL for now
+                      console.log('Setting logo for new operator:', uploadedFileURL);
                       setFormData(prev => ({ ...prev, logo: uploadedFileURL }));
                     }
+                  } else {
+                    console.error('Upload failed or no files uploaded:', result);
+                    toast({
+                      title: "Upload Failed",
+                      description: "The logo upload was not successful.",
+                      variant: "destructive",
+                    });
                   }
                 }}
                 buttonClassName="text-sm"
