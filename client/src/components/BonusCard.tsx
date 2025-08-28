@@ -71,18 +71,24 @@ export default function BonusCard({
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl flex items-center justify-center overflow-hidden`}>
+        <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden border border-gray-200`}>
           {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
             <img 
               src={bonus.operator.logo} 
               alt={`${bonus.operator.name} logo`}
-              className="w-full h-full object-contain"
-              onLoad={(e) => {
-                console.log(`🎯 DraftKings logo SUCCESS: ${bonus.operator.logo}`);
-                e.currentTarget.style.display = 'block';
+              className="w-full h-full object-cover"
+              style={{ 
+                display: 'block',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                width: '100%',
+                height: '100%'
+              }}
+              onLoad={() => {
+                console.log(`🎯 LOGO VISIBLE: ${bonus.operator.name}`);
               }}
               onError={() => {
-                console.log(`❌ Logo loading failed for ${bonus.operator.name}`);
+                console.log(`❌ Logo failed: ${bonus.operator.name}`);
               }}
             />
           ) : (
