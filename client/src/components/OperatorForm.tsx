@@ -108,15 +108,26 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
       // Completely block space bar from doing anything except in input fields
       if (e.key === ' ') {
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-          // Allow normal space behavior in input fields
+        const activeElement = document.activeElement as HTMLElement;
+        
+        // Allow normal space behavior in input fields and textareas
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' ||
+            activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA') {
           return;
-        } else {
-          // Block space bar everywhere else
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
         }
+        
+        // Don't interfere with Uppy modal or dashboard components
+        const isInUppy = target.closest('.uppy-Root') || 
+                        target.closest('[class*="uppy-"]') ||
+                        document.querySelector('.uppy-Dashboard-isOpen');
+        if (isInUppy) {
+          return;
+        }
+        
+        // Block space bar everywhere else
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
       }
     };
 
