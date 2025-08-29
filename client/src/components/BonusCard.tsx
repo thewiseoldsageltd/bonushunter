@@ -83,12 +83,8 @@ export default function BonusCard({
               })()} 
               alt={`${bonus.operator.name} logo`}
               className="w-full h-full object-contain"
-              onLoad={(e) => {
-                console.log(`✅ LOGO LOADED: ${bonus.operator.name}`);
-              }}
-              onError={(e) => {
-                console.log(`❌ Logo failed: ${bonus.operator.name} - ${e.currentTarget.src}`);
-              }}
+              onLoad={() => {}}
+              onError={() => {}}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
