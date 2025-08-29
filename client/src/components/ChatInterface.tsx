@@ -89,13 +89,23 @@ export default function ChatInterface() {
             behavior: "smooth"
           });
         }
-        // For AI messages, gentle scroll to keep response visible without dropping too far
+        // For AI messages, adjust scroll based on device type
         else if (lastMessage?.role === 'assistant' && !lastMessage.isInitialMessage) {
-          // Gentle scroll to show the start of AI response
-          chatContainer.scrollBy({
-            top: 60, // Just enough to show the response without dropping too far
-            behavior: "smooth"
-          });
+          const isMobile = window.innerWidth < 1024;
+          
+          if (isMobile) {
+            // On mobile, scroll to a specific position for consistent placement
+            chatContainer.scrollTo({
+              top: chatContainer.scrollHeight * 0.3, // Position at 30% of scroll height
+              behavior: "smooth"
+            });
+          } else {
+            // On desktop, gentle scroll down
+            chatContainer.scrollBy({
+              top: 60,
+              behavior: "smooth"
+            });
+          }
         }
       }
     }
