@@ -25,8 +25,8 @@ export default function TypewriterText({
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
         
-        // Trigger progressive scroll to follow typing
-        if (enableProgressiveScroll && currentIndex % 30 === 0) {
+        // Trigger progressive scroll to follow typing more gently
+        if (enableProgressiveScroll && currentIndex % 50 === 0) {
           setShouldScroll(prev => prev + 1);
         }
       }, speed);
@@ -42,9 +42,9 @@ export default function TypewriterText({
     if (enableProgressiveScroll && shouldScroll > 0) {
       const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
       if (chatContainer) {
-        // Gentle but consistent scroll to follow typing
+        // Very gentle scroll to stay in sync with visible text
         chatContainer.scrollBy({
-          top: 8, // Small, consistent scroll amount
+          top: 5, // Smaller scroll to prevent running ahead
           behavior: 'smooth'
         });
       }
