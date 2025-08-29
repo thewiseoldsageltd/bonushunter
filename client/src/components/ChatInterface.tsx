@@ -182,7 +182,7 @@ export default function ChatInterface() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me about bonuses..."
-          className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-300 focus:border-primary focus:bg-gray-700 transition-colors"
+          className="flex-1 bg-gray-700 border-gray-500 text-white placeholder-gray-400 focus:border-primary focus:bg-gray-600 focus:placeholder-gray-300 transition-colors"
           disabled={chatMutation.isPending}
           data-testid="input-chat-message"
         />
