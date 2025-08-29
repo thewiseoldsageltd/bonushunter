@@ -94,9 +94,9 @@ export default function ChatInterface() {
           const isMobile = window.innerWidth < 1024;
           
           if (isMobile) {
-            // On mobile, scroll to a specific position for consistent placement
-            chatContainer.scrollTo({
-              top: chatContainer.scrollHeight * 0.3, // Position at 30% of scroll height
+            // On mobile, gentle scroll to keep AI response visible  
+            chatContainer.scrollBy({
+              top: 30, // Much smaller scroll to keep response in view
               behavior: "smooth"
             });
           } else {
