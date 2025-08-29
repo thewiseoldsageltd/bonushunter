@@ -2,19 +2,21 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageCircle, Loader2 } from "lucide-react";
+import { Send, MessageCircle, Loader2, Zap } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import BonusCard from "@/components/BonusCard";
+import TypewriterText from "@/components/TypewriterText";
 import type { ChatMessage, ChatResponse } from "@/types";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: "welcome",
-      role: "assistant",
-      content: "Hi! I'm your AI bonus assistant. Tell me about your budget, location, and what games you like to play, and I'll find the best value bonuses for you!",
-      timestamp: new Date()
+      id: "artemis-welcome",
+      role: "assistant", 
+      content: "⚡ Greetings! I'm Artemis, your AI-powered bonus hunting companion. Like my namesake from Greek mythology, I'm here to track down the perfect gambling bonuses for you.\n\nTell me about your budget, location, and preferred games - I'll use advanced mathematical analysis to find bonuses with the highest Expected Value for your specific situation!",
+      timestamp: new Date(),
+      isInitialMessage: true
     }
   ]);
   const [input, setInput] = useState("");
@@ -90,26 +92,20 @@ export default function ChatInterface() {
     <div className="flex flex-col h-80">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center">
-            <MessageCircle className="text-white text-sm" />
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+            <Zap className="text-white text-sm" />
           </div>
-          <span className="font-medium">Bonus AI Assistant</span>
+          <div>
+            <span className="font-medium">Artemis</span>
+            <div className="text-xs text-gray-400">AI Bonus Hunter</div>
+          </div>
         </div>
         <div className="flex space-x-1">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           <div className="w-3 h-3 bg-secondary rounded-full"></div>
           <div className="w-3 h-3 bg-accent rounded-full"></div>
         </div>
       </div>
-
-      {/* Mobile prompt when first starting chat */}
-      {messages.length === 1 && (
-        <div className="lg:hidden mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-          <p className="text-sm text-center text-gray-300">
-            💬 <strong>Start your conversation!</strong> Tell me about your budget, location, and preferred games to find the best bonuses.
-          </p>
-        </div>
-      )}
 
       <ScrollArea ref={chatContainerRef} className="flex-1 mb-4" data-testid="chat-messages">
         <div className="space-y-4 pr-4">
@@ -123,12 +119,26 @@ export default function ChatInterface() {
                 </div>
               ) : (
                 <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <MessageCircle className="text-white text-xs" />
+                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Zap className="text-white text-xs" />
                   </div>
                   <div className="flex-1">
                     <div className="bg-dark-lighter rounded-lg px-4 py-3">
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      {message.isInitialMessage ? (
+                        <div className="text-sm whitespace-pre-wrap">
+                          <TypewriterText 
+                            text={message.content} 
+                            speed={30}
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-sm whitespace-pre-wrap">
+                          <TypewriterText 
+                            text={message.content} 
+                            speed={20}
+                          />
+                        </div>
+                      )}
                     </div>
                     
                     {message.recommendations && message.recommendations.length > 0 && (
@@ -152,13 +162,13 @@ export default function ChatInterface() {
           
           {chatMutation.isPending && (
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center">
-                <MessageCircle className="text-white text-xs" />
+              <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                <Zap className="text-white text-xs" />
               </div>
               <div className="bg-dark-lighter rounded-lg px-4 py-2">
                 <div className="flex items-center space-x-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm text-gray-400">Thinking...</span>
+                  <span className="text-sm text-gray-400">Artemis is analyzing bonuses...</span>
                 </div>
               </div>
             </div>

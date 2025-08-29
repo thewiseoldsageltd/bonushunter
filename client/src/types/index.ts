@@ -26,6 +26,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   recommendations?: BonusRecommendation[];
+  isInitialMessage?: boolean;
 }
 
 export interface UserIntent {
