@@ -8,11 +8,15 @@ export default function HeroSection() {
 
   const handleStartChat = () => {
     setShowChat(true);
-    // Gentle scroll to chat on mobile, but don't center it aggressively
+    // Scroll to show the full chat box on mobile
     setTimeout(() => {
       const chatElement = document.querySelector('[data-testid="chat-container"]');
       if (chatElement && window.innerWidth < 1024) {
-        chatElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        chatElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Add extra scroll to ensure full visibility
+        setTimeout(() => {
+          window.scrollBy({ top: -60, behavior: 'smooth' });
+        }, 500);
       }
     }, 100);
   };

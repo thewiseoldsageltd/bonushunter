@@ -14,7 +14,7 @@ export default function ChatInterface() {
     {
       id: "artemis-welcome",
       role: "assistant", 
-      content: "⚡ Greetings! I'm Artemis, your AI-powered bonus hunting companion. Like my namesake from Greek mythology, I'm here to track down the perfect gambling bonuses for you.\n\nTell me about your budget, location, and preferred games - I'll use advanced mathematical analysis to find bonuses with the highest Expected Value for your specific situation!",
+      content: "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget, location, and favorite games - I'll find the best value bonuses for you!",
       timestamp: new Date(),
       isInitialMessage: true
     }
@@ -182,7 +182,7 @@ export default function ChatInterface() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me about bonuses..."
-          className="flex-1 bg-gray-700 border-gray-500 text-white placeholder-gray-400 focus:border-primary focus:bg-gray-600 focus:placeholder-gray-300 transition-colors"
+          className="flex-1 bg-gray-600 border-gray-400 text-white placeholder-gray-200 focus:border-primary focus:bg-gray-500 focus:placeholder-white transition-colors"
           disabled={chatMutation.isPending}
           data-testid="input-chat-message"
         />
