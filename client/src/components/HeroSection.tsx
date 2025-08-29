@@ -61,7 +61,7 @@ export default function HeroSection() {
                   </div>
                 </div>
                 
-                <div className="space-y-4 mb-4 max-h-80 overflow-y-auto">
+                <div className="space-y-4 mb-4 h-64 overflow-y-auto">
                   <div className="flex justify-end">
                     <div className="bg-primary/20 rounded-lg px-4 py-2 max-w-xs">
                       <p className="text-sm">I've got $50 to spend on blackjack in New Jersey</p>

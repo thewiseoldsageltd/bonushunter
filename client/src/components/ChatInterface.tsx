@@ -20,6 +20,7 @@ export default function ChatInterface() {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
@@ -71,14 +72,22 @@ export default function ChatInterface() {
     setInput("");
   };
 
+  // Smooth scroll within chat area only, not the entire page
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollIntoView({ behavior: "smooth" });
+    if (scrollAreaRef.current && chatContainerRef.current) {
+      // Scroll within the chat container, not the entire page
+      const chatContainer = chatContainerRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (chatContainer) {
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: "smooth"
+        });
+      }
     }
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-96">
+    <div className="flex flex-col h-80">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center">
@@ -93,7 +102,7 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 mb-4" data-testid="chat-messages">
+      <ScrollArea ref={chatContainerRef} className="flex-1 mb-4" data-testid="chat-messages">
         <div className="space-y-4 pr-4">
           {messages.map((message) => (
             <div key={message.id}>
