@@ -215,7 +215,7 @@ export default function ChatInterface() {
                         <div className="text-sm whitespace-pre-wrap">
                           <TypewriterText 
                             text={message.content} 
-                            speed={20}
+                            speed={25}
                             enableProgressiveScroll={true}
                             onComplete={() => {
                               setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
