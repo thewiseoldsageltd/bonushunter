@@ -24,6 +24,7 @@ export default function ChatInterface() {
   const [completedTypewriterMessages, setCompletedTypewriterMessages] = useState<Set<string>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
@@ -121,6 +122,51 @@ export default function ChatInterface() {
       }
     }
   }, [messages]);
+
+  // Handle mobile keyboard visibility to keep chat in view
+  useEffect(() => {
+    const handleInputFocus = () => {
+      if (window.innerWidth < 1024) {
+        // When keyboard appears on mobile, adjust scroll to keep chat visible
+        setTimeout(() => {
+          const chatElement = document.querySelector('[data-testid="chat-container"]');
+          if (chatElement) {
+            // Scroll to position chat optimally when keyboard is open
+            chatElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+              window.scrollBy({ top: -100, behavior: 'smooth' });
+            }, 300);
+          }
+        }, 300); // Wait for keyboard animation
+      }
+    };
+
+    const handleInputBlur = () => {
+      if (window.innerWidth < 1024) {
+        // When keyboard closes, return to normal position
+        setTimeout(() => {
+          const chatElement = document.querySelector('[data-testid="chat-container"]');
+          if (chatElement) {
+            chatElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+              window.scrollBy({ top: -65, behavior: 'smooth' });
+            }, 300);
+          }
+        }, 300); // Wait for keyboard close animation
+      }
+    };
+
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('focus', handleInputFocus);
+      inputElement.addEventListener('blur', handleInputBlur);
+      
+      return () => {
+        inputElement.removeEventListener('focus', handleInputFocus);
+        inputElement.removeEventListener('blur', handleInputBlur);
+      };
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-80">
@@ -227,6 +273,7 @@ export default function ChatInterface() {
 
       <form onSubmit={handleSubmit} className="flex items-center space-x-3">
         <Input
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me about bonuses..."
