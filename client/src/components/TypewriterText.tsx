@@ -25,8 +25,8 @@ export default function TypewriterText({
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
         
-        // Trigger progressive scroll every few characters
-        if (enableProgressiveScroll && currentIndex % 50 === 0) {
+        // Trigger progressive scroll more frequently but gently
+        if (enableProgressiveScroll && currentIndex % 100 === 0) {
           setShouldScroll(prev => prev + 1);
         }
       }, speed);
@@ -37,16 +37,23 @@ export default function TypewriterText({
     }
   }, [currentIndex, text, speed, onComplete, enableProgressiveScroll]);
 
-  // Progressive scroll effect
+  // Progressive scroll effect - keep typing cursor in view
   useEffect(() => {
     if (enableProgressiveScroll && shouldScroll > 0) {
-      // Scroll down gently as text appears
       const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
       if (chatContainer) {
-        chatContainer.scrollBy({
-          top: 20,
-          behavior: 'smooth'
-        });
+        // Much gentler scroll to keep text visible
+        const containerHeight = chatContainer.clientHeight;
+        const scrollTop = chatContainer.scrollTop;
+        const scrollHeight = chatContainer.scrollHeight;
+        
+        // Only scroll if we're near the bottom of the visible area
+        if (scrollHeight - (scrollTop + containerHeight) < 50) {
+          chatContainer.scrollBy({
+            top: 10, // Much smaller scroll amount
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }, [shouldScroll, enableProgressiveScroll]);
