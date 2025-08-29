@@ -21,6 +21,7 @@ export default function ChatInterface() {
   ]);
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [completedTypewriterMessages, setCompletedTypewriterMessages] = useState<Set<string>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -74,16 +75,29 @@ export default function ChatInterface() {
     setInput("");
   };
 
-  // Smooth scroll within chat area only, not the entire page
+  // Smart scroll behavior - anchor AI responses at top, scroll progressively
   useEffect(() => {
     if (scrollAreaRef.current && chatContainerRef.current) {
-      // Scroll within the chat container, not the entire page
       const chatContainer = chatContainerRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (chatContainer) {
-        chatContainer.scrollTo({
-          top: chatContainer.scrollHeight,
-          behavior: "smooth"
-        });
+        const lastMessage = messages[messages.length - 1];
+        
+        // For user messages, scroll to bottom immediately
+        if (lastMessage?.role === 'user') {
+          chatContainer.scrollTo({
+            top: chatContainer.scrollHeight,
+            behavior: "smooth"
+          });
+        }
+        // For AI messages, scroll to start of the response (anchor at top)
+        else if (lastMessage?.role === 'assistant' && !lastMessage.isInitialMessage) {
+          // Find the last AI message element and scroll to it
+          const messageElements = chatContainer.querySelectorAll('[data-message-id]');
+          const lastAiElement = messageElements[messageElements.length - 1] as HTMLElement;
+          if (lastAiElement) {
+            lastAiElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
       }
     }
   }, [messages]);
@@ -110,7 +124,7 @@ export default function ChatInterface() {
       <ScrollArea ref={chatContainerRef} className="flex-1 mb-4" data-testid="chat-messages">
         <div className="space-y-4 pr-4">
           {messages.map((message) => (
-            <div key={message.id}>
+            <div key={message.id} data-message-id={message.id}>
               {message.role === "user" ? (
                 <div className="flex justify-end">
                   <div className="bg-primary/20 rounded-lg px-4 py-2 max-w-xs">
@@ -136,12 +150,26 @@ export default function ChatInterface() {
                           <TypewriterText 
                             text={message.content} 
                             speed={20}
+                            enableProgressiveScroll={true}
+                            onComplete={() => {
+                              setCompletedTypewriterMessages(prev => new Set([...prev, message.id]));
+                              // Final scroll to show cards after typewriter completes
+                              setTimeout(() => {
+                                const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
+                                if (chatContainer) {
+                                  chatContainer.scrollTo({
+                                    top: chatContainer.scrollHeight,
+                                    behavior: "smooth"
+                                  });
+                                }
+                              }, 300);
+                            }}
                           />
                         </div>
                       )}
                     </div>
                     
-                    {message.recommendations && message.recommendations.length > 0 && (
+                    {message.recommendations && message.recommendations.length > 0 && completedTypewriterMessages.has(message.id) && (
                       <div className="mt-4 space-y-3">
                         <p className="text-sm font-medium text-gray-300">Recommended Bonuses:</p>
                         {message.recommendations.map((bonus) => (

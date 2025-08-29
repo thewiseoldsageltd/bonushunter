@@ -5,34 +5,57 @@ interface TypewriterTextProps {
   speed?: number;
   onComplete?: () => void;
   className?: string;
+  enableProgressiveScroll?: boolean;
 }
 
 export default function TypewriterText({ 
   text, 
   speed = 50, 
   onComplete, 
-  className = "" 
+  className = "",
+  enableProgressiveScroll = false
 }: TypewriterTextProps) {
   const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [shouldScroll, setShouldScroll] = useState(0);
 
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
+        
+        // Trigger progressive scroll every few characters
+        if (enableProgressiveScroll && currentIndex % 50 === 0) {
+          setShouldScroll(prev => prev + 1);
+        }
       }, speed);
 
       return () => clearTimeout(timeout);
     } else if (currentIndex === text.length && onComplete) {
       onComplete();
     }
-  }, [currentIndex, text, speed, onComplete]);
+  }, [currentIndex, text, speed, onComplete, enableProgressiveScroll]);
+
+  // Progressive scroll effect
+  useEffect(() => {
+    if (enableProgressiveScroll && shouldScroll > 0) {
+      // Scroll down gently as text appears
+      const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
+      if (chatContainer) {
+        chatContainer.scrollBy({
+          top: 20,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [shouldScroll, enableProgressiveScroll]);
 
   useEffect(() => {
     // Reset when text changes
     setDisplayText("");
     setCurrentIndex(0);
+    setShouldScroll(0);
   }, [text]);
 
   return (
