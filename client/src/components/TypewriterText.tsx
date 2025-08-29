@@ -25,8 +25,8 @@ export default function TypewriterText({
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
         
-        // Trigger progressive scroll more frequently to stay in perfect sync
-        if (enableProgressiveScroll && currentIndex % 15 === 0) {
+        // Trigger progressive scroll even more frequently for perfect sync
+        if (enableProgressiveScroll && currentIndex % 12 === 0) {
           setShouldScroll(prev => prev + 1);
         }
       }, speed);
