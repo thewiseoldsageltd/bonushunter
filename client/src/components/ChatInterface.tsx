@@ -152,7 +152,7 @@ export default function ChatInterface() {
                             speed={20}
                             enableProgressiveScroll={true}
                             onComplete={() => {
-                              setCompletedTypewriterMessages(prev => new Set([...prev, message.id]));
+                              setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
                               // Final scroll to show cards after typewriter completes
                               setTimeout(() => {
                                 const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
