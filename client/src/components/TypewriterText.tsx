@@ -25,15 +25,20 @@ export default function TypewriterText({
         setDisplayText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
         
-        // Trigger progressive scroll, but be smart about line breaks
-        if (enableProgressiveScroll && currentIndex % 12 === 0) {
-          // Only scroll if we're not at a line break that would cause jumping
+        // Trigger progressive scroll with smart paragraph handling
+        if (enableProgressiveScroll) {
           const currentChar = text[currentIndex];
-          const nextFewChars = text.slice(currentIndex, currentIndex + 3);
+          const prevChar = currentIndex > 0 ? text[currentIndex - 1] : '';
           
-          // Skip scrolling if we just hit a newline or paragraph break
-          if (currentChar !== '\n' && !nextFewChars.includes('\n\n')) {
+          // Regular scroll every 10 characters
+          if (currentIndex % 10 === 0 && currentChar !== '\n') {
             setShouldScroll(prev => prev + 1);
+          }
+          
+          // Extra scroll compensation for paragraph breaks
+          if (prevChar === '\n' && currentChar === '\n') {
+            // We just created a paragraph break, add extra scroll
+            setTimeout(() => setShouldScroll(prev => prev + 1), 100);
           }
         }
       }, speed);
