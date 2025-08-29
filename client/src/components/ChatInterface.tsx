@@ -89,14 +89,13 @@ export default function ChatInterface() {
             behavior: "smooth"
           });
         }
-        // For AI messages, scroll to start of the response (anchor at top)
+        // For AI messages, gentle scroll to keep response visible without dropping too far
         else if (lastMessage?.role === 'assistant' && !lastMessage.isInitialMessage) {
-          // Find the last AI message element and scroll to it
-          const messageElements = chatContainer.querySelectorAll('[data-message-id]');
-          const lastAiElement = messageElements[messageElements.length - 1] as HTMLElement;
-          if (lastAiElement) {
-            lastAiElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          // Gentle scroll to show the start of AI response
+          chatContainer.scrollBy({
+            top: 60, // Just enough to show the response without dropping too far
+            behavior: "smooth"
+          });
         }
       }
     }
