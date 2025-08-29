@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Play, Zap } from "lucide-react";
+import { MessageCircle, Zap } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
 
 export default function HeroSection() {
@@ -33,7 +33,7 @@ export default function HeroSection() {
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
               Skip the endless comparison tables. Chat with our AI to discover personalized casino, sportsbook, and poker bonuses that match your budget, location, and preferences.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex justify-center lg:justify-start">
               <Button 
                 onClick={handleStartChat}
                 className="bg-primary hover:bg-primary/90 px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105"
@@ -41,14 +41,6 @@ export default function HeroSection() {
               >
                 <MessageCircle className="mr-2" />
                 Start Chatting
-              </Button>
-              <Button 
-                variant="outline"
-                className="border-dark-lighter hover:border-gray-400 px-8 py-4 rounded-xl font-semibold text-lg transition-colors"
-                data-testid="button-watch-demo"
-              >
-                <Play className="mr-2" />
-                Watch Demo
               </Button>
             </div>
           </div>
