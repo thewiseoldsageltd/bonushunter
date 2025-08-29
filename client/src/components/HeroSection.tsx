@@ -15,7 +15,7 @@ export default function HeroSection() {
         chatElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         // Add extra scroll to ensure full visibility
         setTimeout(() => {
-          window.scrollBy({ top: -60, behavior: 'smooth' });
+          window.scrollBy({ top: -55, behavior: 'smooth' });
         }, 500);
       }
     }, 100);
