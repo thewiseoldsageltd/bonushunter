@@ -82,12 +82,23 @@ export default function ChatInterface() {
       if (chatContainer) {
         const lastMessage = messages[messages.length - 1];
         
-        // For user messages, scroll to bottom immediately
+        // For user messages, adjust scroll based on device type
         if (lastMessage?.role === 'user') {
-          chatContainer.scrollTo({
-            top: chatContainer.scrollHeight,
-            behavior: "smooth"
-          });
+          const isMobile = window.innerWidth < 1024;
+          
+          if (isMobile) {
+            // On mobile, gentle scroll to avoid pushing chat box off-screen
+            chatContainer.scrollBy({
+              top: 40, // Small scroll to show user message without losing chat position
+              behavior: "smooth"
+            });
+          } else {
+            // On desktop, scroll to bottom
+            chatContainer.scrollTo({
+              top: chatContainer.scrollHeight,
+              behavior: "smooth"
+            });
+          }
         }
         // For AI messages, adjust scroll based on device type
         else if (lastMessage?.role === 'assistant' && !lastMessage.isInitialMessage) {
