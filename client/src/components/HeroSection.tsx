@@ -6,12 +6,23 @@ import ChatInterface from "@/components/ChatInterface";
 export default function HeroSection() {
   const [showChat, setShowChat] = useState(false);
 
+  const handleStartChat = () => {
+    setShowChat(true);
+    // On mobile, scroll to chat after a brief delay to ensure it's rendered
+    setTimeout(() => {
+      const chatElement = document.querySelector('[data-testid="chat-container"]');
+      if (chatElement && window.innerWidth < 1024) {
+        chatElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-dark via-dark-light to-dark">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
+          <div className={`text-center lg:text-left ${showChat ? 'lg:block hidden' : ''}`}>
             <h1 className="font-display font-bold text-4xl lg:text-6xl leading-tight mb-6">
               Find the Perfect
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -24,7 +35,7 @@ export default function HeroSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
-                onClick={() => setShowChat(true)}
+                onClick={handleStartChat}
                 className="bg-primary hover:bg-primary/90 px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105"
                 data-testid="button-start-chatting"
               >
@@ -42,7 +53,10 @@ export default function HeroSection() {
             </div>
           </div>
           
-          <div className="bg-dark-light/50 backdrop-blur-lg rounded-2xl border border-dark-lighter p-6 shadow-2xl">
+          <div 
+            className={`bg-dark-light/50 backdrop-blur-lg rounded-2xl border border-dark-lighter p-6 shadow-2xl ${showChat ? 'lg:col-span-1 col-span-full' : ''}`}
+            data-testid="chat-container"
+          >
             {showChat ? (
               <ChatInterface />
             ) : (
@@ -101,7 +115,7 @@ export default function HeroSection() {
                 </div>
                 
                 <Button 
-                  onClick={() => setShowChat(true)}
+                  onClick={handleStartChat}
                   className="w-full bg-primary hover:bg-primary/90 transition-colors"
                   data-testid="button-start-chat-demo"
                 >

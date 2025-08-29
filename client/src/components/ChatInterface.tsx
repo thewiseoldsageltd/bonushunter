@@ -102,6 +102,15 @@ export default function ChatInterface() {
         </div>
       </div>
 
+      {/* Mobile prompt when first starting chat */}
+      {messages.length === 1 && (
+        <div className="lg:hidden mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+          <p className="text-sm text-center text-gray-300">
+            💬 <strong>Start your conversation!</strong> Tell me about your budget, location, and preferred games to find the best bonuses.
+          </p>
+        </div>
+      )}
+
       <ScrollArea ref={chatContainerRef} className="flex-1 mb-4" data-testid="chat-messages">
         <div className="space-y-4 pr-4">
           {messages.map((message) => (
@@ -163,14 +172,14 @@ export default function ChatInterface() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me about bonuses..."
-          className="flex-1 bg-dark border-dark-lighter text-white placeholder-gray-400 focus:border-primary"
+          className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-300 focus:border-primary focus:bg-gray-700 transition-colors"
           disabled={chatMutation.isPending}
           data-testid="input-chat-message"
         />
         <Button 
           type="submit"
           disabled={!input.trim() || chatMutation.isPending}
-          className="bg-primary hover:bg-primary/90 transition-colors"
+          className="bg-primary hover:bg-primary/90 transition-colors px-4 py-2"
           data-testid="button-send-message"
         >
           <Send className="w-4 h-4" />
