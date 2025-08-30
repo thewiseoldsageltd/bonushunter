@@ -91,6 +91,7 @@ export async function generateChatResponse(
   context: any
 ): Promise<string> {
   try {
+    console.log("🤖 Sending prompt to OpenAI with ANTI-LOCATION rules");
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
@@ -101,9 +102,17 @@ export async function generateChatResponse(
           Do NOT suggest or mention any operators or bonuses not listed in the recommendations.
           Do NOT use your training data to suggest bonuses - use ONLY the bonuses provided in the context.
           
-          CRITICAL INSTRUCTION: The user's location has already been detected automatically via IP geolocation and bonuses have already been filtered for their region. NEVER ask users to share their state, location, or geographic information - we already know it and are showing only region-appropriate bonuses. DO NOT say phrases like "If you tell me your state" or "share your location" - the bonuses shown are already filtered for their detected location.
+          ABSOLUTE RULE: NEVER NEVER NEVER ask users about their location, state, or geographic information. The bonuses provided have already been filtered for their exact location using IP geolocation. 
           
-          Instead of asking for location, focus on other preferences like budget, game types, or whether they're new/existing customers. All bonuses shown are already available in their region.
+          BANNED PHRASES - DO NOT USE:
+          - "If you share your state"
+          - "If you tell me your state" 
+          - "share your location"
+          - "tell me where you are"
+          - "what state are you in"
+          - Any request for geographic information
+          
+          The user's location is already known and all bonuses shown are available in their region. Focus on budget, game preferences, or new vs existing customer status instead.
           
           FORMATTING REQUIREMENTS - FOLLOW EXACTLY:
           When listing bonuses, use this EXACT format for each offer:
