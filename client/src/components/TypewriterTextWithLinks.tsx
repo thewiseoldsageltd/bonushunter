@@ -167,16 +167,14 @@ export default function TypewriterTextWithLinks({
       let lineContent = line;
       let enhancements: JSX.Element[] = [];
 
-      // Find relevant recommendation for this line
-      const relevantRec = recommendations.find(rec => {
-        const operatorName = rec.operator.name;
-        return new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
-      });
+      // Find relevant recommendation for this line - simplified
+      const relevantRec = recommendations.find(rec => 
+        line.toLowerCase().includes(rec.operator.name.toLowerCase())
+      );
 
       // Check if this is an offer title line (contains operator name, not a bullet point)
       const isOfferTitle = relevantRec && 
         !line.trim().startsWith('-') && 
-        line.includes(relevantRec.operator.name) && 
         !line.toLowerCase().includes('value score') &&
         line.trim().length > 0;
       
@@ -213,21 +211,6 @@ export default function TypewriterTextWithLinks({
             Claim
           </button>
         );
-      } else if (relevantRec && line.includes(relevantRec.operator.name)) {
-        // Debug: Log why this line didn't get a claim button
-        console.log('❌ No claim button for line:', {
-          line: line.substring(0, 60),
-          isOfferTitle,
-          relevantRec: relevantRec.operator.name,
-          reasons: {
-            startsWith: line.trim().startsWith('-'),
-            hasOperator: line.includes(relevantRec.operator.name),
-            hasValueScore: line.toLowerCase().includes('value score'),
-            hasExcellent: line.toLowerCase().includes('excellent value'),
-            hasOpenTo: line.toLowerCase().includes('open to'),
-            isEmpty: line.trim().length === 0
-          }
-        });
       }
 
       elements.push(
