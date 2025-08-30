@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import BonusCard from "@/components/BonusCard";
 import TypewriterText from "@/components/TypewriterText";
+import TypewriterTextWithLinks from "@/components/TypewriterTextWithLinks";
 import type { ChatMessage, ChatResponse } from "@/types";
 
 export default function ChatInterface() {
@@ -212,15 +213,28 @@ export default function ChatInterface() {
                         </div>
                       ) : (
                         <div className="text-sm whitespace-pre-wrap">
-                          <TypewriterText 
-                            text={message.content} 
-                            speed={35}
-                            enableProgressiveScroll={true}
-                            onComplete={() => {
-                              setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
-                              // Remove completion scroll - let progressive scroll handle everything
-                            }}
-                          />
+                          {message.recommendations && message.recommendations.length > 0 ? (
+                            <TypewriterTextWithLinks 
+                              text={message.content} 
+                              speed={35}
+                              enableProgressiveScroll={true}
+                              recommendations={message.recommendations}
+                              onComplete={() => {
+                                setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
+                                // Remove completion scroll - let progressive scroll handle everything
+                              }}
+                            />
+                          ) : (
+                            <TypewriterText 
+                              text={message.content} 
+                              speed={35}
+                              enableProgressiveScroll={true}
+                              onComplete={() => {
+                                setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
+                                // Remove completion scroll - let progressive scroll handle everything
+                              }}
+                            />
+                          )}
                         </div>
                       )}
                     </div>
