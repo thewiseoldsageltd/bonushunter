@@ -17,7 +17,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
             {currentRegion?.regionCode === 'US' ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
                 <img 
                   src={bonushunterUSLogo} 
                   alt="Bonushunter US Logo"
@@ -25,7 +25,7 @@ export default function Header() {
                 />
               </div>
             ) : currentRegion?.regionCode === 'UK' ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
                 <img 
                   src={bonushunterUKLogo} 
                   alt="Bonushunter UK Logo"
@@ -33,7 +33,7 @@ export default function Header() {
                 />
               </div>
             ) : currentRegion?.logos?.standard ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
                 <img 
                   src={currentRegion.logos.standard} 
                   alt={currentRegion.logos.alt}
