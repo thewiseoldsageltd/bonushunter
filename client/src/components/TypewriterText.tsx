@@ -30,8 +30,8 @@ export default function TypewriterText({
           const currentChar = text[currentIndex];
           const prevChar = currentIndex > 0 ? text[currentIndex - 1] : '';
           
-          // Regular scroll every 10 characters
-          if (currentIndex % 10 === 0 && currentChar !== '\n') {
+          // Regular scroll every 8 characters
+          if (currentIndex % 8 === 0 && currentChar !== '\n') {
             setShouldScroll(prev => prev + 1);
           }
           
@@ -52,14 +52,11 @@ export default function TypewriterText({
   // Progressive scroll effect - follow typing cursor
   useEffect(() => {
     if (enableProgressiveScroll && shouldScroll > 0) {
-      const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-      if (chatContainer) {
-        // Responsive scroll to keep up with typing speed
-        chatContainer.scrollBy({
-          top: 8, // Enough scroll to keep cursor visible
-          behavior: 'smooth'
-        });
-      }
+      // Responsive scroll to keep up with typing speed
+      window.scrollBy({
+        top: 8, // Enough scroll to keep cursor visible
+        behavior: 'smooth'
+      });
     }
   }, [shouldScroll, enableProgressiveScroll]);
 

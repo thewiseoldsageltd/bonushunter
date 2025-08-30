@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, MessageCircle, Loader2, Zap } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -187,8 +186,8 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <ScrollArea ref={chatContainerRef} className="flex-1 mb-4" data-testid="chat-messages">
-        <div className="space-y-4 pr-4">
+      <div ref={chatContainerRef} className="flex-1 mb-4 overflow-visible" data-testid="chat-messages">
+        <div className="space-y-4">
           {messages.map((message) => (
             <div key={message.id} data-message-id={message.id}>
               {message.role === "user" ? (
@@ -221,13 +220,10 @@ export default function ChatInterface() {
                               setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
                               // Final scroll to show cards after typewriter completes
                               setTimeout(() => {
-                                const chatContainer = document.querySelector('[data-radix-scroll-area-viewport]');
-                                if (chatContainer) {
-                                  chatContainer.scrollTo({
-                                    top: chatContainer.scrollHeight,
-                                    behavior: "smooth"
-                                  });
-                                }
+                                window.scrollTo({
+                                  top: document.body.scrollHeight,
+                                  behavior: "smooth"
+                                });
                               }, 300);
                             }}
                           />
@@ -269,7 +265,7 @@ export default function ChatInterface() {
           )}
         </div>
         <div ref={scrollAreaRef} />
-      </ScrollArea>
+      </div>
 
       <form onSubmit={handleSubmit} className="flex items-center space-x-3">
         <Input
