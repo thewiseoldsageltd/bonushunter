@@ -104,18 +104,18 @@ export async function generateChatResponse(
           FORMATTING REQUIREMENTS:
           When listing bonuses, use this EXACT format for each offer:
           
-          - [OperatorName] [BonusTitle]
+          [OperatorName] [BonusTitle]
           - Value score: [score]/100
           - [Brief explanation of value/benefits]
           - [Any additional details like eligibility]
           
           Example:
-          - DraftKings CFB Week 1 No Sweat Bet
+          DraftKings CFB Week 1 No Sweat Bet
           - Value score: 100/100
           - Excellent value with low wagering requirements
           - Open to new & existing customers
           
-          - DraftKings Sportsbook Bet $5, Get $300 Bonus Bets
+          DraftKings Sportsbook Bet $5, Get $300 Bonus Bets
           - Value score: 100/100
           - Excellent value with low wagering requirements
           - Open to new customers only

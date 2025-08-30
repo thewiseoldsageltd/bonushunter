@@ -121,17 +121,18 @@ export default function TypewriterTextWithLinks({
         if (processedOffers.has(rec.id)) return;
         processedOffers.add(rec.id);
         
-        // Add claim links to offer title lines (contains operator, but not value score/description words)
-        const offerTitleRegex = new RegExp(`(- [^\\n]*${operatorName}[^\\n]*?)(?=\\n|$)`, 'gi');
-        processedText = processedText.replace(offerTitleRegex, (match, titleText) => {
-          // Skip if this is a value score line or description line or already has claim button
-          if (titleText.toLowerCase().includes('value score') || 
+        // Add claim links to offer title lines (non-bullet lines containing operator name)
+        const offerTitleRegex = new RegExp(`(^|\\n)(${operatorName}[^\\n]*?)(?=\\n|$)`, 'gim');
+        processedText = processedText.replace(offerTitleRegex, (match, lineStart, titleText) => {
+          // Skip if this line starts with dash (bullet point) or already has claim button
+          if (titleText.trim().startsWith('-') || 
+              titleText.toLowerCase().includes('value score') || 
               titleText.toLowerCase().includes('excellent value') ||
               titleText.toLowerCase().includes('open to') ||
               titleText.includes('Claim</button>')) {
             return match;
           }
-          return `${titleText} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
+          return `${lineStart}${titleText} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
         });
         
         // Enhance value score display as separate bullet points
@@ -167,13 +168,14 @@ export default function TypewriterTextWithLinks({
         return new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
       });
 
-      // Check if this is an offer title line (contains operator name but not "Value score")
+      // Check if this is an offer title line (contains operator name, not a bullet point)
       const isOfferTitle = relevantRec && 
-        line.trim().startsWith('-') && 
+        !line.trim().startsWith('-') && 
         line.includes(relevantRec.operator.name) && 
         !line.toLowerCase().includes('value score') &&
         !line.toLowerCase().includes('excellent value') &&
-        !line.toLowerCase().includes('open to');
+        !line.toLowerCase().includes('open to') &&
+        line.trim().length > 0;
       
       // Enhanced value score display for bullet points
       const valueScoreMatch = line.match(/- Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
