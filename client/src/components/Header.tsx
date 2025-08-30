@@ -5,6 +5,7 @@ import { Menu, Search } from "lucide-react";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756568894640.webp";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +21,14 @@ export default function Header() {
                 <img 
                   src={bonushunterUSLogo} 
                   alt="Bonushunter US Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : currentRegion?.regionCode === 'UK' ? (
+              <div className="w-10 h-10 rounded-xl overflow-hidden">
+                <img 
+                  src={bonushunterUKLogo} 
+                  alt="Bonushunter UK Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
