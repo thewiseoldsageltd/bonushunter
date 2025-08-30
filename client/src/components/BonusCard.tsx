@@ -1,27 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { Heart, Star, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { Star, ExternalLink } from "lucide-react";
 import type { BonusRecommendation } from "@/types";
 
 interface BonusCardProps {
   bonus: BonusRecommendation;
   compact?: boolean;
-  showFavorite?: boolean;
   "data-testid"?: string;
 }
 
 export default function BonusCard({ 
   bonus, 
   compact = false, 
-  showFavorite = true,
   "data-testid": testId 
 }: BonusCardProps) {
-  const [isFavorited, setIsFavorited] = useState(false);
-
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-    // TODO: Implement favorite API call
-  };
 
   const handleClaim = () => {
     window.open(bonus.landingUrl, '_blank');
@@ -48,7 +39,8 @@ export default function BonusCard({
           onError={(e) => {
             // Fallback to emoji if image fails to load
             e.currentTarget.style.display = 'none';
-            e.currentTarget.nextSibling!.style.display = 'block';
+            const nextElement = e.currentTarget.nextSibling as HTMLElement;
+            if (nextElement) nextElement.style.display = 'block';
           }}
         />
       );
@@ -153,26 +145,14 @@ export default function BonusCard({
         </div>
       )}
       
-      <div className="flex space-x-3">
-        <Button 
-          onClick={handleClaim}
-          className="flex-1 bg-primary hover:bg-primary/90 transition-colors"
-          data-testid={`button-claim-${bonus.id}`}
-        >
-          <ExternalLink className="w-4 h-4 mr-2" />
-          Claim Bonus
-        </Button>
-        {showFavorite && (
-          <Button 
-            onClick={handleFavorite}
-            variant="outline"
-            className="border-dark-lighter hover:border-gray-400 transition-colors"
-            data-testid={`button-favorite-${bonus.id}`}
-          >
-            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-red-500' : ''}`} />
-          </Button>
-        )}
-      </div>
+      <Button 
+        onClick={handleClaim}
+        className="w-full bg-primary hover:bg-primary/90 transition-colors"
+        data-testid={`button-claim-${bonus.id}`}
+      >
+        <ExternalLink className="w-4 h-4 mr-2" />
+        Claim Bonus
+      </Button>
     </div>
   );
 }
