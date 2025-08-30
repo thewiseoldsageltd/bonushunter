@@ -94,81 +94,81 @@ export default function TypewriterTextWithLinks({
       );
     }
 
-    // Typing complete - add claim links
+    // Typing complete - add claim links at end of offer lines
     let processedText = displayText;
     
-    // Create a map of positions where we'll add claim links
-    const linkPositions: Array<{index: number, length: number, rec: Recommendation}> = [];
-    
-    // Find all operator mentions without overlap
-    recommendations.forEach((rec) => {
-      const operatorName = rec.operator.name;
-      const regex = new RegExp(`\\b${operatorName}\\b`, 'gi');
-      let match;
-      
-      while ((match = regex.exec(processedText)) !== null) {
-        // Check if this position overlaps with existing positions
-        const hasOverlap = linkPositions.some(pos => 
-          (match!.index >= pos.index && match!.index < pos.index + pos.length) ||
-          (match!.index + match![0].length > pos.index && match!.index + match![0].length <= pos.index + pos.length)
-        );
-        
-        if (!hasOverlap) {
-          linkPositions.push({
-            index: match.index,
-            length: match[0].length,
-            rec
-          });
-        }
-      }
-    });
+    // Split text into lines and add claim links at end of relevant offer lines
+    const lines = processedText.split('\n');
+    const processedLines: JSX.Element[] = [];
 
-    // Sort positions by index (earliest first)
-    linkPositions.sort((a, b) => a.index - b.index);
+    lines.forEach((line, lineIndex) => {
+      let lineContent = line;
+      let claimButton: JSX.Element | null = null;
 
-    // Build elements with non-overlapping links
-    const elements: JSX.Element[] = [];
-    let lastIndex = 0;
+      // Check if this line mentions an operator and contains offer details
+      const relevantRec = recommendations.find(rec => {
+        const operatorName = rec.operator.name;
+        const hasOperator = new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
+        const hasOfferInfo = /(\$|bet|bonus|value score|excellent|wagering)/i.test(line);
+        return hasOperator && hasOfferInfo;
+      });
 
-    linkPositions.forEach((pos, i) => {
-      // Add text before this match
-      if (pos.index > lastIndex) {
-        elements.push(
-          <span key={`text-${lastIndex}`}>
-            {processedText.slice(lastIndex, pos.index)}
-          </span>
-        );
-      }
-      
-      // Add operator name with claim link
-      const operatorText = processedText.slice(pos.index, pos.index + pos.length);
-      elements.push(
-        <span key={`operator-${pos.index}`} className="inline-flex items-center gap-1">
-          <span>{operatorText}</span>
+      if (relevantRec) {
+        claimButton = (
           <button
-            onClick={() => window.open(pos.rec.landingUrl, '_blank')}
-            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
-            data-testid={`link-claim-${pos.rec.id}`}
+            key={`claim-${lineIndex}`}
+            onClick={() => window.open(relevantRec.landingUrl, '_blank')}
+            className="inline-flex items-center gap-1 ml-2 px-2 py-1 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+            data-testid={`link-claim-${relevantRec.id}`}
           >
             <ExternalLink className="w-3 h-3" />
             Claim
           </button>
-        </span>
-      );
-      
-      lastIndex = pos.index + pos.length;
+        );
+      }
+
+      // Enhanced value score display
+      const valueScoreMatch = line.match(/Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
+      if (valueScoreMatch) {
+        const scoreText = valueScoreMatch[1];
+        const [score, maxScore] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
+        const numericScore = parseFloat(score);
+        
+        // Replace the value score text with enhanced version
+        lineContent = line.replace(
+          valueScoreMatch[0],
+          ''
+        );
+        
+        processedLines.push(
+          <div key={lineIndex} className="flex items-center justify-between">
+            <span>{lineContent}</span>
+            <div className="inline-flex items-center gap-2">
+              <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-md">
+                <span className="text-xs text-gray-400">Value Score:</span>
+                <span className={`font-bold text-sm ${
+                  numericScore >= 80 ? 'text-green-400' : 
+                  numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
+                }`}>
+                  {scoreText}
+                </span>
+              </div>
+              {claimButton}
+            </div>
+          </div>
+        );
+      } else {
+        processedLines.push(
+          <span key={lineIndex}>
+            {lineContent}
+            {claimButton}
+            {lineIndex < lines.length - 1 && '\n'}
+          </span>
+        );
+      }
     });
 
-    // Add remaining text
-    if (lastIndex < processedText.length) {
-      elements.push(
-        <span key={`text-${lastIndex}`}>
-          {processedText.slice(lastIndex)}
-        </span>
-      );
-    }
-
-    return elements.length > 0 ? elements : displayText;
+    return processedLines;
   };
 
   return (
