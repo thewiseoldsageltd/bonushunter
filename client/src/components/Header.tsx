@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Search } from "lucide-react";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,12 +15,20 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            {currentRegion?.logos?.standard ? (
+            {currentRegion?.regionCode === 'US' ? (
+              <div className="w-10 h-10 rounded-xl overflow-hidden">
+                <img 
+                  src={bonushunterUSLogo} 
+                  alt="Bonushunter US Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : currentRegion?.logos?.standard ? (
               <div className="w-10 h-10 rounded-xl overflow-hidden">
                 <img 
                   src={currentRegion.logos.standard} 
                   alt={currentRegion.logos.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     // Fallback to gradient icon if logo fails to load
                     e.currentTarget.style.display = 'none';
