@@ -96,42 +96,67 @@ export default function TypewriterTextWithLinks({
 
     // Typing complete - add claim links
     let processedText = displayText;
-    const elements: JSX.Element[] = [];
-    let lastIndex = 0;
-
-    // Find operator mentions and add claim buttons
+    
+    // Create a map of positions where we'll add claim links
+    const linkPositions: Array<{index: number, length: number, rec: Recommendation}> = [];
+    
+    // Find all operator mentions without overlap
     recommendations.forEach((rec) => {
       const operatorName = rec.operator.name;
       const regex = new RegExp(`\\b${operatorName}\\b`, 'gi');
       let match;
       
       while ((match = regex.exec(processedText)) !== null) {
-        // Add text before the match
-        if (match.index > lastIndex) {
-          elements.push(
-            <span key={`text-${lastIndex}`}>
-              {processedText.slice(lastIndex, match.index)}
-            </span>
-          );
-        }
-        
-        // Add operator name with claim link
-        elements.push(
-          <span key={`operator-${match.index}`} className="inline-flex items-center gap-1">
-            <span>{match[0]}</span>
-            <button
-              onClick={() => window.open(rec.landingUrl, '_blank')}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
-              data-testid={`link-claim-${rec.id}`}
-            >
-              <ExternalLink className="w-3 h-3" />
-              Claim
-            </button>
-          </span>
+        // Check if this position overlaps with existing positions
+        const hasOverlap = linkPositions.some(pos => 
+          (match!.index >= pos.index && match!.index < pos.index + pos.length) ||
+          (match!.index + match![0].length > pos.index && match!.index + match![0].length <= pos.index + pos.length)
         );
         
-        lastIndex = match.index + match[0].length;
+        if (!hasOverlap) {
+          linkPositions.push({
+            index: match.index,
+            length: match[0].length,
+            rec
+          });
+        }
       }
+    });
+
+    // Sort positions by index (earliest first)
+    linkPositions.sort((a, b) => a.index - b.index);
+
+    // Build elements with non-overlapping links
+    const elements: JSX.Element[] = [];
+    let lastIndex = 0;
+
+    linkPositions.forEach((pos, i) => {
+      // Add text before this match
+      if (pos.index > lastIndex) {
+        elements.push(
+          <span key={`text-${lastIndex}`}>
+            {processedText.slice(lastIndex, pos.index)}
+          </span>
+        );
+      }
+      
+      // Add operator name with claim link
+      const operatorText = processedText.slice(pos.index, pos.index + pos.length);
+      elements.push(
+        <span key={`operator-${pos.index}`} className="inline-flex items-center gap-1">
+          <span>{operatorText}</span>
+          <button
+            onClick={() => window.open(pos.rec.landingUrl, '_blank')}
+            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+            data-testid={`link-claim-${pos.rec.id}`}
+          >
+            <ExternalLink className="w-3 h-3" />
+            Claim
+          </button>
+        </span>
+      );
+      
+      lastIndex = pos.index + pos.length;
     });
 
     // Add remaining text
