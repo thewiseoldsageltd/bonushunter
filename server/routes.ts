@@ -424,9 +424,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { productType } = req.query;
       
       let bonuses = await storage.getAllBonuses();
+      console.log(`🔍 Admin: Retrieved ${bonuses.length} bonuses from database`);
       
       if (productType && typeof productType === "string") {
         bonuses = bonuses.filter(b => b.productType === productType);
+        console.log(`🔍 Admin: Filtered to ${bonuses.length} bonuses for productType: ${productType}`);
       }
       
       console.log(`📊 Admin bonuses returned: ${bonuses.length} (no geo-filtering)`);
