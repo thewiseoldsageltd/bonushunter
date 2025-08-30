@@ -91,7 +91,8 @@ export async function generateChatResponse(
   context: any
 ): Promise<string> {
   try {
-    console.log("🤖 Sending prompt to OpenAI with ANTI-LOCATION rules");
+    console.log("🤖 CHAT RESPONSE: Starting with anti-location prompt");
+    console.log("🤖 Available bonuses count:", context.recommendations?.length || 0);
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
@@ -152,9 +153,11 @@ export async function generateChatResponse(
       ],
     });
 
-    return response.choices[0].message.content || "I'm here to help you find the best bonus offers!";
+    const result = response.choices[0].message.content || "I'm here to help you find the best bonus offers!";
+    console.log("🤖 CHAT RESPONSE: Generated response length:", result.length);
+    return result;
   } catch (error) {
-    console.error("Failed to generate chat response:", error);
+    console.error("❌ Failed to generate chat response:", error);
     if (error instanceof Error && error.message.includes('api key')) {
       console.error("🔑 OpenAI API key issue detected!");
       return "I'm having trouble processing your request. Please try again or check if the OpenAI API key is properly configured.";
