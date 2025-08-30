@@ -142,7 +142,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return false;
           }
           const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
-          return bonusStates.includes(userStateCode.toUpperCase());
+          const isIncluded = bonusStates.includes(userStateCode.toUpperCase());
+          console.log(`🔍 ${bonus.title}: ${userStateCode} in [${bonusStates.join(',')}]? ${isIncluded}`);
+          return isIncluded;
         }
         
         // For non-US bonuses, match country directly
