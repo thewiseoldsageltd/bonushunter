@@ -127,18 +127,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
       
       // Filter by jurisdiction compliance using detected region
-      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
+      const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
+      
       filteredBonuses = filteredBonuses.filter(bonus => {
-        // Must have valid jurisdiction data
-        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+        // Must have valid country data
+        if (!bonus.country) {
           return false;
         }
         
-        // Must be in a supported jurisdiction for this region
-        return bonus.jurisdictions.some(j => 
-          supportedJurisdictions.includes(j.code || '') ||
-          j.code === detectedLocation
-        );
+        // If bonus is for US, check if user's state is included in the states list
+        if (bonus.country === 'US') {
+          if (!userStateCode || !bonus.states) {
+            return false;
+          }
+          const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
+          return bonusStates.includes(userStateCode.toUpperCase());
+        }
+        
+        // For non-US bonuses, match country directly
+        return bonus.country === userCountryCode;
       });
       
       console.log(`🎯 Filtered to ${filteredBonuses.length} bonuses for region: ${detectedLocation}`);
@@ -150,13 +158,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Apply jurisdiction filtering to relaxed results too
         filteredBonuses = relaxedBonuses.filter(bonus => {
-          if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+          if (!bonus.country) {
             return false;
           }
-          return bonus.jurisdictions.some(j => 
-            supportedJurisdictions.includes(j.code || '') ||
-            j.code === detectedLocation
-          );
+          
+          // If bonus is for US, check if user's state is included in the states list
+          if (bonus.country === 'US') {
+            if (!userStateCode || !bonus.states) {
+              return false;
+            }
+            const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
+            return bonusStates.includes(userStateCode.toUpperCase());
+          }
+          
+          // For non-US bonuses, match country directly
+          return bonus.country === userCountryCode;
         });
       }
       
@@ -254,15 +270,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
       
       // Filter by jurisdiction compliance
-      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
+      const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
+      
       filteredBonuses = filteredBonuses.filter(bonus => {
-        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+        if (!bonus.country) {
           return false;
         }
-        return bonus.jurisdictions.some(j => 
-          supportedJurisdictions.includes(j.code || '') ||
-          j.code === detectedLocation
-        );
+        
+        // If bonus is for US, check if user's state is included in the states list
+        if (bonus.country === 'US') {
+          if (!userStateCode || !bonus.states) {
+            return false;
+          }
+          const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
+          return bonusStates.includes(userStateCode.toUpperCase());
+        }
+        
+        // For non-US bonuses, match country directly
+        return bonus.country === userCountryCode;
       });
       
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
@@ -311,15 +337,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let bonuses = await storage.getAllBonuses();
       
       // Filter by jurisdiction compliance first
-      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
+      const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
+      
       bonuses = bonuses.filter(bonus => {
-        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+        if (!bonus.country) {
           return false;
         }
-        return bonus.jurisdictions.some(j => 
-          supportedJurisdictions.includes(j.code || '') ||
-          j.code === detectedLocation
-        );
+        
+        // If bonus is for US, check if user's state is included in the states list
+        if (bonus.country === 'US') {
+          if (!userStateCode || !bonus.states) {
+            return false;
+          }
+          const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
+          return bonusStates.includes(userStateCode.toUpperCase());
+        }
+        
+        // For non-US bonuses, match country directly
+        return bonus.country === userCountryCode;
       });
       
       if (productType && typeof productType === "string") {
