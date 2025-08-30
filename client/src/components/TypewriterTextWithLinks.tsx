@@ -215,6 +215,21 @@ export default function TypewriterTextWithLinks({
             Claim
           </button>
         );
+      } else if (relevantRec && line.includes(relevantRec.operator.name)) {
+        // Debug: Log why this line didn't get a claim button
+        console.log('❌ No claim button for line:', {
+          line: line.substring(0, 60),
+          isOfferTitle,
+          relevantRec: relevantRec.operator.name,
+          reasons: {
+            startsWith: line.trim().startsWith('-'),
+            hasOperator: line.includes(relevantRec.operator.name),
+            hasValueScore: line.toLowerCase().includes('value score'),
+            hasExcellent: line.toLowerCase().includes('excellent value'),
+            hasOpenTo: line.toLowerCase().includes('open to'),
+            isEmpty: line.trim().length === 0
+          }
+        });
       }
 
       elements.push(
