@@ -299,7 +299,7 @@ const AdminNew = () => {
 
   // Fetch all bonuses
   const { data: bonusesData, isLoading: loadingBonuses } = useQuery({
-    queryKey: ['/api/bonuses']
+    queryKey: ['/api/admin/bonuses']
   });
 
   // Fetch all operators for the dropdown
@@ -334,7 +334,7 @@ const AdminNew = () => {
         title: "Bonus Added Successfully!",
         description: "The bonus has been added with calculated EV score.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
       resetForm();
       setShowAddForm(false);
     },
@@ -357,7 +357,7 @@ const AdminNew = () => {
         title: "Bonus Deleted",
         description: "The bonus has been removed from your platform.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
     },
     onError: (error: any) => {
       toast({
@@ -390,7 +390,7 @@ const AdminNew = () => {
         title: "Bonus Updated Successfully!",
         description: "The bonus changes have been saved and EV recalculated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
       setEditingBonus(null);
       setShowEditForm(false);
     },
@@ -415,7 +415,7 @@ const AdminNew = () => {
         description: "The operator information has been saved.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
       setEditingOperator(null);
       setShowEditOperatorForm(false);
     },
@@ -1589,7 +1589,7 @@ const AdminNew = () => {
                     <h3 className="text-lg font-semibold mb-4">Add New Operator</h3>
                     <OperatorForm onSuccess={() => {
                       queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
                       setShowAddOperatorForm(false);
                     }} />
                   </div>
@@ -1604,7 +1604,7 @@ const AdminNew = () => {
                       operator={editingOperator} 
                       onSuccess={() => {
                         queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
                         setShowEditOperatorForm(false);
                         setEditingOperator(null);
                       }} 

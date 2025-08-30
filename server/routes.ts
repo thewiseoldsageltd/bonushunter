@@ -418,6 +418,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Admin API endpoints for bonus management
+  // Admin endpoint to get ALL bonuses (bypasses geolocation filtering)
+  app.get("/api/admin/bonuses", async (req, res) => {
+    try {
+      const { productType } = req.query;
+      
+      let bonuses = await storage.getAllBonuses();
+      
+      if (productType && typeof productType === "string") {
+        bonuses = bonuses.filter(b => b.productType === productType);
+      }
+      
+      console.log(`📊 Admin bonuses returned: ${bonuses.length} (no geo-filtering)`);
+      
+      // Add basic value scores
+      const bonusesWithScores = bonuses.map(bonus => ({
+        ...bonus,
+        valueScore: Number(bonus.valueScore || 0)
+      }));
+
+      res.json({
+        bonuses: bonusesWithScores,
+        total: bonusesWithScores.length
+      });
+    } catch (error) {
+      console.error("Admin bonuses error:", error);
+      res.status(500).json({ 
+        error: "Failed to get admin bonuses",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.get("/api/admin/operators", async (req, res) => {
     try {
       const operators = await storage.getAllOperators();
