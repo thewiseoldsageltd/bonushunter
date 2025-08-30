@@ -1,20 +1,38 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, MessageCircle, Loader2, Zap } from "lucide-react";
+import { Send, MessageCircle, Loader2, Zap, MapPin, Globe } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import BonusCard from "@/components/BonusCard";
 import TypewriterText from "@/components/TypewriterText";
 import TypewriterTextWithLinks from "@/components/TypewriterTextWithLinks";
+import { useRegion } from "@/hooks/useRegion";
 import type { ChatMessage, ChatResponse } from "@/types";
 
 export default function ChatInterface() {
+  const { currentRegion, detectedLocation, getRegionCurrency, isLoading } = useRegion();
+  
+  // Dynamic welcome message with location detection
+  const getWelcomeMessage = () => {
+    if (isLoading) {
+      return "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget, location, and favorite games - I'll find the best value bonuses for you!";
+    }
+    
+    const locationText = detectedLocation ? 
+      `I detected you're in ${detectedLocation.region}, ${detectedLocation.country}` : 
+      "Tell me your location";
+    
+    const currency = getRegionCurrency();
+    
+    return `⚡ Hi! I'm Artemis, your AI bonus hunter from ${currentRegion?.branding.brandName}! ${locationText}. Tell me your budget (in ${currency}), and favorite games - I'll find the best value bonuses for your region!`;
+  };
+  
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "artemis-welcome",
       role: "assistant", 
-      content: "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget, location, and favorite games - I'll find the best value bonuses for you!",
+      content: getWelcomeMessage(),
       timestamp: new Date(),
       isInitialMessage: true
     }
@@ -26,14 +44,24 @@ export default function ChatInterface() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Update welcome message when region data loads
+  useEffect(() => {
+    if (!isLoading && messages.length > 0 && messages[0].isInitialMessage) {
+      setMessages(prev => [
+        { ...prev[0], content: getWelcomeMessage() },
+        ...prev.slice(1)
+      ]);
+    }
+  }, [isLoading, detectedLocation, currentRegion]);
+
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
       const isMobile = window.innerWidth < 1024;
       const response = await apiRequest("POST", "/api/chat", {
         message,
         sessionId,
-        userLocation: "New Jersey", // Default for demo
         deviceType: isMobile ? 'mobile' : 'desktop' // Add device context
+        // userLocation is now detected server-side via middleware
       });
       return response.json();
     },
@@ -186,6 +214,13 @@ export default function ChatInterface() {
           <div>
             <span className="font-medium">Artemis</span>
             <div className="text-xs text-gray-400">AI Bonus Hunter</div>
+            {/* Location Indicator */}
+            {detectedLocation && (
+              <div className="flex items-center gap-1 mt-1">
+                <MapPin className="w-3 h-3 text-green-400" />
+                <span className="text-xs text-green-400">{detectedLocation.region}</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex space-x-1">

@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Search } from "lucide-react";
+import { RegionSwitcher } from "./RegionSwitcher";
+import { useRegion } from "@/hooks/useRegion";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { getRegionBrandName, currentRegion, isLoading } = useRegion();
 
   return (
     <header className="bg-dark-light/50 backdrop-blur-lg border-b border-dark-lighter sticky top-0 z-50">
@@ -15,12 +18,16 @@ export default function Header() {
               <Search className="text-white text-lg" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-xl" data-testid="text-app-title">Bonushunter</h1>
-              <p className="text-xs text-gray-400">AI-Powered Bonus Finder</p>
+              <h1 className="font-display font-bold text-xl" data-testid="text-app-title">
+                {isLoading ? "Bonushunter" : getRegionBrandName()}
+              </h1>
+              <p className="text-xs text-gray-400">
+                {currentRegion ? currentRegion.branding.tagline : "AI-Powered Bonus Finder"}
+              </p>
             </div>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             <a 
               href="#" 
               className="text-gray-300 hover:text-white transition-colors"
@@ -42,6 +49,10 @@ export default function Header() {
             >
               About
             </a>
+            
+            {/* Region Switcher */}
+            <RegionSwitcher />
+            
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
               data-testid="button-get-started"
@@ -79,6 +90,12 @@ export default function Header() {
                 >
                   About
                 </a>
+                
+                {/* Mobile Region Switcher */}
+                <div className="py-2">
+                  <RegionSwitcher />
+                </div>
+                
                 <Button className="bg-primary hover:bg-primary/90 w-full">
                   Get Started
                 </Button>

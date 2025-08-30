@@ -11,6 +11,8 @@ import { insertOperatorSchema } from "@shared/schema";
 import { db } from "./db";
 import { users } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { cachedGeolocationMiddleware } from "./middleware/geolocation";
+import { regionConfigService } from "./regionConfig";
 
 const chatRequestSchema = z.object({
   message: z.string(),
@@ -32,10 +34,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register scraping admin routes
   registerScrapingRoutes(app);
   
-  // Chat endpoint for conversational interface
+  // Add geolocation detection to all routes (except admin)
+  app.use('/api/chat', cachedGeolocationMiddleware);
+  app.use('/api/bonuses', cachedGeolocationMiddleware);
+  app.use('/api/recommend', cachedGeolocationMiddleware);
+  
+  // Region configuration endpoint
+  app.get("/api/region-config", (req, res) => {
+    const regionCode = req.userLocation?.regionCode || 'US';
+    const config = regionConfigService.getRegionConfig(regionCode);
+    
+    res.json({
+      region: config,
+      availableRegions: regionConfigService.getAvailableRegions(),
+      detectedLocation: req.userLocation
+    });
+  });
+  
+  // Chat endpoint for conversational interface  
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message, sessionId, userLocation, deviceType } = req.body;
+      const { message, sessionId } = req.body;
+      
+      // Use detected location from middleware instead of body
+      const detectedLocation = req.userLocation?.regionCode || 'NJ';
+      const regionConfig = regionConfigService.getRegionConfig(detectedLocation);
+      
+      console.log(`🎯 Chat request in region: ${detectedLocation} (${req.userLocation?.country})`);
       
       
       // Create or get existing session
@@ -53,7 +78,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           session = await storage.createChatSession({
             userId: null,
-            sessionData: { userLocation } as any
+            sessionData: { 
+              userLocation: detectedLocation,
+              detectedCountry: req.userLocation?.country,
+              detectedIP: req.userLocation?.detectedIP 
+            } as any
           });
         } catch (error) {
           console.error('Error creating chat session:', error);
@@ -66,7 +95,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId: session.id,
         role: "user",
         content: message,
-        metadata: { userLocation } as any
+        metadata: { 
+          userLocation: detectedLocation,
+          detectedCountry: req.userLocation?.country,
+          regionConfig: regionConfig.regionName 
+        } as any
       });
 
       // Parse user intent
@@ -82,10 +115,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allBonuses = await storage.getAllBonuses();
       let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
       
+      // Filter by jurisdiction compliance using detected region
+      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      filteredBonuses = filteredBonuses.filter(bonus => {
+        // Must have valid jurisdiction data
+        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+          return false;
+        }
+        
+        // Must be in a supported jurisdiction for this region
+        return bonus.jurisdictions.some(j => 
+          supportedJurisdictions.includes(j.code || '') ||
+          j.code === detectedLocation
+        );
+      });
+      
+      console.log(`🎯 Filtered to ${filteredBonuses.length} bonuses for region: ${detectedLocation}`);
+      
       // Fallback: if strict filtering returns no results, relax user status requirement
       if (filteredBonuses.length === 0 && intent.userStatus === "existing") {
         const relaxedIntent = { ...intent, userStatus: undefined };
-        filteredBonuses = filterBonusesByIntent(allBonuses, relaxedIntent);
+        let relaxedBonuses = filterBonusesByIntent(allBonuses, relaxedIntent);
+        
+        // Apply jurisdiction filtering to relaxed results too
+        filteredBonuses = relaxedBonuses.filter(bonus => {
+          if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+            return false;
+          }
+          return bonus.jurisdictions.some(j => 
+            supportedJurisdictions.includes(j.code || '') ||
+            j.code === detectedLocation
+          );
+        });
       }
       
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
@@ -161,6 +222,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const params = recommendRequestSchema.parse(req.body);
       
+      // Use detected location from middleware
+      const detectedLocation = req.userLocation?.regionCode || 'NJ';
+      const regionConfig = regionConfigService.getRegionConfig(detectedLocation);
+      
       let intent;
       if (params.query) {
         intent = await parseUserIntent(params.query);
@@ -168,14 +233,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         intent = {
           budget: params.budget,
           currency: params.currency,
-          location: params.location,
+          location: params.location || detectedLocation,
           productType: params.productType,
           preferences: params.preferences
         };
       }
 
       const allBonuses = await storage.getAllBonuses();
-      const filteredBonuses = filterBonusesByIntent(allBonuses, intent);
+      let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
+      
+      // Filter by jurisdiction compliance
+      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      filteredBonuses = filteredBonuses.filter(bonus => {
+        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+          return false;
+        }
+        return bonus.jurisdictions.some(j => 
+          supportedJurisdictions.includes(j.code || '') ||
+          j.code === detectedLocation
+        );
+      });
+      
       const rankedBonuses = rankBonuses(filteredBonuses, intent);
 
       const recommendations = rankedBonuses.slice(0, 5).map(bonus => ({
@@ -213,13 +291,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bonuses with optional filters
   app.get("/api/bonuses", async (req, res) => {
     try {
-      const { productType, location } = req.query;
+      const { productType } = req.query;
+      
+      // Use detected location from middleware
+      const detectedLocation = req.userLocation?.regionCode || 'NJ';
+      const regionConfig = regionConfigService.getRegionConfig(detectedLocation);
       
       let bonuses = await storage.getAllBonuses();
+      
+      // Filter by jurisdiction compliance first
+      const supportedJurisdictions = regionConfig.supportedJurisdictions;
+      bonuses = bonuses.filter(bonus => {
+        if (!bonus.jurisdictions || bonus.jurisdictions.length === 0) {
+          return false;
+        }
+        return bonus.jurisdictions.some(j => 
+          supportedJurisdictions.includes(j.code || '') ||
+          j.code === detectedLocation
+        );
+      });
       
       if (productType && typeof productType === "string") {
         bonuses = bonuses.filter(b => b.productType === productType);
       }
+      
+      console.log(`🎯 API bonuses filtered to ${bonuses.length} for region: ${detectedLocation}`);
       
       // Add basic value scores
       const bonusesWithScores = bonuses.map(bonus => ({
