@@ -82,30 +82,67 @@ export default function TypewriterTextWithLinks({
     setShouldScroll(0);
   }, [text]);
 
+  // Track which offers have been completed during typing
+  const getCompletedOffers = () => {
+    const completedOffers: Array<{operatorName: string, rec: Recommendation}> = [];
+    
+    // Find offer sections that are fully typed based on current progress
+    recommendations.forEach(rec => {
+      const operatorName = rec.operator.name;
+      const operatorRegex = new RegExp(`\\b${operatorName}\\b.*?(?=\\n\\s*-|\\n\\n|$)`, 'gis');
+      const matches = Array.from(text.matchAll(operatorRegex));
+      
+      matches.forEach(match => {
+        const offerEndIndex = match.index! + match[0].length;
+        if (currentIndex >= offerEndIndex) {
+          completedOffers.push({operatorName, rec});
+        }
+      });
+    });
+    
+    return completedOffers;
+  };
+
   // Parse text and insert claim links
   const renderTextWithLinks = () => {
-    if (currentIndex < text.length) {
-      // Still typing - show current text with cursor
+    let processedText = displayText;
+    const elements: JSX.Element[] = [];
+    const completedOffers = getCompletedOffers();
+    const isFullyTyped = currentIndex >= text.length;
+
+    // If still typing, show progressive enhancement
+    if (!isFullyTyped) {
+      // Add completed offer enhancements to current display text
+      completedOffers.forEach(({operatorName, rec}) => {
+        // Find value score pattern in the completed section
+        const valueScoreRegex = new RegExp(`(${operatorName}.*?)Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)([^\\n]*)`, 'gi');
+        
+        processedText = processedText.replace(valueScoreRegex, (match, beforeScore, scoreText, afterScore) => {
+          const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
+          const numericScore = parseFloat(score);
+          
+          return `${beforeScore}Value Score: <span class="font-bold ${
+            numericScore >= 80 ? 'text-green-400' : 
+            numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
+          }">${scoreText}</span>${afterScore} <button class="inline-flex items-center gap-1 ml-2 px-2 py-1 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
+        });
+      });
+
       return (
-        <>
-          {displayText}
-          <span className="animate-pulse">|</span>
-        </>
+        <span dangerouslySetInnerHTML={{
+          __html: processedText + '<span class="animate-pulse">|</span>'
+        }} />
       );
     }
 
-    // Typing complete - add claim links at end of offer lines
-    let processedText = displayText;
-    
-    // Split text into lines and add claim links at end of relevant offer lines
+    // Fully typed - clean up and add proper React elements
     const lines = processedText.split('\n');
-    const processedLines: JSX.Element[] = [];
-
+    
     lines.forEach((line, lineIndex) => {
       let lineContent = line;
-      let claimButton: JSX.Element | null = null;
+      let enhancements: JSX.Element[] = [];
 
-      // Check if this line mentions an operator and contains offer details
+      // Find relevant recommendation for this line
       const relevantRec = recommendations.find(rec => {
         const operatorName = rec.operator.name;
         const hasOperator = new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
@@ -113,62 +150,53 @@ export default function TypewriterTextWithLinks({
         return hasOperator && hasOfferInfo;
       });
 
-      if (relevantRec) {
-        claimButton = (
-          <button
-            key={`claim-${lineIndex}`}
-            onClick={() => window.open(relevantRec.landingUrl, '_blank')}
-            className="inline-flex items-center gap-1 ml-2 px-2 py-1 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
-            data-testid={`link-claim-${relevantRec.id}`}
-          >
-            <ExternalLink className="w-3 h-3" />
-            Claim
-          </button>
-        );
-      }
-
       // Enhanced value score display
       const valueScoreMatch = line.match(/Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
-      if (valueScoreMatch) {
+      if (valueScoreMatch && relevantRec) {
         const scoreText = valueScoreMatch[1];
-        const [score, maxScore] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
+        const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
         const numericScore = parseFloat(score);
         
-        // Replace the value score text with enhanced version
+        // Replace value score with enhanced inline version
         lineContent = line.replace(
           valueScoreMatch[0],
-          ''
+          `Value Score: `
         );
         
-        processedLines.push(
-          <div key={lineIndex} className="flex items-center justify-between">
-            <span>{lineContent}</span>
-            <div className="inline-flex items-center gap-2">
-              <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-md">
-                <span className="text-xs text-gray-400">Value Score:</span>
-                <span className={`font-bold text-sm ${
-                  numericScore >= 80 ? 'text-green-400' : 
-                  numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
-                }`}>
-                  {scoreText}
-                </span>
-              </div>
-              {claimButton}
-            </div>
-          </div>
-        );
-      } else {
-        processedLines.push(
-          <span key={lineIndex}>
-            {lineContent}
-            {claimButton}
-            {lineIndex < lines.length - 1 && '\n'}
+        enhancements.push(
+          <span key={`score-${lineIndex}`} className={`font-bold ${
+            numericScore >= 80 ? 'text-green-400' : 
+            numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
+          }`}>
+            {scoreText}
           </span>
         );
+
+        if (relevantRec) {
+          enhancements.push(
+            <button
+              key={`claim-${lineIndex}`}
+              onClick={() => window.open(relevantRec.landingUrl, '_blank')}
+              className="inline-flex items-center gap-1 ml-2 px-2 py-1 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+              data-testid={`link-claim-${relevantRec.id}`}
+            >
+              <ExternalLink className="w-3 h-3" />
+              Claim
+            </button>
+          );
+        }
       }
+
+      elements.push(
+        <span key={lineIndex}>
+          {lineContent}
+          {enhancements}
+          {lineIndex < lines.length - 1 && '\n'}
+        </span>
+      );
     });
 
-    return processedLines;
+    return elements;
   };
 
   return (
