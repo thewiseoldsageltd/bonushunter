@@ -52,11 +52,14 @@ export default function TypewriterText({
   // Progressive scroll effect - follow typing cursor
   useEffect(() => {
     if (enableProgressiveScroll && shouldScroll > 0) {
-      // Responsive scroll to keep up with typing speed
-      window.scrollBy({
-        top: 8, // Enough scroll to keep cursor visible
-        behavior: 'smooth'
-      });
+      // Find the chat container and scroll within it
+      const chatContainer = document.querySelector('[data-testid="chat-messages"]');
+      if (chatContainer) {
+        chatContainer.scrollBy({
+          top: 8, // Enough scroll to keep cursor visible
+          behavior: 'smooth'
+        });
+      }
     }
   }, [shouldScroll, enableProgressiveScroll]);
 

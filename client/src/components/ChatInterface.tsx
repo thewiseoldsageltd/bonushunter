@@ -186,7 +186,7 @@ export default function ChatInterface() {
         </div>
       </div>
 
-      <div ref={chatContainerRef} className="flex-1 mb-4 overflow-visible" data-testid="chat-messages">
+      <div ref={chatContainerRef} className="flex-1 mb-4 overflow-y-auto" data-testid="chat-messages">
         <div className="space-y-4">
           {messages.map((message) => (
             <div key={message.id} data-message-id={message.id}>
@@ -220,10 +220,13 @@ export default function ChatInterface() {
                               setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
                               // Final scroll to show cards after typewriter completes
                               setTimeout(() => {
-                                window.scrollTo({
-                                  top: document.body.scrollHeight,
-                                  behavior: "smooth"
-                                });
+                                const chatContainer = chatContainerRef.current;
+                                if (chatContainer) {
+                                  chatContainer.scrollTo({
+                                    top: chatContainer.scrollHeight,
+                                    behavior: "smooth"
+                                  });
+                                }
                               }, 300);
                             }}
                           />
