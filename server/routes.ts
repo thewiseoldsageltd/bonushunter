@@ -130,6 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
       const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
       
+      console.log(`🎯 JURISDICTION FILTER: userCountry=${userCountryCode}, userState=${userStateCode}, totalBonuses=${filteredBonuses.length}`);
+      
       filteredBonuses = filteredBonuses.filter(bonus => {
         // Must have valid country data
         if (!bonus.country) {
@@ -151,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return bonus.country === userCountryCode;
       });
       
-      console.log(`🎯 Filtered to ${filteredBonuses.length} bonuses for region: ${detectedLocation}`);
+      console.log(`🎯 AFTER FILTERING: ${filteredBonuses.length} bonuses for region: ${detectedLocation}`);
       
       // Fallback: if strict filtering returns no results, relax user status requirement
       if (filteredBonuses.length === 0 && intent.userStatus === "existing") {
