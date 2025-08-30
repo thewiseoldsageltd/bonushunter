@@ -167,7 +167,7 @@ export default function TypewriterTextWithLinks({
       let lineContent = line;
       let enhancements: JSX.Element[] = [];
 
-      // Find relevant recommendation for this line - simplified
+      // Find relevant recommendation for this line
       const relevantRec = recommendations.find(rec => 
         line.toLowerCase().includes(rec.operator.name.toLowerCase())
       );
