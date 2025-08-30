@@ -1532,7 +1532,10 @@ const AdminNew = () => {
                                   termsAndConditions: bonus.termsAndConditions || '',
                                   existingUserEligible: bonus.existingUserEligible || false,
                                   startAt: bonus.startAt ? new Date(bonus.startAt).toISOString().split('T')[0] : '',
-                                  endAt: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[0] : ''
+                                  endAt: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[0] : '',
+                                  startTime: bonus.startAt ? new Date(bonus.startAt).toISOString().split('T')[1]?.split('.')[0] || '09:00' : '09:00',
+                                  endTime: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[1]?.split('.')[0] || '23:59' : '23:59',
+                                  timezone: 'America/New_York'
                                 });
                               }}
                               data-testid={`button-edit-${bonus.id}`}
