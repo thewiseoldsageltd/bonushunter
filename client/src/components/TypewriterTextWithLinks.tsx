@@ -121,21 +121,21 @@ export default function TypewriterTextWithLinks({
         if (processedOffers.has(rec.id)) return;
         processedOffers.add(rec.id);
         
-        // More flexible offer title matching - look for lines with operator name
-        const offerTitleRegex = new RegExp(`(- [^\\n]*${operatorName}[^\\n]*?)(?=\\n|$)`, 'gi');
+        // Add claim links to offer title lines only (lines starting with "- OperatorName")
+        const offerTitleRegex = new RegExp(`(- ${operatorName}[^\\n]*?)(?=\\n|$)`, 'gi');
         processedText = processedText.replace(offerTitleRegex, (match, titleText) => {
           // Only add if this line doesn't already have a claim button
           if (titleText.includes('Claim</button>')) return match;
           return `${titleText} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
         });
         
-        // Enhance value score display separately
-        const valueScoreRegex = new RegExp(`Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)`, 'gi');
+        // Enhance value score display as separate bullet points
+        const valueScoreRegex = new RegExp(`- Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)`, 'gi');
         processedText = processedText.replace(valueScoreRegex, (match, scoreText) => {
           const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
           const numericScore = parseFloat(score);
           
-          return `Value Score: <span class="font-bold ${
+          return `- Value Score: <span class="font-bold ${
             numericScore >= 80 ? 'text-green-400' : 
             numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
           }">${scoreText}</span>`;
@@ -162,20 +162,20 @@ export default function TypewriterTextWithLinks({
         return new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
       });
 
-      // Check if this is an offer title line (contains "- " and operator name)
-      const isOfferTitle = relevantRec && line.trim().startsWith('-') && line.includes(relevantRec.operator.name);
+      // Check if this is an offer title line (starts with "- OperatorName")
+      const isOfferTitle = relevantRec && line.trim().startsWith(`- ${relevantRec.operator.name}`);
       
-      // Enhanced value score display
-      const valueScoreMatch = line.match(/Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
+      // Enhanced value score display for bullet points
+      const valueScoreMatch = line.match(/- Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
       if (valueScoreMatch) {
         const scoreText = valueScoreMatch[1];
         const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
         const numericScore = parseFloat(score);
         
-        // Replace value score with enhanced inline version
+        // Replace value score with enhanced version
         lineContent = line.replace(
           valueScoreMatch[0],
-          `Value Score: `
+          `- Value Score: `
         );
         
         enhancements.push(
@@ -188,8 +188,8 @@ export default function TypewriterTextWithLinks({
         );
       }
 
-      // Add claim button for offer titles or value score lines
-      if (relevantRec && (isOfferTitle || valueScoreMatch)) {
+      // Add claim button only for offer title lines
+      if (relevantRec && isOfferTitle) {
         enhancements.push(
           <button
             key={`claim-${lineIndex}`}
