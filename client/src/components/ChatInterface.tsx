@@ -222,8 +222,13 @@ export default function ChatInterface() {
                               setTimeout(() => {
                                 const chatContainer = chatContainerRef.current;
                                 if (chatContainer) {
+                                  // More gentle scroll that doesn't fight with ongoing content changes
+                                  const currentScroll = chatContainer.scrollTop;
+                                  const maxScroll = chatContainer.scrollHeight - chatContainer.clientHeight;
+                                  const targetScroll = Math.min(currentScroll + 100, maxScroll);
+                                  
                                   chatContainer.scrollTo({
-                                    top: chatContainer.scrollHeight,
+                                    top: targetScroll,
                                     behavior: "smooth"
                                   });
                                 }
