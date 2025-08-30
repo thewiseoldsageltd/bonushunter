@@ -28,14 +28,7 @@ export default function ChatInterface() {
 
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
-      // Add debugging for mobile/desktop differences
       const isMobile = window.innerWidth < 1024;
-      console.log(`🔍 Chat request from ${isMobile ? 'mobile' : 'desktop'}:`, {
-        message,
-        sessionId,
-        userAgent: navigator.userAgent.substring(0, 50)
-      });
-      
       const response = await apiRequest("POST", "/api/chat", {
         message,
         sessionId,
@@ -46,14 +39,6 @@ export default function ChatInterface() {
     },
     onSuccess: (data) => {
       setSessionId(data.sessionId);
-      
-      // Log successful response for debugging mobile/desktop differences
-      const isMobile = window.innerWidth < 1024;
-      console.log(`✅ Chat response on ${isMobile ? 'mobile' : 'desktop'}:`, {
-        hasRecommendations: !!data.recommendations?.length,
-        recommendationCount: data.recommendations?.length || 0,
-        sessionId: data.sessionId
-      });
       
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
