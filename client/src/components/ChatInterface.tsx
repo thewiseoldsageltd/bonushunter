@@ -13,19 +13,15 @@ import type { ChatMessage, ChatResponse } from "@/types";
 export default function ChatInterface() {
   const { currentRegion, detectedLocation, getRegionCurrency, isLoading } = useRegion();
   
-  // Dynamic welcome message with location detection
+  // Dynamic welcome message with currency localization only
   const getWelcomeMessage = () => {
     if (isLoading) {
-      return "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget, location, and favorite games - I'll find the best value bonuses for you!";
+      return "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!";
     }
-    
-    const locationText = detectedLocation ? 
-      `I detected you're in ${detectedLocation.region}, ${detectedLocation.country}` : 
-      "Tell me your location";
     
     const currency = getRegionCurrency();
     
-    return `⚡ Hi! I'm Artemis, your AI bonus hunter from ${currentRegion?.branding.brandName}! ${locationText}. Tell me your budget (in ${currency}), and favorite games - I'll find the best value bonuses for your region!`;
+    return `⚡ Hi! I'm Artemis, your AI bonus hunter! Tell me your budget (in ${currency}) and favorite games - I'll find the best value bonuses for you!`;
   };
   
   const [messages, setMessages] = useState<ChatMessage[]>([

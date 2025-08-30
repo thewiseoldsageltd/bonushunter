@@ -14,15 +14,30 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-              <Search className="text-white text-lg" />
-            </div>
+            {currentRegion?.logos?.standard ? (
+              <div className="w-10 h-10 rounded-xl overflow-hidden">
+                <img 
+                  src={currentRegion.logos.standard} 
+                  alt={currentRegion.logos.alt}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to gradient icon if logo fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = '<div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center"><svg class="text-white text-lg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg></div>';
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                <Search className="text-white text-lg" />
+              </div>
+            )}
             <div>
               <h1 className="font-display font-bold text-xl" data-testid="text-app-title">
-                {isLoading ? "Bonushunter" : getRegionBrandName()}
+                Bonushunter
               </h1>
               <p className="text-xs text-gray-400">
-                {currentRegion ? currentRegion.branding.tagline : "AI-Powered Bonus Finder"}
+                AI-Powered Bonus Hunter
               </p>
             </div>
           </div>
