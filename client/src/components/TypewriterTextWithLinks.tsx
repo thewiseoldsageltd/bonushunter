@@ -122,22 +122,26 @@ export default function TypewriterTextWithLinks({
         processedOffers.add(rec.id);
         
         // Add claim links to offer title lines (non-bullet lines containing operator name)
-        const offerTitleRegex = new RegExp(`(^|\\n)(${operatorName}[^\\n]*?)(?=\\n|$)`, 'gim');
-        processedText = processedText.replace(offerTitleRegex, (match, lineStart, titleText) => {
+        const lines = processedText.split('\n');
+        const updatedLines = lines.map(line => {
+          const trimmedLine = line.trim();
           // Skip if this line starts with dash (bullet point) or already has claim button
-          if (titleText.trim().startsWith('-') || 
-              titleText.toLowerCase().includes('value score') || 
-              titleText.toLowerCase().includes('excellent value') ||
-              titleText.toLowerCase().includes('open to') ||
-              titleText.includes('Claim</button>')) {
-            return match;
+          if (trimmedLine.startsWith('-') || 
+              trimmedLine.toLowerCase().includes('value score') || 
+              trimmedLine.toLowerCase().includes('excellent value') ||
+              trimmedLine.toLowerCase().includes('open to') ||
+              line.includes('Claim</button>') ||
+              !line.includes(operatorName) ||
+              trimmedLine.length === 0) {
+            return line;
           }
-          return `${lineStart}${titleText} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
+          return `${line} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
         });
+        processedText = updatedLines.join('\n');
         
         // Enhance value score display as separate bullet points
-        const valueScoreRegex = new RegExp(`- Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)`, 'gi');
-        processedText = processedText.replace(valueScoreRegex, (match, scoreText) => {
+        const valueScoreRegex = new RegExp(`^- Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)(.*)$`, 'gim');
+        processedText = processedText.replace(valueScoreRegex, (match, scoreText, remainder) => {
           const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
           const numericScore = parseFloat(score);
           
