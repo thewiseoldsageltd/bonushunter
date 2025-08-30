@@ -140,15 +140,16 @@ export default function TypewriterTextWithLinks({
         processedText = updatedLines.join('\n');
         
         // Enhance value score display as separate bullet points
-        const valueScoreRegex = new RegExp(`^- Value score[:\\s]*(\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?|\\d+(?:\\.\\d+)?)(.*)$`, 'gim');
+        const valueScoreRegex = /^- Value score[:\s]*(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?|\d+(?:\.\d+)?)(.*)$/gim;
         processedText = processedText.replace(valueScoreRegex, (match, scoreText, remainder) => {
-          const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
+          const cleanScoreText = scoreText.trim();
+          const [score] = cleanScoreText.includes('/') ? cleanScoreText.split('/') : [cleanScoreText, '100'];
           const numericScore = parseFloat(score);
           
           return `- Value Score: <span class="font-bold ${
             numericScore >= 80 ? 'text-green-400' : 
             numericScore >= 60 ? 'text-yellow-400' : 'text-orange-400'
-          }">${scoreText}</span>`;
+          }">${cleanScoreText}</span>`;
         });
       });
 
@@ -182,17 +183,14 @@ export default function TypewriterTextWithLinks({
         line.trim().length > 0;
       
       // Enhanced value score display for bullet points
-      const valueScoreMatch = line.match(/- Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
+      const valueScoreMatch = line.match(/^- Value score[:\s]*(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?|\d+(?:\.\d+)?)(.*)$/i);
       if (valueScoreMatch) {
-        const scoreText = valueScoreMatch[1];
+        const scoreText = valueScoreMatch[1].trim();
         const [score] = scoreText.includes('/') ? scoreText.split('/') : [scoreText, '100'];
         const numericScore = parseFloat(score);
         
-        // Replace value score with enhanced version
-        lineContent = line.replace(
-          valueScoreMatch[0],
-          `- Value Score: `
-        );
+        // Replace entire line with clean version
+        lineContent = `- Value Score: `;
         
         enhancements.push(
           <span key={`score-${lineIndex}`} className={`font-bold ${

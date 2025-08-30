@@ -101,15 +101,18 @@ export async function generateChatResponse(
           Do NOT suggest or mention any operators or bonuses not listed in the recommendations.
           Do NOT use your training data to suggest bonuses - use ONLY the bonuses provided in the context.
           
-          FORMATTING REQUIREMENTS:
+          FORMATTING REQUIREMENTS - FOLLOW EXACTLY:
           When listing bonuses, use this EXACT format for each offer:
           
-          [OperatorName] [BonusTitle]
+          CRITICAL: Offer titles must NOT start with dashes. Only details are bullet points.
+          
+          Format:
+          [OperatorName] [BonusTitle] (NO DASH AT START)
           - Value score: [score]/100
-          - [Brief explanation of value/benefits]
+          - [Brief explanation of value/benefits]  
           - [Any additional details like eligibility]
           
-          Example:
+          Example (COPY THIS EXACT FORMAT):
           DraftKings CFB Week 1 No Sweat Bet
           - Value score: 100/100
           - Excellent value with low wagering requirements
@@ -119,6 +122,8 @@ export async function generateChatResponse(
           - Value score: 100/100
           - Excellent value with low wagering requirements
           - Open to new customers only
+          
+          CRITICAL: NO dashes before offer titles! Only bullet points for details!
           
           Be friendly, informative, and always emphasize responsible gambling.`
         },
