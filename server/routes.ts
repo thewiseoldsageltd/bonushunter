@@ -35,7 +35,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat endpoint for conversational interface
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message, sessionId, userLocation } = chatRequestSchema.parse(req.body);
+      const { message, sessionId, userLocation, deviceType } = req.body;
+      
+      // Log device type for debugging mobile/desktop differences
+      console.log(`📱 Chat request from ${deviceType || 'unknown'} device:`, {
+        message: message.substring(0, 50),
+        sessionId,
+        hasSession: !!sessionId
+      });
       
       // Create or get existing session
       let session;

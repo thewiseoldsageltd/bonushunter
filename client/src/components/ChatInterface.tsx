@@ -28,15 +28,32 @@ export default function ChatInterface() {
 
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
+      // Add debugging for mobile/desktop differences
+      const isMobile = window.innerWidth < 1024;
+      console.log(`🔍 Chat request from ${isMobile ? 'mobile' : 'desktop'}:`, {
+        message,
+        sessionId,
+        userAgent: navigator.userAgent.substring(0, 50)
+      });
+      
       const response = await apiRequest("POST", "/api/chat", {
         message,
         sessionId,
-        userLocation: "New Jersey" // Default for demo
+        userLocation: "New Jersey", // Default for demo
+        deviceType: isMobile ? 'mobile' : 'desktop' // Add device context
       });
       return response.json();
     },
     onSuccess: (data) => {
       setSessionId(data.sessionId);
+      
+      // Log successful response for debugging mobile/desktop differences
+      const isMobile = window.innerWidth < 1024;
+      console.log(`✅ Chat response on ${isMobile ? 'mobile' : 'desktop'}:`, {
+        hasRecommendations: !!data.recommendations?.length,
+        recommendationCount: data.recommendations?.length || 0,
+        sessionId: data.sessionId
+      });
       
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
@@ -63,6 +80,12 @@ export default function ChatInterface() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || chatMutation.isPending) return;
+    
+    // Clear mobile browser cache if needed to ensure fresh responses
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile && 'caches' in window) {
+      caches.delete('v1').catch(() => {}); // Clear any service worker cache
+    }
 
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -88,9 +111,9 @@ export default function ChatInterface() {
           const isMobile = window.innerWidth < 1024;
           
           if (isMobile) {
-            // On mobile, gentle scroll to avoid pushing chat box off-screen
+            // On mobile, scroll to show user message properly
             chatContainer.scrollBy({
-              top: 40, // Small scroll to show user message without losing chat position
+              top: 80, // Increased scroll to ensure full text visibility
               behavior: "smooth"
             });
           } else {
@@ -106,9 +129,9 @@ export default function ChatInterface() {
           const isMobile = window.innerWidth < 1024;
           
           if (isMobile) {
-            // On mobile, gentle scroll to keep AI response visible  
+            // On mobile, scroll to keep AI response visible  
             chatContainer.scrollBy({
-              top: 30, // Much smaller scroll to keep response in view
+              top: 60, // Increased scroll to ensure AI response stays visible
               behavior: "smooth"
             });
           } else {
