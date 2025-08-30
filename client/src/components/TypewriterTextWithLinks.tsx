@@ -112,11 +112,20 @@ export default function TypewriterTextWithLinks({
 
     // If still typing, show progressive enhancement
     if (!isFullyTyped) {
+      // Track which offers already have claim links to prevent duplication
+      const processedOffers = new Set<string>();
+      
       // Add completed offer enhancements to current display text
       completedOffers.forEach(({operatorName, rec}) => {
-        // Add claim links to offer titles (lines starting with "- OperatorName")
-        const offerTitleRegex = new RegExp(`(- ${operatorName}[^\\n]*?)(?=\\n|$)`, 'gi');
+        // Skip if already processed
+        if (processedOffers.has(rec.id)) return;
+        processedOffers.add(rec.id);
+        
+        // More flexible offer title matching - look for lines with operator name
+        const offerTitleRegex = new RegExp(`(- [^\\n]*${operatorName}[^\\n]*?)(?=\\n|$)`, 'gi');
         processedText = processedText.replace(offerTitleRegex, (match, titleText) => {
+          // Only add if this line doesn't already have a claim button
+          if (titleText.includes('Claim</button>')) return match;
           return `${titleText} <button class="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors" onclick="window.open('${rec.landingUrl}', '_blank')" data-testid="link-claim-${rec.id}"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Claim</button>`;
         });
         
@@ -153,8 +162,8 @@ export default function TypewriterTextWithLinks({
         return new RegExp(`\\b${operatorName}\\b`, 'i').test(line);
       });
 
-      // Check if this is an offer title line (starts with "- OperatorName")
-      const isOfferTitle = relevantRec && line.trim().startsWith(`- ${relevantRec.operator.name}`);
+      // Check if this is an offer title line (contains "- " and operator name)
+      const isOfferTitle = relevantRec && line.trim().startsWith('-') && line.includes(relevantRec.operator.name);
       
       // Enhanced value score display
       const valueScoreMatch = line.match(/Value score[:\s]*(\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)/i);
