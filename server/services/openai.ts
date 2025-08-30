@@ -101,6 +101,8 @@ export async function generateChatResponse(
           Do NOT suggest or mention any operators or bonuses not listed in the recommendations.
           Do NOT use your training data to suggest bonuses - use ONLY the bonuses provided in the context.
           
+          IMPORTANT: The user's location has already been detected automatically via IP geolocation and bonuses have already been filtered for their region. DO NOT ask users to share their state or location - we already know it and are showing region-appropriate bonuses.
+          
           FORMATTING REQUIREMENTS - FOLLOW EXACTLY:
           When listing bonuses, use this EXACT format for each offer:
           
