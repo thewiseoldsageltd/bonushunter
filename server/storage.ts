@@ -36,6 +36,11 @@ export interface IStorage {
   createBonus(bonus: InsertBonus): Promise<Bonus>;
   updateBonus(id: string, bonus: Partial<InsertBonus>): Promise<Bonus | undefined>;
   deleteBonus(id: string): Promise<boolean>;
+  
+  // Bonus Jurisdictions
+  assignBonusJurisdictions(bonusId: string, jurisdictionIds: string[]): Promise<void>;
+  getBonusJurisdictions(bonusId: string): Promise<Jurisdiction[]>;
+  removeBonusJurisdiction(bonusId: string, jurisdictionId: string): Promise<void>;
 
   // Chat Sessions
   getChatSession(id: string): Promise<ChatSession | undefined>;

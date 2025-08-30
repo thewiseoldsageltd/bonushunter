@@ -50,6 +50,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       detectedLocation: req.userLocation
     });
   });
+
+  // Jurisdictions endpoint for admin
+  app.get("/api/jurisdictions", async (req, res) => {
+    try {
+      const jurisdictions = await storage.getAllJurisdictions();
+      res.json(jurisdictions);
+    } catch (error) {
+      console.error("Error fetching jurisdictions:", error);
+      res.status(500).json({ error: "Failed to fetch jurisdictions" });
+    }
+  });
   
   // Chat endpoint for conversational interface  
   app.post("/api/chat", async (req, res) => {

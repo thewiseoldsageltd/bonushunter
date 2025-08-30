@@ -115,39 +115,47 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(schema.operators, eq(schema.bonuses.operatorId, schema.operators.id))
       .where(eq(schema.bonuses.status, 'active'));
     
-    return result.map(row => ({
-      ...row.bonuses,
-      operator: row.operators || {
-        id: '',
-        name: 'Unknown Operator',
-        siteUrl: '',
-        description: null,
-        logo: null,
-        trustScore: null,
-        overallRating: null,
-        headquarters: null,
-        foundedYear: null,
-        paymentMethods: [],
-        withdrawalMethods: [],
-        withdrawalTimeframe: null,
-        minDeposit: null,
-        maxWithdrawal: null,
-        liveChat: false,
-        mobileApp: false,
-        casinoGames: false,
-        liveCasino: false,
-        esports: false,
-        virtuals: false,
-        bonusRating: null,
-        oddsRating: null,
-        uiRating: null,
-        prosAndCons: null,
-        active: false,
-        createdAt: new Date(),
-        updatedAt: null
-      },
-      jurisdictions: []
-    })) as BonusWithOperator[];
+    // Get jurisdictions for each bonus
+    const bonusesWithOperators = await Promise.all(
+      result.map(async (row) => {
+        const jurisdictions = await this.getBonusJurisdictions(row.bonuses.id);
+        return {
+          ...row.bonuses,
+          operator: row.operators || {
+            id: '',
+            name: 'Unknown Operator',
+            siteUrl: '',
+            description: null,
+            logo: null,
+            trustScore: null,
+            overallRating: null,
+            headquarters: null,
+            foundedYear: null,
+            paymentMethods: [],
+            withdrawalMethods: [],
+            withdrawalTimeframe: null,
+            minDeposit: null,
+            maxWithdrawal: null,
+            liveChat: false,
+            mobileApp: false,
+            casinoGames: false,
+            liveCasino: false,
+            esports: false,
+            virtuals: false,
+            bonusRating: null,
+            oddsRating: null,
+            uiRating: null,
+            prosAndCons: null,
+            active: false,
+            createdAt: new Date(),
+            updatedAt: null
+          },
+          jurisdictions
+        };
+      })
+    );
+    
+    return bonusesWithOperators as BonusWithOperator[];
   }
 
   async getBonusesByOperator(operatorId: string): Promise<BonusWithOperator[]> {
@@ -285,5 +293,45 @@ export class DatabaseStorage implements IStorage {
     const result = await db.delete(schema.userFavorites)
       .where(and(eq(schema.userFavorites.userId, userId), eq(schema.userFavorites.bonusId, bonusId)));
     return true; // Assume success if no error thrown
+  }
+
+  // Bonus Jurisdictions
+  async assignBonusJurisdictions(bonusId: string, jurisdictionIds: string[]): Promise<void> {
+    // First, remove existing assignments
+    await db.delete(schema.bonusJurisdictions).where(eq(schema.bonusJurisdictions.bonusId, bonusId));
+    
+    // Then add new assignments
+    if (jurisdictionIds.length > 0) {
+      const assignments = jurisdictionIds.map(jurisdictionId => ({
+        bonusId,
+        jurisdictionId,
+        id: randomUUID()
+      }));
+      await db.insert(schema.bonusJurisdictions).values(assignments);
+    }
+  }
+
+  async getBonusJurisdictions(bonusId: string): Promise<Jurisdiction[]> {
+    const result = await db.select({
+      id: schema.jurisdictions.id,
+      name: schema.jurisdictions.name,
+      code: schema.jurisdictions.code,
+      country: schema.jurisdictions.country,
+      minAge: schema.jurisdictions.minAge,
+      notes: schema.jurisdictions.notes
+    })
+    .from(schema.bonusJurisdictions)
+    .leftJoin(schema.jurisdictions, eq(schema.bonusJurisdictions.jurisdictionId, schema.jurisdictions.id))
+    .where(eq(schema.bonusJurisdictions.bonusId, bonusId));
+    
+    return result as Jurisdiction[];
+  }
+
+  async removeBonusJurisdiction(bonusId: string, jurisdictionId: string): Promise<void> {
+    await db.delete(schema.bonusJurisdictions)
+      .where(and(
+        eq(schema.bonusJurisdictions.bonusId, bonusId),
+        eq(schema.bonusJurisdictions.jurisdictionId, jurisdictionId)
+      ));
   }
 }
