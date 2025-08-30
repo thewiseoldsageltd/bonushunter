@@ -163,6 +163,9 @@ export default function TypewriterTextWithLinks({
     // Fully typed - clean up and add proper React elements
     const lines = processedText.split('\n');
     
+    // Debug: Check if we're properly detecting offer titles
+    console.log('🔧 Final rendering - processing lines:', lines.length, 'recommendations:', recommendations.length);
+    
     lines.forEach((line, lineIndex) => {
       let lineContent = line;
       let enhancements: JSX.Element[] = [];
@@ -181,6 +184,17 @@ export default function TypewriterTextWithLinks({
         !line.toLowerCase().includes('excellent value') &&
         !line.toLowerCase().includes('open to') &&
         line.trim().length > 0;
+        
+      // Debug offer title detection
+      if (relevantRec && line.includes(relevantRec.operator.name)) {
+        console.log('🎯 Checking line for claim button:', {
+          line: line.substring(0, 50),
+          isOfferTitle,
+          startsWith: line.trim().startsWith('-'),
+          hasOperator: line.includes(relevantRec.operator.name),
+          operator: relevantRec.operator.name
+        });
+      }
       
       // Enhanced value score display for bullet points
       const valueScoreMatch = line.match(/^- Value score[:\s]*(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?|\d+(?:\.\d+)?)(.*)$/i);
