@@ -38,10 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/chat', cachedGeolocationMiddleware);
   app.use('/api/bonuses', cachedGeolocationMiddleware);
   app.use('/api/recommend', cachedGeolocationMiddleware);
-  app.use('/api/region-config', cachedGeolocationMiddleware);
   
-  // Region configuration endpoint
-  app.get("/api/region-config", (req, res) => {
+  // Region configuration endpoint (with inline middleware)
+  app.get("/api/region-config", cachedGeolocationMiddleware, (req, res) => {
     const regionCode = req.userLocation?.regionCode || 'US';
     const config = regionConfigService.getRegionConfig(regionCode);
     
