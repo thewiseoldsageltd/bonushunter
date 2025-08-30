@@ -178,8 +178,6 @@ export default function TypewriterTextWithLinks({
         !line.trim().startsWith('-') && 
         line.includes(relevantRec.operator.name) && 
         !line.toLowerCase().includes('value score') &&
-        !line.toLowerCase().includes('excellent value') &&
-        !line.toLowerCase().includes('open to') &&
         line.trim().length > 0;
       
       // Enhanced value score display for bullet points
