@@ -218,21 +218,7 @@ export default function ChatInterface() {
                             enableProgressiveScroll={true}
                             onComplete={() => {
                               setCompletedTypewriterMessages(prev => new Set([...Array.from(prev), message.id]));
-                              // Final scroll to show cards after typewriter completes
-                              setTimeout(() => {
-                                const chatContainer = chatContainerRef.current;
-                                if (chatContainer) {
-                                  // More gentle scroll that doesn't fight with ongoing content changes
-                                  const currentScroll = chatContainer.scrollTop;
-                                  const maxScroll = chatContainer.scrollHeight - chatContainer.clientHeight;
-                                  const targetScroll = Math.min(currentScroll + 100, maxScroll);
-                                  
-                                  chatContainer.scrollTo({
-                                    top: targetScroll,
-                                    behavior: "smooth"
-                                  });
-                                }
-                              }, 300);
+                              // Remove completion scroll - let progressive scroll handle everything
                             }}
                           />
                         </div>

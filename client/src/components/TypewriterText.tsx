@@ -30,8 +30,8 @@ export default function TypewriterText({
           const currentChar = text[currentIndex];
           const prevChar = currentIndex > 0 ? text[currentIndex - 1] : '';
           
-          // Regular scroll every 7 characters
-          if (currentIndex % 7 === 0 && currentChar !== '\n') {
+          // Regular scroll every 5 characters
+          if (currentIndex % 5 === 0 && currentChar !== '\n') {
             setShouldScroll(prev => prev + 1);
           }
           
@@ -56,7 +56,7 @@ export default function TypewriterText({
       const chatContainer = document.querySelector('[data-testid="chat-messages"]');
       if (chatContainer) {
         chatContainer.scrollBy({
-          top: 12, // Increased scroll for better mobile tracking
+          top: 15, // More aggressive scroll for better tracking
           behavior: 'smooth'
         });
       }
