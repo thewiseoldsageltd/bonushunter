@@ -4,8 +4,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Search } from "lucide-react";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
-import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
-import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756568894640.webp";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
             {currentRegion?.regionCode === 'US' ? (
-              <div className="w-10 h-10 rounded-xl overflow-hidden">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
                 <img 
                   src={bonushunterUSLogo} 
                   alt="Bonushunter US Logo"
@@ -25,7 +25,7 @@ export default function Header() {
                 />
               </div>
             ) : currentRegion?.regionCode === 'UK' ? (
-              <div className="w-10 h-10 rounded-xl overflow-hidden">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
                 <img 
                   src={bonushunterUKLogo} 
                   alt="Bonushunter UK Logo"
@@ -33,7 +33,7 @@ export default function Header() {
                 />
               </div>
             ) : currentRegion?.logos?.standard ? (
-              <div className="w-10 h-10 rounded-xl overflow-hidden">
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center">
                 <img 
                   src={currentRegion.logos.standard} 
                   alt={currentRegion.logos.alt}
