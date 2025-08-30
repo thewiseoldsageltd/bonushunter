@@ -297,9 +297,11 @@ const AdminNew = () => {
     }
   }, [editingOperator]);
 
-  // Fetch all bonuses
+  // Fetch all bonuses from admin endpoint (bypasses geo-filtering)
   const { data: bonusesData, isLoading: loadingBonuses } = useQuery({
-    queryKey: ['/api/admin/bonuses']
+    queryKey: ['/api/admin/bonuses'],
+    staleTime: 0, // Force fresh data
+    gcTime: 0, // Clear cache immediately 
   });
 
   // Fetch all operators for the dropdown
