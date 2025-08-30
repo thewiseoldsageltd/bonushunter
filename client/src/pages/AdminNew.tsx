@@ -37,6 +37,8 @@ interface BonusFormData {
   startTime: string;
   endTime: string;
   timezone: string;
+  country: string;
+  states: string;
 }
 
 interface OperatorFormData {
@@ -98,7 +100,9 @@ const AdminNew = () => {
     endAt: '',
     startTime: '00:00',
     endTime: '23:59',
-    timezone: 'America/New_York'
+    timezone: 'America/New_York',
+    country: 'US',
+    states: ''
   });
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
@@ -136,7 +140,9 @@ const AdminNew = () => {
     endAt: '',
     startTime: '00:00',
     endTime: '23:59',
-    timezone: 'America/New_York'
+    timezone: 'America/New_York',
+    country: 'US',
+    states: ''
   });
 
   // Form state for editing operator
@@ -256,7 +262,9 @@ const AdminNew = () => {
         endAt: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[0] : '',
         startTime: editingBonus.startAt ? new Date(editingBonus.startAt).toISOString().split('T')[1].substring(0, 5) : '00:00',
         endTime: editingBonus.endAt ? new Date(editingBonus.endAt).toISOString().split('T')[1].substring(0, 5) : '23:59',
-        timezone: editingBonus.timezone || 'America/New_York'
+        timezone: editingBonus.timezone || 'America/New_York',
+        country: editingBonus.country || 'US',
+        states: editingBonus.states || ''
       });
     }
   }, [editingBonus]);
@@ -550,7 +558,9 @@ const AdminNew = () => {
       endAt: '',
       startTime: '00:00',
       endTime: '23:59',
-      timezone: 'America/New_York'
+      timezone: 'America/New_York',
+      country: 'US',
+      states: ''
     });
   };
 
@@ -987,6 +997,40 @@ const AdminNew = () => {
                         />
                       </div>
 
+                      {/* Jurisdiction Selection Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="country">Country</Label>
+                          <Select value={bonusForm.country} onValueChange={(value) => setBonusForm(prev => ({ ...prev, country: value, states: value === 'US' ? prev.states : '' }))}>
+                            <SelectTrigger data-testid="select-country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="US">United States</SelectItem>
+                              <SelectItem value="UK">United Kingdom</SelectItem>
+                              <SelectItem value="CA">Canada</SelectItem>
+                              <SelectItem value="AU">Australia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500 mt-1">Country where this bonus is available</p>
+                        </div>
+
+                        {bonusForm.country === 'US' && (
+                          <div>
+                            <Label htmlFor="states">US States (comma-separated)</Label>
+                            <Input
+                              id="states"
+                              type="text"
+                              value={bonusForm.states}
+                              onChange={(e) => setBonusForm(prev => ({ ...prev, states: e.target.value }))}
+                              placeholder="AZ,NJ,NY,PA,MI,IL"
+                              data-testid="input-states"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">US state codes where bonus is available (e.g., AZ,NJ,NY)</p>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Terms & Conditions AI Analysis Section */}
                       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <div className="flex items-center gap-2 mb-3">
@@ -1376,6 +1420,40 @@ const AdminNew = () => {
                         />
                       </div>
 
+                      {/* Edit Jurisdiction Selection Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="edit-country">Country</Label>
+                          <Select value={editBonusForm.country} onValueChange={(value) => setEditBonusForm(prev => ({ ...prev, country: value, states: value === 'US' ? prev.states : '' }))}>
+                            <SelectTrigger data-testid="select-edit-country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="US">United States</SelectItem>
+                              <SelectItem value="UK">United Kingdom</SelectItem>
+                              <SelectItem value="CA">Canada</SelectItem>
+                              <SelectItem value="AU">Australia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500 mt-1">Country where this bonus is available</p>
+                        </div>
+
+                        {editBonusForm.country === 'US' && (
+                          <div>
+                            <Label htmlFor="edit-states">US States (comma-separated)</Label>
+                            <Input
+                              id="edit-states"
+                              type="text"
+                              value={editBonusForm.states}
+                              onChange={(e) => setEditBonusForm(prev => ({ ...prev, states: e.target.value }))}
+                              placeholder="AZ,NJ,NY,PA,MI,IL"
+                              data-testid="input-edit-states"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">US state codes where bonus is available (e.g., AZ,NJ,NY)</p>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Terms & Conditions AI Analysis Section */}
                       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                         <div className="flex items-center gap-2 mb-3">
@@ -1537,7 +1615,9 @@ const AdminNew = () => {
                                   endAt: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[0] : '',
                                   startTime: bonus.startAt ? new Date(bonus.startAt).toISOString().split('T')[1]?.split('.')[0] || '09:00' : '09:00',
                                   endTime: bonus.endAt ? new Date(bonus.endAt).toISOString().split('T')[1]?.split('.')[0] || '23:59' : '23:59',
-                                  timezone: 'America/New_York'
+                                  timezone: 'America/New_York',
+                                  country: bonus.country || 'US',
+                                  states: bonus.states || ''
                                 });
                               }}
                               data-testid={`button-edit-${bonus.id}`}

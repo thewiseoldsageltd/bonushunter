@@ -86,6 +86,8 @@ export const bonuses = pgTable("bonuses", {
   endAt: timestamp("end_at"),
   timezone: varchar("timezone", { length: 50 }).default("America/New_York"),
   status: text("status").default("active"), // active, inactive, expired
+  country: varchar("country", { length: 10 }), // US, UK, CA, etc
+  states: varchar("states", { length: 200 }), // AZ,NJ,NY,PA (comma-separated for US bonuses)
   createdAt: timestamp("created_at").defaultNow(),
 });
 
