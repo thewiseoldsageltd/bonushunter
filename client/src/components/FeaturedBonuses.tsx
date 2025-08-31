@@ -14,6 +14,8 @@ interface FeaturedBonusesProps {
 export default function FeaturedBonuses({ selectedRegion, selectedState }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
+  
+  console.log(`🔧 FeaturedBonuses props - Region: ${selectedRegion}, State: ${selectedState}`);
 
   // Build query parameters
   const params = new URLSearchParams();
