@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, Search, ChevronDown } from "lucide-react";
+import { useLocation } from "wouter";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
@@ -15,6 +16,7 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [location, setLocation] = useLocation();
   
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
   
@@ -103,25 +105,25 @@ export default function Header() {
               </DropdownMenuTrigger>
               
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem onClick={() => window.location.href = '/uk'}>
+                <DropdownMenuItem onClick={() => setLocation('/uk')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
                   </div>
                   UK
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = '/us'}>
+                <DropdownMenuItem onClick={() => setLocation('/us')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
                   </div>
                   US
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = '/ca'}>
+                <DropdownMenuItem onClick={() => setLocation('/ca')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="CA Logo" className="w-full h-full object-contain" />
                   </div>
                   CA
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = '/eu'}>
+                <DropdownMenuItem onClick={() => setLocation('/eu')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="EU Logo" className="w-full h-full object-contain" />
                   </div>
