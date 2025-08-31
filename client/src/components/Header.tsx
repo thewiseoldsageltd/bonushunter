@@ -154,8 +154,12 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" className="md:hidden" data-testid="button-mobile-menu">
-                <Menu className="text-gray-300" />
+              <Button 
+                variant="ghost" 
+                className="md:hidden hover:bg-transparent focus:bg-transparent active:bg-transparent focus:ring-0 focus:outline-none" 
+                data-testid="button-mobile-menu"
+              >
+                <Menu className="text-gray-300 hover:text-white transition-colors" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="bg-dark border-dark-lighter">
