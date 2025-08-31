@@ -10,6 +10,9 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
+  
+  // Debug logging
+  console.log(`🎯 Header: Region=${currentRegion?.regionCode}, Loading=${isLoading}`);
 
   return (
     <header className="bg-dark-light/50 backdrop-blur-lg border-b border-dark-lighter sticky top-0 z-50">
