@@ -18,8 +18,15 @@ export default function FeaturedBonuses() {
     if (productType !== "all") params.append("productType", productType);
     if (location !== "all") params.append("location", location);
     // Add region parameter to ensure bonuses match the selected region
-    if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
-    return params.toString() ? `?${params.toString()}` : '';
+    if (currentRegion?.regionCode) {
+      params.append("region", currentRegion.regionCode);
+      console.log(`🎯 FeaturedBonuses: Adding region param: ${currentRegion.regionCode}`);
+    } else {
+      console.log(`🎯 FeaturedBonuses: No currentRegion available`);
+    }
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    console.log(`🎯 FeaturedBonuses: Final query string: /api/bonuses${queryStr}`);
+    return queryStr;
   })();
 
   const { data, isLoading, error } = useQuery({
