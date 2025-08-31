@@ -13,58 +13,32 @@ export default function FeaturedBonuses() {
   const [location, setLocation] = useState<string>("all");
   const { currentRegion } = useRegion();
   
-  // Get the preferred region directly from localStorage to ensure we have the latest value
-  const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
-  
+  // Force component to re-render when region changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('bonushunter-preferred-region');
-      setPreferredRegion(stored);
-    }
-  }, []);
-  
-  // Listen for region changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem('bonushunter-preferred-region');
-      console.log(`🎯 FeaturedBonuses: Storage changed to ${stored}`);
-      setPreferredRegion(stored);
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    console.log(`🎯 FeaturedBonuses: Component rendered with region: ${currentRegion?.regionCode}`);
+  }, [currentRegion?.regionCode]);
 
   // Construct query string for filtering
   const queryString = (() => {
     const params = new URLSearchParams();
     if (productType !== "all") params.append("productType", productType);
     if (location !== "all") params.append("location", location);
-    
-    // Use preferredRegion from localStorage or fall back to detected region
-    const regionToUse = preferredRegion || currentRegion?.regionCode;
-    if (regionToUse) {
-      params.append("region", regionToUse);
-      console.log(`🎯 FeaturedBonuses: Adding region param: ${regionToUse} (preferred: ${preferredRegion}, detected: ${currentRegion?.regionCode})`);
-    } else {
-      console.log(`🎯 FeaturedBonuses: No region available`);
-    }
-    const queryStr = params.toString() ? `?${params.toString()}` : '';
-    console.log(`🎯 FeaturedBonuses: Final query string: /api/bonuses${queryStr}`);
-    return queryStr;
+    if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
+    return params.toString() ? `?${params.toString()}` : '';
   })();
 
+  console.log(`🎯 FeaturedBonuses: Query string: ${queryString}`);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType, location, preferredRegion, currentRegion?.regionCode],
+    queryKey: ["/api/bonuses", productType, location, currentRegion?.regionCode],
     queryFn: async () => {
-      console.log(`🎯 FeaturedBonuses: Making API call with region ${currentRegion?.regionCode}`);
       const url = `/api/bonuses${queryString}`;
-      console.log(`🎯 FeaturedBonuses: Final URL: ${url}`);
+      console.log(`🎯 FeaturedBonuses: Fetching: ${url}`);
       const response = await fetch(url);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
-    enabled: !!currentRegion, // Only run when we have region data
+    enabled: !!currentRegion,
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
