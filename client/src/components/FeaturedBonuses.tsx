@@ -39,7 +39,16 @@ export default function FeaturedBonuses() {
   })();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [`/api/bonuses${queryString}`, productType, location, currentRegion?.regionCode],
+    queryKey: ["/api/bonuses", productType, location, currentRegion?.regionCode],
+    queryFn: async () => {
+      console.log(`🎯 FeaturedBonuses: Making API call with region ${currentRegion?.regionCode}`);
+      const url = `/api/bonuses${queryString}`;
+      console.log(`🎯 FeaturedBonuses: Final URL: ${url}`);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    enabled: !!currentRegion, // Only run when we have region data
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
