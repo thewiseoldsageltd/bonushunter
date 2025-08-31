@@ -14,8 +14,6 @@ interface FeaturedBonusesProps {
 export default function FeaturedBonuses({ selectedRegion, selectedState }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
-  
-  console.log(`🔧 FeaturedBonuses props - Region: ${selectedRegion}, State: ${selectedState}`);
 
   // Build query parameters
   const params = new URLSearchParams();
@@ -26,19 +24,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", selectedRegion, selectedState, productType, location],
-    queryFn: async () => {
-      const url = `/api/bonuses${queryString}`;
-      console.log(`🔍 Frontend URL: ${url}`);
-      const response = await fetch(url);
-      console.log(`📡 Status: ${response.status}, Content-Type: ${response.headers.get('content-type')}`);
-      if (!response.ok) {
-        const text = await response.text();
-        console.log(`❌ Error response: ${text.substring(0, 100)}...`);
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    },
+    queryKey: [`/api/bonuses${queryString}`],
     staleTime: 0, // Always fetch fresh data
     enabled: !!selectedRegion, // Only run when we have region data
     select: (data: any) => ({
