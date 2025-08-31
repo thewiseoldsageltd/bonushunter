@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturedBonuses from "@/components/FeaturedBonuses";
@@ -18,24 +19,47 @@ import {
   Linkedin
 } from "lucide-react";
 
+
 export default function Home() {
+  const [location, setLocation] = useLocation();
   const [selectedRegion, setSelectedRegion] = useState('UK');
   
-  // Auto-detect region on page load
+  // Get region from URL path or auto-detect
   useEffect(() => {
+    // First check URL path
+    let pathRegion = null;
+    if (location === '/us') pathRegion = 'US';
+    else if (location === '/uk') pathRegion = 'UK';
+    else if (location === '/ca') pathRegion = 'CA';
+    else if (location === '/eu') pathRegion = 'EU';
+    
+    if (pathRegion) {
+      console.log(`🌍 Setting region from URL path: ${pathRegion}`);
+      setSelectedRegion(pathRegion);
+      return;
+    }
+    
+    // Otherwise auto-detect
     fetch('/api/region-config')
       .then(res => res.json())
       .then(data => {
         if (data.region?.regionCode) {
+          console.log(`🌍 Auto-detected region: ${data.region.regionCode}`);
           setSelectedRegion(data.region.regionCode);
         }
       })
       .catch(err => console.log('Region detection failed:', err));
-  }, []);
+  }, [location]);
+  
+  // Handle region changes by updating URL
+  const handleRegionChange = (region: string) => {
+    setSelectedRegion(region);
+    setLocation(region === 'UK' ? '/' : `/${region.toLowerCase()}`);
+  };
   
   return (
     <div className="min-h-screen bg-dark text-white">
-      <Header selectedRegion={selectedRegion} onRegionChange={setSelectedRegion} />
+      <Header selectedRegion={selectedRegion} onRegionChange={handleRegionChange} />
       <HeroSection />
       
       {/* How It Works Section */}
