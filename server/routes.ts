@@ -362,7 +362,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Filter by jurisdiction compliance first
       const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : regionCode;
-      const userStateCode = req.userLocation?.country === 'United States' ? regionCode : null;
+      // If user manually selected US region, show all US bonuses. Otherwise use their actual state.
+      const userStateCode = req.userLocation?.country === 'United States' 
+        ? (preferredRegion === 'US' ? null : req.userLocation?.regionCode)
+        : null;
       
       bonuses = bonuses.filter(bonus => {
         if (!bonus.country) {
@@ -371,7 +374,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // If bonus is for US, check if user's state is included in the states list
         if (bonus.country === 'US') {
-          if (!userStateCode || !bonus.states) {
+          // If no userStateCode (manual US selection), show all US bonuses
+          if (!userStateCode) {
+            return true;
+          }
+          if (!bonus.states) {
             return false;
           }
           const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());
