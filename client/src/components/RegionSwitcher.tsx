@@ -18,6 +18,8 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
  * and allows manual region switching for compliance
  */
 export function RegionSwitcher() {
+  console.log('🎯 RegionSwitcher mounting...');
+  
   const {
     currentRegion,
     detectedLocation,
@@ -26,10 +28,18 @@ export function RegionSwitcher() {
     isSwitching,
     switchRegion
   } = useRegion();
+  
+  console.log('🎯 RegionSwitcher state:', {
+    currentRegion,
+    detectedLocation,
+    availableRegions,
+    isLoading,
+    isSwitching
+  });
 
   const [isOpen, setIsOpen] = useState(false);
 
-  if (isLoading || !currentRegion || !detectedLocation) {
+  if (isLoading || !currentRegion) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Globe className="w-4 h-4 animate-spin" />
