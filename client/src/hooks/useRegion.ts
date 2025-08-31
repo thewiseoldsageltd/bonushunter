@@ -70,13 +70,33 @@ interface RegionResponse {
 export function useRegion() {
   const queryClient = useQueryClient();
 
+  // Get preferred region from localStorage
+  const getPreferredRegion = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('bonushunter-preferred-region');
+    }
+    return null;
+  };
+
+  const preferredRegion = getPreferredRegion();
+
   // Fetch current region configuration
   const {
     data: regionData,
     isLoading,
     error
   } = useQuery<RegionResponse>({
-    queryKey: ['/api/region-config'],
+    queryKey: ['/api/region-config', preferredRegion], // Include preferred region in cache key
+    queryFn: async () => {
+      const url = preferredRegion 
+        ? `/api/region-config?region=${preferredRegion}`
+        : '/api/region-config';
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch region config: ${response.status}`);
+      }
+      return response.json();
+    },
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     retry: 1
   });

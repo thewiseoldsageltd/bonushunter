@@ -41,8 +41,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Region configuration endpoint (with inline middleware)
   app.get("/api/region-config", cachedGeolocationMiddleware, (req, res) => {
-    const regionCode = req.userLocation?.regionCode || 'US';
+    // Check for user's preferred region (from query param)
+    const preferredRegion = req.query.region as string;
+    const detectedRegion = req.userLocation?.regionCode || 'US';
+    
+    // Use preferred region if provided and valid, otherwise use detected region
+    const regionCode = preferredRegion && regionConfigService.getAvailableRegions().includes(preferredRegion) 
+      ? preferredRegion 
+      : detectedRegion;
+      
     const config = regionConfigService.getRegionConfig(regionCode);
+    
+    if (preferredRegion && preferredRegion !== detectedRegion) {
+      console.log(`🌍 Manual region override - Detected: ${detectedRegion}, Using: ${regionCode}`);
+    }
     
     res.json({
       region: config,
