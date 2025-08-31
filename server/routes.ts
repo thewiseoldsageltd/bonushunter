@@ -79,12 +79,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, sessionId, userRegion, userState } = req.body;
       
-      // Use manual region selection with fallback to detected location
+      // Use same logic as site display: geographical detection with manual override
+      const preferredRegion = typeof userRegion === "string" && userRegion.trim() !== "" ? userRegion : null;
+      const preferredState = typeof userState === "string" && userState.trim() !== "" ? userState : null;
       const detectedLocation = req.userLocation?.regionCode || 'NJ';
-      const selectedRegion = userRegion || detectedLocation;
+      const selectedRegion = preferredRegion ? preferredRegion : detectedLocation;
       const regionConfig = regionConfigService.getRegionConfig(selectedRegion);
       
-      if (userRegion && userRegion !== detectedLocation) {
+      if (preferredRegion && preferredRegion !== detectedLocation) {
         console.log(`🌍 Chat manual region override - Detected: ${detectedLocation}, Using: ${selectedRegion}`);
       }
       
@@ -108,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             userId: null,
             sessionData: { 
               userLocation: selectedRegion,
-              userState: userState,
+              userState: preferredState || (selectedRegion === 'US' ? detectedLocation : null),
               detectedCountry: req.userLocation?.country,
               detectedIP: req.userLocation?.detectedIP 
             } as any
@@ -126,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: message,
         metadata: { 
           userLocation: selectedRegion,
-          userState: userState,
+          userState: preferredState || (selectedRegion === 'US' ? detectedLocation : null),
           detectedCountry: req.userLocation?.country,
           regionConfig: regionConfig.regionName 
         } as any
@@ -147,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Filter by jurisdiction compliance using selected region
       const userCountryCode = selectedRegion === 'US' ? 'US' : selectedRegion;
-      const userStateCode = selectedRegion === 'US' ? (userState || 'NJ') : null;
+      const userStateCode = selectedRegion === 'US' ? (preferredState || detectedLocation) : null;
       
       filteredBonuses = filteredBonuses.filter(bonus => {
         // Must have valid country data
