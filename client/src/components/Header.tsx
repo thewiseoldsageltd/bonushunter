@@ -83,66 +83,29 @@ export default function Header() {
               About
             </a>
             
-            {/* Region Switcher with Roundels */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
-                  data-testid="button-region-switcher"
-                >
-                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
-                    <img 
-                      src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
-                      alt={`${displayRegion} Logo`}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <span>{displayRegion}</span>
-                  <ChevronDown className="w-3 h-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              
-              <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem onClick={() => {
-                  console.log('Clicking UK');
+            {/* TEST: Simple buttons to test navigation */}
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => {
+                  console.log('Clicking UK button');
                   setLocation('/uk');
-                }}>
-                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                    <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
-                  </div>
-                  UK
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  console.log('Clicking US');
+                }}
+                size="sm"
+                className="bg-blue-500 text-white"
+              >
+                UK
+              </Button>
+              <Button 
+                onClick={() => {
+                  console.log('Clicking US button');
                   setLocation('/us');
-                }}>
-                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                    <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
-                  </div>
-                  US
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  console.log('Clicking CA');
-                  setLocation('/ca');
-                }}>
-                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                    <img src={bonushunterUKLogo} alt="CA Logo" className="w-full h-full object-contain" />
-                  </div>
-                  CA
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  console.log('Clicking EU');
-                  setLocation('/eu');
-                }}>
-                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                    <img src={bonushunterUKLogo} alt="EU Logo" className="w-full h-full object-contain" />
-                  </div>
-                  EU
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                }}
+                size="sm"
+                className="bg-red-500 text-white"
+              >
+                US
+              </Button>
+            </div>
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
