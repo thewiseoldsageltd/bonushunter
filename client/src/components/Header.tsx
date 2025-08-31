@@ -191,7 +191,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="w-full justify-between mb-3 text-gray-900 hover:text-gray-900 bg-white"
+                        className="w-full justify-between mb-3 text-gray-900 hover:text-gray-900 bg-white hover:bg-gray-50 focus:bg-white active:bg-white"
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
@@ -231,7 +231,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                         <DropdownMenuTrigger asChild>
                           <Button 
                             variant="outline" 
-                            className="w-full justify-between text-gray-900 hover:text-gray-900 bg-white"
+                            className="w-full justify-between text-gray-900 hover:text-gray-900 bg-white hover:bg-gray-50 focus:bg-white active:bg-white"
                           >
                             <span>{selectedState || 'New Jersey'}</span>
                             <ChevronDown className="w-4 h-4" />
