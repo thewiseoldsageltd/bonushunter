@@ -9,7 +9,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import { Globe, MapPin, CheckCircle } from "lucide-react";
+import { Globe, CheckCircle, ChevronDown } from "lucide-react";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
 /**
  * Region switcher component that shows detected location
@@ -36,78 +38,85 @@ export function RegionSwitcher() {
     );
   }
 
-  const regionDisplayNames: Record<string, string> = {
-    'US': '🇺🇸 United States',
-    'UK': '🇬🇧 United Kingdom', 
-    'CA': '🇨🇦 Canada',
-    'EU': '🇪🇺 European Union',
-    'NJ': '🇺🇸 New Jersey',
-    'PA': '🇺🇸 Pennsylvania',
-    'NV': '🇺🇸 Nevada',
-    'NY': '🇺🇸 New York',
-    'MI': '🇺🇸 Michigan'
+  const regionConfig: Record<string, { name: string; logo?: string }> = {
+    'US': { name: 'United States', logo: bonushunterUSLogo },
+    'UK': { name: 'United Kingdom', logo: bonushunterUKLogo }, 
+    'CA': { name: 'Canada' },
+    'EU': { name: 'European Union' },
+    'NJ': { name: 'New Jersey', logo: bonushunterUSLogo },
+    'PA': { name: 'Pennsylvania', logo: bonushunterUSLogo },
+    'NV': { name: 'Nevada', logo: bonushunterUSLogo },
+    'NY': { name: 'New York', logo: bonushunterUSLogo },
+    'MI': { name: 'Michigan', logo: bonushunterUSLogo }
   };
 
-  const getRegionDisplay = (regionCode: string) => {
-    return regionDisplayNames[regionCode] || `🌍 ${regionCode}`;
+  const getRegionInfo = (regionCode: string) => {
+    return regionConfig[regionCode] || { name: regionCode };
   };
+
+  const currentRegionInfo = getRegionInfo(currentRegion.regionCode);
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Detected Location Indicator */}
-      <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded-md">
-        <MapPin className="w-3 h-3" />
-        <span>{detectedLocation.country}</span>
-      </div>
-
-      {/* Region Switcher */}
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm"
-            disabled={isSwitching}
-            className="flex items-center gap-2"
-            data-testid="button-region-switcher"
-          >
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm"
+          disabled={isSwitching}
+          className="flex items-center gap-2 h-8"
+          data-testid="button-region-switcher"
+        >
+          {currentRegionInfo.logo ? (
+            <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
+              <img 
+                src={currentRegionInfo.logo} 
+                alt={`${currentRegionInfo.name} Logo`}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
             <Globe className={`w-4 h-4 ${isSwitching ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">{getRegionDisplay(currentRegion.regionCode)}</span>
-            <span className="sm:hidden">{currentRegion.regionCode}</span>
-          </Button>
-        </DropdownMenuTrigger>
+          )}
+          <span className="hidden sm:inline text-sm">{currentRegionInfo.name}</span>
+          <span className="sm:hidden text-sm">{currentRegion.regionCode}</span>
+          <ChevronDown className="w-3 h-3" />
+        </Button>
+      </DropdownMenuTrigger>
         
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            Select Region
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel>Select Region</DropdownMenuLabel>
+        <DropdownMenuSeparator />
           
-          <div className="px-2 py-1 text-xs text-muted-foreground">
-            Detected: {detectedLocation.region}
-          </div>
-          <DropdownMenuSeparator />
-          
-          {availableRegions.map((regionCode) => (
+        {availableRegions.map((regionCode) => {
+          const regionInfo = getRegionInfo(regionCode);
+          return (
             <DropdownMenuItem
               key={regionCode}
               onClick={() => switchRegion(regionCode)}
-              className="flex items-center justify-between"
+              className="flex items-center gap-3 py-2"
               data-testid={`option-region-${regionCode.toLowerCase()}`}
             >
-              <span>{getRegionDisplay(regionCode)}</span>
+              {regionInfo.logo ? (
+                <div className="w-6 h-6 bg-white rounded-sm overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <img 
+                    src={regionInfo.logo} 
+                    alt={`${regionInfo.name} Logo`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-4 h-4 text-gray-500" />
+                </div>
+              )}
+              <span className="flex-1">{regionInfo.name}</span>
               {currentRegion.regionCode === regionCode && (
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
               )}
             </DropdownMenuItem>
-          ))}
-          
-          <DropdownMenuSeparator />
-          <div className="px-2 py-1 text-xs text-muted-foreground">
-            Automatic region detection ensures compliance with local gambling laws.
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
