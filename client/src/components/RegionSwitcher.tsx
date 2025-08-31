@@ -63,7 +63,7 @@ export function RegionSwitcher() {
           variant="outline" 
           size="sm"
           disabled={isSwitching}
-          className="flex items-center gap-2 h-8"
+          className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900"
           data-testid="button-region-switcher"
         >
           {currentRegionInfo.logo ? (
