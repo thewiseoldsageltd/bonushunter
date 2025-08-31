@@ -72,7 +72,7 @@ export function useRegion() {
   const queryClient = useQueryClient();
   const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
 
-  // Initialize and update preferred region from URL changes
+  // Initialize preferred region from URL and watch for changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Check URL path first for region
@@ -102,45 +102,7 @@ export function useRegion() {
         setPreferredRegion(null);
       }
     }
-  });
-
-  // Listen for URL changes (for navigation via dropdown)
-  useEffect(() => {
-    const handleLocationChange = () => {
-      if (typeof window !== 'undefined') {
-        const path = window.location.pathname;
-        const pathSegment = path.slice(1).toLowerCase();
-        const regionMap: Record<string, string> = {
-          'us': 'US',
-          'uk': 'UK', 
-          'ca': 'CA',
-          'eu': 'EU',
-          'nj': 'NJ',
-          'pa': 'PA',
-          'nv': 'NV',
-          'ny': 'NY',
-          'mi': 'MI'
-        };
-        
-        const urlRegion = regionMap[pathSegment] || null;
-        
-        if (urlRegion && urlRegion !== preferredRegion) {
-          setPreferredRegion(urlRegion);
-          localStorage.setItem('bonushunter-preferred-region', urlRegion);
-        } else if (!urlRegion && preferredRegion) {
-          localStorage.removeItem('bonushunter-preferred-region');
-          setPreferredRegion(null);
-        }
-      }
-    };
-
-    // Listen for browser navigation events
-    window.addEventListener('popstate', handleLocationChange);
-    
-    return () => {
-      window.removeEventListener('popstate', handleLocationChange);
-    };
-  }, [preferredRegion]);
+  }, []);
 
   // Helper function to reset to IP detection
   const resetToIPDetection = () => {
