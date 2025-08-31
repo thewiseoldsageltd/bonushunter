@@ -9,7 +9,12 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  
+  console.log('🚀 Header component mounting...');
+  
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
+  
+  console.log('🚀 Header useRegion result:', { currentRegion, isLoading });
   
 
   return (
