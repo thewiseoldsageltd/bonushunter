@@ -99,23 +99,24 @@ export function useRegion() {
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
     mutationFn: async (newRegionCode: string) => {
-      // In a real app, this would update user preferences
-      // For now, we'll just invalidate the cache to re-fetch
-      console.log(`🌍 User manually switching to region: ${newRegionCode}`);
+      console.log(`🔄 REGION SWITCH: Starting switch to ${newRegionCode}`);
+      console.log(`🔄 Current localStorage:`, localStorage.getItem('bonushunter-preferred-region'));
       
       // Store user preference in localStorage for consistency
       localStorage.setItem('bonushunter-preferred-region', newRegionCode);
-      
-      // We could make an API call to store user preference
-      // await apiRequest('/api/user/region-preference', 'POST', { regionCode: newRegionCode });
+      console.log(`🔄 REGION SWITCH: Saved ${newRegionCode} to localStorage`);
       
       return { regionCode: newRegionCode };
     },
-    onSuccess: () => {
-      // Invalidate region config to refetch data
+    onSuccess: (data) => {
+      console.log(`🔄 REGION SWITCH: Success, invalidating queries for region ${data.regionCode}`);
+      // Invalidate all region-related queries
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
-      // Also invalidate bonuses since they're region-filtered
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      console.log(`🔄 REGION SWITCH: Queries invalidated`);
+    },
+    onError: (error) => {
+      console.error(`❌ REGION SWITCH: Failed`, error);
     }
   });
 
