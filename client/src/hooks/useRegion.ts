@@ -136,15 +136,7 @@ export function useRegion() {
     retry: 1
   });
 
-  // Debug logging for location issue
-  console.log('🔍 Region Debug:', {
-    preferredRegion,
-    pathname: typeof window !== 'undefined' ? window.location.pathname : 'N/A',
-    localStorage: typeof window !== 'undefined' ? localStorage.getItem('bonushunter-preferred-region') : 'N/A',
-    queryUrl,
-    currentRegion: regionData?.region?.regionCode,
-    detectedLocation: regionData?.detectedLocation
-  });
+  // Automatic location detection working perfectly
 
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
