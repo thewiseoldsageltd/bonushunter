@@ -77,7 +77,6 @@ export function useRegion() {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('bonushunter-preferred-region');
       setPreferredRegion(stored);
-      console.log('🔄 INIT: preferredRegion set to:', stored);
     }
   }, []);
 
@@ -86,7 +85,6 @@ export function useRegion() {
     ? `/api/region-config?region=${preferredRegion}`
     : '/api/region-config';
 
-  console.log('🔄 QUERY: Using URL:', queryUrl);
 
   // Fetch current region configuration
   const {
@@ -102,27 +100,20 @@ export function useRegion() {
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
     mutationFn: async (newRegionCode: string) => {
-      console.log(`🔄 REGION SWITCH: Starting switch to ${newRegionCode}`);
-      console.log(`🔄 Current localStorage:`, localStorage.getItem('bonushunter-preferred-region'));
-      
       // Store user preference in localStorage for consistency
       localStorage.setItem('bonushunter-preferred-region', newRegionCode);
-      console.log(`🔄 REGION SWITCH: Saved ${newRegionCode} to localStorage`);
       
       return { regionCode: newRegionCode };
     },
     onSuccess: (data) => {
-      console.log(`🔄 REGION SWITCH: Success, updating state for region ${data.regionCode}`);
       // Update the preferred region state
       setPreferredRegion(data.regionCode);
-      console.log(`🔄 REGION SWITCH: State updated to ${data.regionCode}`);
       // Invalidate all region-related queries
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
-      console.log(`🔄 REGION SWITCH: Queries invalidated`);
     },
     onError: (error) => {
-      console.error(`❌ REGION SWITCH: Failed`, error);
+      console.error('Region switch failed:', error);
     }
   });
 
