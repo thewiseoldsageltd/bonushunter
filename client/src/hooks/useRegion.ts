@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -69,21 +70,23 @@ interface RegionResponse {
  */
 export function useRegion() {
   const queryClient = useQueryClient();
+  const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
 
-  // Get preferred region from localStorage
-  const getPreferredRegion = () => {
+  // Initialize preferred region from localStorage on mount
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('bonushunter-preferred-region');
+      const stored = localStorage.getItem('bonushunter-preferred-region');
+      setPreferredRegion(stored);
+      console.log('🔄 INIT: preferredRegion set to:', stored);
     }
-    return null;
-  };
-
-  const preferredRegion = getPreferredRegion();
+  }, []);
 
   // Build the URL with query parameter if preferred region exists
   const queryUrl = preferredRegion 
     ? `/api/region-config?region=${preferredRegion}`
     : '/api/region-config';
+
+  console.log('🔄 QUERY: Using URL:', queryUrl);
 
   // Fetch current region configuration
   const {
@@ -109,7 +112,10 @@ export function useRegion() {
       return { regionCode: newRegionCode };
     },
     onSuccess: (data) => {
-      console.log(`🔄 REGION SWITCH: Success, invalidating queries for region ${data.regionCode}`);
+      console.log(`🔄 REGION SWITCH: Success, updating state for region ${data.regionCode}`);
+      // Update the preferred region state
+      setPreferredRegion(data.regionCode);
+      console.log(`🔄 REGION SWITCH: State updated to ${data.regionCode}`);
       // Invalidate all region-related queries
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
