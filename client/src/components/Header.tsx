@@ -75,17 +75,30 @@ export default function Header() {
               About
             </a>
             
-            {/* Region Switcher - Dynamic */}
-            <select 
-              className="bg-white text-black px-3 py-1 rounded border text-sm"
-              onChange={(e) => window.location.href = `/${e.target.value.toLowerCase()}`}
-              value={currentRegion?.regionCode || 'UK'}
-            >
-              <option value="UK">🇬🇧 UK</option>
-              <option value="US">🇺🇸 US</option>
-              <option value="CA">🇨🇦 CA</option>
-              <option value="EU">🇪🇺 EU</option>
-            </select>
+            {/* Region Switcher with Logos */}
+            <div className="relative">
+              <select 
+                className="bg-white text-black px-8 py-1 rounded border text-sm appearance-none cursor-pointer"
+                onChange={(e) => window.location.href = `/${e.target.value.toLowerCase()}`}
+                value={currentRegion?.regionCode || 'UK'}
+                style={{
+                  backgroundImage: `url(${displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo})`,
+                  backgroundSize: '16px 16px',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: '6px center'
+                }}
+              >
+                <option value="UK">UK</option>
+                <option value="US">US</option>
+                <option value="CA">CA</option>
+                <option value="EU">EU</option>
+              </select>
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
