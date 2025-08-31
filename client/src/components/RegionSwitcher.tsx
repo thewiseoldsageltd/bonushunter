@@ -39,15 +39,15 @@ export function RegionSwitcher() {
   }
 
   const regionConfig: Record<string, { name: string; logo?: string }> = {
-    'US': { name: 'United States', logo: bonushunterUSLogo },
-    'UK': { name: 'United Kingdom', logo: bonushunterUKLogo }, 
-    'CA': { name: 'Canada' },
-    'EU': { name: 'European Union' },
-    'NJ': { name: 'New Jersey', logo: bonushunterUSLogo },
-    'PA': { name: 'Pennsylvania', logo: bonushunterUSLogo },
-    'NV': { name: 'Nevada', logo: bonushunterUSLogo },
-    'NY': { name: 'New York', logo: bonushunterUSLogo },
-    'MI': { name: 'Michigan', logo: bonushunterUSLogo }
+    'US': { name: 'US', logo: bonushunterUSLogo },
+    'UK': { name: 'UK', logo: bonushunterUKLogo }, 
+    'CA': { name: 'CA' },
+    'EU': { name: 'EU' },
+    'NJ': { name: 'NJ', logo: bonushunterUSLogo },
+    'PA': { name: 'PA', logo: bonushunterUSLogo },
+    'NV': { name: 'NV', logo: bonushunterUSLogo },
+    'NY': { name: 'NY', logo: bonushunterUSLogo },
+    'MI': { name: 'MI', logo: bonushunterUSLogo }
   };
 
   const getRegionInfo = (regionCode: string) => {
