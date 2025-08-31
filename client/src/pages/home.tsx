@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
@@ -18,9 +19,23 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const [selectedRegion, setSelectedRegion] = useState('UK');
+  
+  // Auto-detect region on page load
+  useEffect(() => {
+    fetch('/api/region-config')
+      .then(res => res.json())
+      .then(data => {
+        if (data.region?.regionCode) {
+          setSelectedRegion(data.region.regionCode);
+        }
+      })
+      .catch(err => console.log('Region detection failed:', err));
+  }, []);
+  
   return (
     <div className="min-h-screen bg-dark text-white">
-      <Header />
+      <Header selectedRegion={selectedRegion} onRegionChange={setSelectedRegion} />
       <HeroSection />
       
       {/* How It Works Section */}
@@ -67,7 +82,7 @@ export default function Home() {
         </div>
       </section>
 
-      <FeaturedBonuses />
+      <FeaturedBonuses selectedRegion={selectedRegion} />
 
       {/* AI Features Section */}
       <section className="py-20 bg-gradient-to-br from-dark-light/50 to-dark/50">

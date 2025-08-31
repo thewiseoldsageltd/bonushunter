@@ -4,23 +4,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import BonusCard from "./BonusCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRegion } from "@/hooks/useRegion";
 import type { BonusRecommendation } from "@/types";
 
-export default function FeaturedBonuses() {
+interface FeaturedBonusesProps {
+  selectedRegion: string;
+}
+
+export default function FeaturedBonuses({ selectedRegion }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
-  const { currentRegion } = useRegion();
 
   // Build query parameters
   const params = new URLSearchParams();
-  if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
+  if (selectedRegion) params.append("region", selectedRegion);
   if (productType !== "all") params.append("productType", productType);
   if (location !== "all") params.append("location", location);
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", currentRegion?.regionCode, productType, location],
+    queryKey: ["/api/bonuses", selectedRegion, productType, location],
     queryFn: async () => {
       const url = `/api/bonuses${queryString}`;
       const response = await fetch(url);
@@ -28,7 +30,7 @@ export default function FeaturedBonuses() {
       return response.json();
     },
     staleTime: 0, // Always fetch fresh data
-    enabled: !!currentRegion, // Only run when we have region data
+    enabled: !!selectedRegion, // Only run when we have region data
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({

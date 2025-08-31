@@ -11,11 +11,15 @@ import { Menu, Search, ChevronDown } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
-export default function Header() {
+interface HeaderProps {
+  selectedRegion: string;
+  onRegionChange: (region: string) => void;
+}
+
+export default function Header({ selectedRegion, onRegionChange }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState('UK');
   
-  // Use simple state for display
+  // Use props for display
   const displayRegion = selectedRegion;
   
 
@@ -99,13 +103,13 @@ export default function Header() {
               </DropdownMenuTrigger>
               
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem onClick={() => setSelectedRegion('UK')}>
+                <DropdownMenuItem onClick={() => onRegionChange('UK')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
                   </div>
                   UK
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedRegion('US')}>
+                <DropdownMenuItem onClick={() => onRegionChange('US')}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
                   </div>
