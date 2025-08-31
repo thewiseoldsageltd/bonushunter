@@ -97,9 +97,9 @@ export function useRegion() {
         setPreferredRegion(urlRegion);
         localStorage.setItem('bonushunter-preferred-region', urlRegion);
       } else {
-        // Fall back to localStorage
-        const stored = localStorage.getItem('bonushunter-preferred-region');
-        setPreferredRegion(stored);
+        // Root path ('/') should clear preference and use auto-detection
+        localStorage.removeItem('bonushunter-preferred-region');
+        setPreferredRegion(null);
       }
     }
   }, []);
