@@ -5,12 +5,21 @@ import { Button } from "@/components/ui/button";
 import BonusCard from "./BonusCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRegion } from "@/hooks/useRegion";
+import { queryClient } from "@/lib/queryClient";
 import type { BonusRecommendation } from "@/types";
 
 export default function FeaturedBonuses() {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
   const { currentRegion } = useRegion();
+
+  // Invalidate bonuses query when region changes
+  useEffect(() => {
+    if (currentRegion?.regionCode) {
+      console.log(`🎯 FeaturedBonuses: Region changed to ${currentRegion.regionCode}, invalidating queries`);
+      queryClient.invalidateQueries({ queryKey: ["/api/bonuses"] });
+    }
+  }, [currentRegion?.regionCode]);
 
   // Construct query string for filtering
   const queryString = (() => {
