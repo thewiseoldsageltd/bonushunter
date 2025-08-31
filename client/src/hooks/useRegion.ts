@@ -115,7 +115,8 @@ export function useRegion() {
       console.log(`🎯 useRegion: Got data:`, data?.region?.regionCode);
       return data;
     },
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    staleTime: 0, // Always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
     retry: 1
   });
 
@@ -133,11 +134,13 @@ export function useRegion() {
       return { regionCode: newRegionCode };
     },
     onSuccess: (data) => {
+      console.log(`🎯 useRegion: switchRegion SUCCESS - switching to ${data.regionCode}`);
       // Update the preferred region state
       setPreferredRegion(data.regionCode);
-      // Invalidate all region-related queries (matches new queryKey pattern)
+      // Force clear ALL cache to ensure fresh data
+      queryClient.clear();
+      // Invalidate specific queries
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
-      // Invalidate all bonuses queries (with any filters)
       queryClient.invalidateQueries({ queryKey: ['bonuses'] });
     },
     onError: (error) => {
