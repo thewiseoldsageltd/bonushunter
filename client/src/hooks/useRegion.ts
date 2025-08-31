@@ -72,23 +72,11 @@ export function useRegion() {
   const queryClient = useQueryClient();
   const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
 
-  // Initialize preferred region from URL params first, then localStorage
+  // Initialize preferred region from localStorage on mount  
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Check URL parameters first
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlRegion = urlParams.get('region');
-      
-      if (urlRegion) {
-        // URL parameter takes precedence
-        setPreferredRegion(urlRegion);
-        // Also save to localStorage for consistency
-        localStorage.setItem('bonushunter-preferred-region', urlRegion);
-      } else {
-        // Fall back to localStorage
-        const stored = localStorage.getItem('bonushunter-preferred-region');
-        setPreferredRegion(stored);
-      }
+      const stored = localStorage.getItem('bonushunter-preferred-region');
+      setPreferredRegion(stored);
     }
   }, []);
 

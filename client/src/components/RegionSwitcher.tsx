@@ -93,8 +93,11 @@ export function RegionSwitcher() {
             <DropdownMenuItem
               key={regionCode}
               onClick={() => {
-                // Direct URL redirect with region parameter
-                window.location.href = `${window.location.pathname}?region=${regionCode}`;
+                switchRegion(regionCode);
+                // Force immediate page reload with longer timeout
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
               }}
               className="flex items-center gap-3 py-2"
               data-testid={`option-region-${regionCode.toLowerCase()}`}
