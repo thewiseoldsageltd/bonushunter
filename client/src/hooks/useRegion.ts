@@ -76,6 +76,8 @@ export function useRegion() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('bonushunter-preferred-region');
+      console.log('🔍 INCOGNITO TEST: localStorage value:', stored);
+      console.log('🔍 INCOGNITO TEST: Should be null in fresh incognito window');
       setPreferredRegion(stored);
     }
   }, []);
