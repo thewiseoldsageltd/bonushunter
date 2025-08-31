@@ -18,8 +18,6 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
  * and allows manual region switching for compliance
  */
 export function RegionSwitcher() {
-  console.log('🎯 RegionSwitcher mounting...');
-  
   const {
     currentRegion,
     detectedLocation,
@@ -28,14 +26,6 @@ export function RegionSwitcher() {
     isSwitching,
     switchRegion
   } = useRegion();
-  
-  console.log('🎯 RegionSwitcher state:', {
-    currentRegion,
-    detectedLocation,
-    availableRegions,
-    isLoading,
-    isSwitching
-  });
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -102,16 +92,11 @@ export function RegionSwitcher() {
           return (
             <DropdownMenuItem
               key={regionCode}
-              onClick={() => {
-                switchRegion(regionCode);
-                // Force immediate page reload with longer timeout
-                setTimeout(() => {
-                  window.location.reload();
-                }, 500);
-              }}
+              asChild
               className="flex items-center gap-3 py-2"
               data-testid={`option-region-${regionCode.toLowerCase()}`}
             >
+              <a href={`/${regionCode.toLowerCase()}`} className="flex items-center gap-3 py-2 w-full">
               {regionInfo.logo ? (
                 <div className="w-6 h-6 bg-white rounded-sm overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img 
@@ -129,6 +114,7 @@ export function RegionSwitcher() {
               {currentRegion.regionCode === regionCode && (
                 <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
               )}
+              </a>
             </DropdownMenuItem>
           );
         })}
