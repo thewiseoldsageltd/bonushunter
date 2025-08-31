@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Search } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, Search, ChevronDown } from "lucide-react";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
@@ -75,30 +81,54 @@ export default function Header() {
               About
             </a>
             
-            {/* Region Switcher with Logos */}
-            <div className="relative">
-              <select 
-                className="bg-white text-black px-8 py-1 rounded border text-sm appearance-none cursor-pointer"
-                onChange={(e) => window.location.href = `/${e.target.value.toLowerCase()}`}
-                value={currentRegion?.regionCode || 'UK'}
-                style={{
-                  backgroundImage: `url(${displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo})`,
-                  backgroundSize: '16px 16px',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: '6px center'
-                }}
-              >
-                <option value="UK">UK</option>
-                <option value="US">US</option>
-                <option value="CA">CA</option>
-                <option value="EU">EU</option>
-              </select>
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+            {/* Region Switcher with Roundels */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
+                  data-testid="button-region-switcher"
+                >
+                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
+                    <img 
+                      src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                      alt={`${displayRegion} Logo`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span>{displayRegion}</span>
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem onClick={() => window.location.href = '/uk'}>
+                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                    <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
+                  </div>
+                  UK
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = '/us'}>
+                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                    <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
+                  </div>
+                  US
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = '/ca'}>
+                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                    <img src={bonushunterUKLogo} alt="CA Logo" className="w-full h-full object-contain" />
+                  </div>
+                  CA
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = '/eu'}>
+                  <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                    <img src={bonushunterUKLogo} alt="EU Logo" className="w-full h-full object-contain" />
+                  </div>
+                  EU
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
