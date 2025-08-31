@@ -13,32 +13,15 @@ export default function FeaturedBonuses() {
   const [location, setLocation] = useState<string>("all");
   const { currentRegion } = useRegion();
   
-  // Force component to re-render when region changes
-  useEffect(() => {
-    console.log(`🎯 FeaturedBonuses: Component rendered with region: ${currentRegion?.regionCode}`);
-  }, [currentRegion?.regionCode]);
+  // Build API URL with region parameter
+  const apiUrl = currentRegion?.regionCode 
+    ? `/api/bonuses?region=${currentRegion.regionCode}${productType !== "all" ? `&productType=${productType}` : ''}${location !== "all" ? `&location=${location}` : ''}`
+    : '/api/bonuses';
 
-  // Construct query string for filtering
-  const queryString = (() => {
-    const params = new URLSearchParams();
-    if (productType !== "all") params.append("productType", productType);
-    if (location !== "all") params.append("location", location);
-    if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
-    return params.toString() ? `?${params.toString()}` : '';
-  })();
-
-  console.log(`🎯 FeaturedBonuses: Query string: ${queryString}`);
+  console.log(`🎯 FeaturedBonuses: Region=${currentRegion?.regionCode}, URL=${apiUrl}`);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType, location, currentRegion?.regionCode],
-    queryFn: async () => {
-      const url = `/api/bonuses${queryString}`;
-      console.log(`🎯 FeaturedBonuses: Fetching: ${url}`);
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-      return response.json();
-    },
-    enabled: !!currentRegion,
+    queryKey: [apiUrl],
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
