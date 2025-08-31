@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, Zap } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  selectedRegion?: string;
+  selectedState?: string;
+}
+
+export default function HeroSection({ selectedRegion, selectedState }: HeroSectionProps) {
   const [showChat, setShowChat] = useState(false);
 
   const handleStartChat = () => {
@@ -54,7 +59,7 @@ export default function HeroSection() {
             data-testid="chat-container"
           >
             {showChat ? (
-              <ChatInterface />
+              <ChatInterface selectedRegion={selectedRegion} selectedState={selectedState} />
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-4">

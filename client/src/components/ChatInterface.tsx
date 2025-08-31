@@ -10,7 +10,12 @@ import TypewriterTextWithLinks from "@/components/TypewriterTextWithLinks";
 import { useRegion } from "@/hooks/useRegion";
 import type { ChatMessage, ChatResponse } from "@/types";
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  selectedRegion?: string;
+  selectedState?: string;
+}
+
+export default function ChatInterface({ selectedRegion, selectedState }: ChatInterfaceProps) {
   const { currentRegion, detectedLocation, getRegionCurrency, isLoading } = useRegion();
   
   // Dynamic welcome message with currency localization only
@@ -56,7 +61,9 @@ export default function ChatInterface() {
       const response = await apiRequest("POST", "/api/chat", {
         message,
         sessionId,
-        deviceType: isMobile ? 'mobile' : 'desktop' // Add device context
+        deviceType: isMobile ? 'mobile' : 'desktop', // Add device context
+        userRegion: selectedRegion, // Use manual region selection
+        userState: selectedState // Use manual state selection
         // userLocation is now detected server-side via middleware
       });
       return response.json();

@@ -71,7 +71,7 @@ export default function Home() {
         selectedState={selectedState}
         onStateChange={handleStateChange}
       />
-      <HeroSection />
+      <HeroSection selectedRegion={selectedRegion} selectedState={selectedState} />
       
       {/* How It Works Section */}
       <section className="py-20 bg-dark-light/30">

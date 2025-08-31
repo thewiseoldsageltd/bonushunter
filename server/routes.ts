@@ -77,13 +77,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat endpoint for conversational interface  
   app.post("/api/chat", async (req, res) => {
     try {
-      const { message, sessionId } = req.body;
+      const { message, sessionId, userRegion, userState } = req.body;
       
-      // Use detected location from middleware instead of body
+      // Use manual region selection with fallback to detected location
       const detectedLocation = req.userLocation?.regionCode || 'NJ';
-      const regionConfig = regionConfigService.getRegionConfig(detectedLocation);
+      const selectedRegion = userRegion || detectedLocation;
+      const regionConfig = regionConfigService.getRegionConfig(selectedRegion);
       
-      console.log(`🎯 Chat request in region: ${detectedLocation} (${req.userLocation?.country})`);
+      if (userRegion && userRegion !== detectedLocation) {
+        console.log(`🌍 Chat manual region override - Detected: ${detectedLocation}, Using: ${selectedRegion}`);
+      }
+      
+      console.log(`🎯 Chat request in region: ${selectedRegion} (${req.userLocation?.country})`);
       
       
       // Create or get existing session
@@ -102,7 +107,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           session = await storage.createChatSession({
             userId: null,
             sessionData: { 
-              userLocation: detectedLocation,
+              userLocation: selectedRegion,
+              userState: userState,
               detectedCountry: req.userLocation?.country,
               detectedIP: req.userLocation?.detectedIP 
             } as any
@@ -119,7 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role: "user",
         content: message,
         metadata: { 
-          userLocation: detectedLocation,
+          userLocation: selectedRegion,
+          userState: userState,
           detectedCountry: req.userLocation?.country,
           regionConfig: regionConfig.regionName 
         } as any
@@ -138,9 +145,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allBonuses = await storage.getAllBonuses();
       let filteredBonuses = filterBonusesByIntent(allBonuses, intent);
       
-      // Filter by jurisdiction compliance using detected region
-      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
-      const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
+      // Filter by jurisdiction compliance using selected region
+      const userCountryCode = selectedRegion === 'US' ? 'US' : selectedRegion;
+      const userStateCode = selectedRegion === 'US' ? (userState || 'NJ') : null;
       
       filteredBonuses = filteredBonuses.filter(bonus => {
         // Must have valid country data
@@ -162,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return bonus.country === userCountryCode;
       });
       
-      console.log(`🎯 Filtered to ${filteredBonuses.length} bonuses for region: ${detectedLocation}`);
+      console.log(`🎯 Filtered to ${filteredBonuses.length} bonuses for region: ${selectedRegion}${userStateCode ? ` (${userStateCode})` : ''}`);
       
       // Fallback: if strict filtering returns no results, relax user status requirement
       if (filteredBonuses.length === 0 && intent.userStatus === "existing") {
