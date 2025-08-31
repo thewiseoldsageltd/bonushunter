@@ -105,25 +105,37 @@ export default function Header() {
               </DropdownMenuTrigger>
               
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem onClick={() => setLocation('/uk')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Clicking UK');
+                  setLocation('/uk');
+                }}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
                   </div>
                   UK
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLocation('/us')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Clicking US');
+                  setLocation('/us');
+                }}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
                   </div>
                   US
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLocation('/ca')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Clicking CA');
+                  setLocation('/ca');
+                }}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="CA Logo" className="w-full h-full object-contain" />
                   </div>
                   CA
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLocation('/eu')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Clicking EU');
+                  setLocation('/eu');
+                }}>
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                     <img src={bonushunterUKLogo} alt="EU Logo" className="w-full h-full object-contain" />
                   </div>
