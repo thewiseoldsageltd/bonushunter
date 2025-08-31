@@ -137,11 +137,9 @@ export function useRegion() {
       console.log(`🎯 useRegion: switchRegion SUCCESS - switching to ${data.regionCode}`);
       // Update the preferred region state
       setPreferredRegion(data.regionCode);
-      // Force clear ALL cache to ensure fresh data
-      queryClient.clear();
-      // Invalidate specific queries
+      // Invalidate specific queries with exact key matching
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
-      queryClient.invalidateQueries({ queryKey: ['bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
     },
     onError: (error) => {
       console.error('Region switch failed:', error);
