@@ -12,6 +12,13 @@ export default function Header() {
   
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
   
+  console.log('🏠 Header Debug:', {
+    currentRegion: currentRegion?.regionCode,
+    isLoading,
+    hasCurrentRegion: !!currentRegion,
+    logoPath: currentRegion?.logos?.standard
+  });
+  
 
   return (
     <header className="bg-dark-light/50 backdrop-blur-lg border-b border-dark-lighter sticky top-0 z-50">
@@ -19,38 +26,59 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
             {currentRegion?.regionCode === 'US' ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                <img 
-                  src={bonushunterUSLogo} 
-                  alt="Bonushunter US Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              (() => {
+                console.log('🏠 Using US logo');
+                return (
+                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                    <img 
+                      src={bonushunterUSLogo} 
+                      alt="Bonushunter US Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                );
+              })()
             ) : currentRegion?.regionCode === 'UK' ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                <img 
-                  src={bonushunterUKLogo} 
-                  alt="Bonushunter UK Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              (() => {
+                console.log('🏠 Using UK logo');
+                return (
+                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                    <img 
+                      src={bonushunterUKLogo} 
+                      alt="Bonushunter UK Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                );
+              })()
             ) : currentRegion?.logos?.standard ? (
-              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                <img 
-                  src={currentRegion.logos.standard} 
-                  alt={currentRegion.logos.alt}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    // Fallback to gradient icon if logo fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = '<div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center"><svg class="text-white text-lg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg></div>';
-                  }}
-                />
-              </div>
+              (() => {
+                console.log('🏠 Using region logo:', currentRegion.logos.standard);
+                return (
+                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                    <img 
+                      src={currentRegion.logos.standard} 
+                      alt={currentRegion.logos.alt}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        console.log('🏠 Logo failed to load, using fallback');
+                        // Fallback to gradient icon if logo fails to load
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = '<div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center"><svg class="text-white text-lg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg></div>';
+                      }}
+                    />
+                  </div>
+                );
+              })()
             ) : (
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-                <Search className="text-white text-lg" />
-              </div>
+              (() => {
+                console.log('🏠 Using fallback gradient logo');
+                return (
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                    <Search className="text-white text-lg" />
+                  </div>
+                );
+              })()
             )}
             <div>
               <h1 className="font-display font-bold text-xl" data-testid="text-app-title">
