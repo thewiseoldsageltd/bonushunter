@@ -23,7 +23,7 @@ export default function FeaturedBonuses() {
   })();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType, location, currentRegion?.regionCode],
+    queryKey: [`/api/bonuses${queryString}`, productType, location, currentRegion?.regionCode],
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
