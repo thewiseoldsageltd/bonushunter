@@ -12,12 +12,8 @@ export default function Header() {
   
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
   
-  console.log('🏠 Header Debug:', {
-    currentRegion: currentRegion?.regionCode,
-    isLoading,
-    hasCurrentRegion: !!currentRegion,
-    logoPath: currentRegion?.logos?.standard
-  });
+  // Use dynamic region code for dropdown
+  const displayRegion = currentRegion?.regionCode || 'UK';
   
 
   return (
@@ -25,60 +21,26 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            {currentRegion?.regionCode === 'US' ? (
-              (() => {
-                console.log('🏠 Using US logo');
-                return (
-                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                    <img 
-                      src={bonushunterUSLogo} 
-                      alt="Bonushunter US Logo"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                );
-              })()
-            ) : currentRegion?.regionCode === 'UK' ? (
-              (() => {
-                console.log('🏠 Using UK logo');
-                return (
-                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                    <img 
-                      src={bonushunterUKLogo} 
-                      alt="Bonushunter UK Logo"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                );
-              })()
-            ) : currentRegion?.logos?.standard ? (
-              (() => {
-                console.log('🏠 Using region logo:', currentRegion.logos.standard);
-                return (
-                  <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
-                    <img 
-                      src={currentRegion.logos.standard} 
-                      alt={currentRegion.logos.alt}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        console.log('🏠 Logo failed to load, using fallback');
-                        // Fallback to gradient icon if logo fails to load
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.innerHTML = '<div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center"><svg class="text-white text-lg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg></div>';
-                      }}
-                    />
-                  </div>
-                );
-              })()
+            {displayRegion === 'US' ? (
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                <img 
+                  src={bonushunterUSLogo} 
+                  alt="Bonushunter US Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : displayRegion === 'UK' ? (
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                <img 
+                  src={bonushunterUKLogo} 
+                  alt="Bonushunter UK Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             ) : (
-              (() => {
-                console.log('🏠 Using fallback gradient logo');
-                return (
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-                    <Search className="text-white text-lg" />
-                  </div>
-                );
-              })()
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                <Search className="text-white text-lg" />
+              </div>
             )}
             <div>
               <h1 className="font-display font-bold text-xl" data-testid="text-app-title">
@@ -113,11 +75,11 @@ export default function Header() {
               About
             </a>
             
-            {/* Simple Region Switcher - Hardcoded */}
+            {/* Region Switcher - Dynamic */}
             <select 
               className="bg-white text-black px-3 py-1 rounded border text-sm"
               onChange={(e) => window.location.href = `/${e.target.value.toLowerCase()}`}
-              defaultValue="UK"
+              value={currentRegion?.regionCode || 'UK'}
             >
               <option value="UK">🇬🇧 UK</option>
               <option value="US">🇺🇸 US</option>
