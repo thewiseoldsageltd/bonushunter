@@ -113,8 +113,17 @@ export default function Header() {
               About
             </a>
             
-            {/* Region Switcher */}
-            <RegionSwitcher />
+            {/* Simple Region Switcher - Hardcoded */}
+            <select 
+              className="bg-white text-black px-3 py-1 rounded border text-sm"
+              onChange={(e) => window.location.href = `/${e.target.value.toLowerCase()}`}
+              defaultValue="UK"
+            >
+              <option value="UK">🇬🇧 UK</option>
+              <option value="US">🇺🇸 US</option>
+              <option value="CA">🇨🇦 CA</option>
+              <option value="EU">🇪🇺 EU</option>
+            </select>
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
