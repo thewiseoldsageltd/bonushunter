@@ -92,7 +92,11 @@ export function RegionSwitcher() {
           return (
             <DropdownMenuItem
               key={regionCode}
-              onClick={() => switchRegion(regionCode)}
+              onClick={() => {
+                switchRegion(regionCode);
+                // Force page reload to ensure all components update
+                setTimeout(() => window.location.reload(), 200);
+              }}
               className="flex items-center gap-3 py-2"
               data-testid={`option-region-${regionCode.toLowerCase()}`}
             >

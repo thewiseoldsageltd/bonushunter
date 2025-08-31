@@ -11,13 +11,6 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { getRegionBrandName, currentRegion, isLoading } = useRegion();
   
-  // Debug logging
-  console.log(`🎯 Header: Region=${currentRegion?.regionCode}, Loading=${isLoading}`);
-  
-  // Simple test to see if JavaScript is running
-  if (typeof window !== 'undefined') {
-    console.log('🚀 JAVASCRIPT IS RUNNING!');
-  }
 
   return (
     <header className="bg-dark-light/50 backdrop-blur-lg border-b border-dark-lighter sticky top-0 z-50">

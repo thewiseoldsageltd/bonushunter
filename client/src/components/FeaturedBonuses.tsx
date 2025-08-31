@@ -12,11 +12,6 @@ export default function FeaturedBonuses() {
   const [location, setLocation] = useState<string>("all");
   const { currentRegion } = useRegion();
 
-  // Log when component renders and region changes
-  useEffect(() => {
-    console.log(`🎯 FeaturedBonuses: Component rendered with region: ${currentRegion?.regionCode}`);
-  }, [currentRegion?.regionCode]);
-
   // Build query parameters
   const params = new URLSearchParams();
   if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
@@ -24,13 +19,10 @@ export default function FeaturedBonuses() {
   if (location !== "all") params.append("location", location);
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
-  console.log(`🎯 FeaturedBonuses: Query: /api/bonuses${queryString}`);
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["/api/bonuses", currentRegion?.regionCode, productType, location],
     queryFn: async () => {
       const url = `/api/bonuses${queryString}`;
-      console.log(`🎯 FeaturedBonuses: Fetching ${url}`);
       const response = await fetch(url);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();

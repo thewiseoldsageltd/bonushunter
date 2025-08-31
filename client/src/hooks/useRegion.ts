@@ -76,15 +76,9 @@ export function useRegion() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('bonushunter-preferred-region');
-      console.log(`🎯 useRegion: Init - localStorage=${stored}`);
       setPreferredRegion(stored);
     }
   }, []);
-
-  // Log when preferredRegion changes
-  useEffect(() => {
-    console.log(`🎯 useRegion: preferredRegion changed to: ${preferredRegion}`);
-  }, [preferredRegion]);
 
   // Helper function to reset to IP detection
   const resetToIPDetection = () => {
@@ -108,22 +102,15 @@ export function useRegion() {
   } = useQuery<RegionResponse>({
     queryKey: ['/api/region-config', preferredRegion], // Use stable key with parameter
     queryFn: async () => {
-      console.log(`🎯 useRegion: Fetching ${queryUrl}`);
       const response = await fetch(queryUrl);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
-      const data = await response.json();
-      console.log(`🎯 useRegion: Got data:`, data?.region?.regionCode);
-      return data;
+      return response.json();
     },
     staleTime: 0, // Always fetch fresh data
     refetchOnWindowFocus: true, // Refetch when window gains focus
     retry: 1
   });
 
-  // Log current region data
-  useEffect(() => {
-    console.log(`🎯 useRegion: regionData updated - currentRegion=${regionData?.region?.regionCode}`);
-  }, [regionData]);
 
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
@@ -134,7 +121,6 @@ export function useRegion() {
       return { regionCode: newRegionCode };
     },
     onSuccess: (data) => {
-      console.log(`🎯 useRegion: switchRegion SUCCESS - switching to ${data.regionCode}`);
       // Update the preferred region state
       setPreferredRegion(data.regionCode);
       // Invalidate specific queries with exact key matching
