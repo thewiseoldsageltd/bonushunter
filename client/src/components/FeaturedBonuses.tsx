@@ -27,7 +27,9 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
     queryKey: ["/api/bonuses", selectedRegion, selectedState, productType, location],
     queryFn: async () => {
       const url = `/api/bonuses${queryString}`;
+      console.log(`🔍 Frontend calling API: ${url}`);
       const response = await fetch(url);
+      console.log(`📡 API Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
