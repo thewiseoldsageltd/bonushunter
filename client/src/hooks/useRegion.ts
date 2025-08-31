@@ -132,7 +132,6 @@ export function useRegion() {
     },
     staleTime: 0, // Always fetch fresh data
     refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchInterval: 30 * 1000, // Check every 30 seconds for location changes
     retry: 1
   });
 
