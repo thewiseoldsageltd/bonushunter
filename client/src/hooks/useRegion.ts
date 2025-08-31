@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
 interface RegionLogo {
@@ -71,13 +72,13 @@ interface RegionResponse {
 export function useRegion() {
   const queryClient = useQueryClient();
   const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
+  const [location] = useLocation();
 
-  // Initialize preferred region from URL and watch for changes
+  // Watch for URL changes and update region accordingly
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Check URL path first for region
-      const path = window.location.pathname;
-      const pathSegment = path.slice(1).toLowerCase();
+      // Check current URL path for region
+      const pathSegment = location.slice(1).toLowerCase();
       const regionMap: Record<string, string> = {
         'us': 'US',
         'uk': 'UK', 
@@ -102,7 +103,7 @@ export function useRegion() {
         setPreferredRegion(null);
       }
     }
-  }, []);
+  }, [location]); // Re-run whenever location changes
 
   // Helper function to reset to IP detection
   const resetToIPDetection = () => {
