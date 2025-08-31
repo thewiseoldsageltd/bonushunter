@@ -136,7 +136,14 @@ export function useRegion() {
     retry: 1
   });
 
-  // Automatic location detection working perfectly
+  // Debug logging to track the issue
+  console.log('🔍 Region Debug:', {
+    location,
+    preferredRegion,
+    queryUrl,
+    currentRegion: regionData?.region?.regionCode,
+    isLoading
+  });
 
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
