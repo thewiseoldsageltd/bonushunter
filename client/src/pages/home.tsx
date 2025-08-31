@@ -23,6 +23,7 @@ import {
 export default function Home() {
   const [location, setLocation] = useLocation();
   const [selectedRegion, setSelectedRegion] = useState('UK');
+  const [selectedState, setSelectedState] = useState('NJ');
   
   // Get region from URL path or auto-detect
   useEffect(() => {
@@ -57,9 +58,19 @@ export default function Home() {
     setLocation(region === 'UK' ? '/' : `/${region.toLowerCase()}`);
   };
   
+  // Handle state changes
+  const handleStateChange = (state: string) => {
+    setSelectedState(state);
+  };
+  
   return (
     <div className="min-h-screen bg-dark text-white">
-      <Header selectedRegion={selectedRegion} onRegionChange={handleRegionChange} />
+      <Header 
+        selectedRegion={selectedRegion} 
+        onRegionChange={handleRegionChange}
+        selectedState={selectedState}
+        onStateChange={handleStateChange}
+      />
       <HeroSection />
       
       {/* How It Works Section */}
@@ -106,7 +117,7 @@ export default function Home() {
         </div>
       </section>
 
-      <FeaturedBonuses selectedRegion={selectedRegion} />
+      <FeaturedBonuses selectedRegion={selectedRegion} selectedState={selectedState} />
 
       {/* AI Features Section */}
       <section className="py-20 bg-gradient-to-br from-dark-light/50 to-dark/50">

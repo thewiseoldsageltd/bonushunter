@@ -14,9 +14,11 @@ import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 interface HeaderProps {
   selectedRegion: string;
   onRegionChange: (region: string) => void;
+  selectedState?: string;
+  onStateChange?: (state: string) => void;
 }
 
-export default function Header({ selectedRegion, onRegionChange }: HeaderProps) {
+export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   // Use props for display
@@ -117,6 +119,30 @@ export default function Header({ selectedRegion, onRegionChange }: HeaderProps) 
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            {/* State selector - only show when US is selected */}
+            {selectedRegion === 'US' && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
+                  >
+                    <span>{selectedState || 'NJ'}</span>
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                
+                <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>New Jersey</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('IL')}>Illinois</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"

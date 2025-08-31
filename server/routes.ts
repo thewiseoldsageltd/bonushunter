@@ -341,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bonuses with optional filters
   app.get("/api/bonuses", async (req, res) => {
     try {
-      const { productType, region } = req.query;
+      const { productType, region, state } = req.query;
       
       // Check for user's preferred region (from query param) - same logic as region-config
       const preferredRegion = region as string;
@@ -361,11 +361,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let bonuses = await storage.getAllBonuses();
       
       // Filter by jurisdiction compliance first
-      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : regionCode;
-      // If user manually selected US region, show all US bonuses. Otherwise use their actual state.
-      const userStateCode = req.userLocation?.country === 'United States' 
-        ? (preferredRegion === 'US' ? null : req.userLocation?.regionCode)
-        : null;
+      // If user manually selected US region, treat as US. Otherwise use detected country.
+      const userCountryCode = preferredRegion === 'US' ? 'US' : 
+        (req.userLocation?.country === 'United States' ? 'US' : regionCode);
+      // Use manual state selection if provided, otherwise use detected state for US users
+      const manualState = state as string;
+      const userStateCode = manualState || 
+        (req.userLocation?.country === 'United States' ? req.userLocation?.regionCode : null) ||
+        // If manual US selection but no state, default to NJ to show some bonuses
+        (preferredRegion === 'US' ? 'NJ' : null);
+      
+      console.log(`🏛️ State selection - Manual: ${manualState}, Detected: ${req.userLocation?.regionCode}, Using: ${userStateCode}`);
       
       bonuses = bonuses.filter(bonus => {
         if (!bonus.country) {
@@ -374,11 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // If bonus is for US, check if user's state is included in the states list
         if (bonus.country === 'US') {
-          // If no userStateCode (manual US selection), show all US bonuses
-          if (!userStateCode) {
-            return true;
-          }
-          if (!bonus.states) {
+          if (!userStateCode || !bonus.states) {
             return false;
           }
           const bonusStates = bonus.states.split(',').map(s => s.trim().toUpperCase());

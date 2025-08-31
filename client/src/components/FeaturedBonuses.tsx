@@ -8,21 +8,23 @@ import type { BonusRecommendation } from "@/types";
 
 interface FeaturedBonusesProps {
   selectedRegion: string;
+  selectedState?: string;
 }
 
-export default function FeaturedBonuses({ selectedRegion }: FeaturedBonusesProps) {
+export default function FeaturedBonuses({ selectedRegion, selectedState }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
 
   // Build query parameters
   const params = new URLSearchParams();
   if (selectedRegion) params.append("region", selectedRegion);
+  if (selectedState && selectedRegion === 'US') params.append("state", selectedState);
   if (productType !== "all") params.append("productType", productType);
   if (location !== "all") params.append("location", location);
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", selectedRegion, productType, location],
+    queryKey: ["/api/bonuses", selectedRegion, selectedState, productType, location],
     queryFn: async () => {
       const url = `/api/bonuses${queryString}`;
       const response = await fetch(url);
