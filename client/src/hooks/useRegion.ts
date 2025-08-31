@@ -135,7 +135,18 @@ export function useRegion() {
     retry: 1
   });
 
-
+  // Debug logging
+  console.log('🔍 useRegion Debug:', {
+    preferredRegion,
+    queryUrl,
+    regionData,
+    isLoading,
+    error,
+    currentRegion: regionData?.region,
+    availableRegionsRaw: regionData?.availableRegions,
+    detectedLocationRaw: regionData?.detectedLocation,
+    windowDefined: typeof window !== 'undefined'
+  });
 
   // Manual region switching mutation (if user wants to override detection)
   const switchRegionMutation = useMutation({
