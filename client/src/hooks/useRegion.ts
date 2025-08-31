@@ -80,23 +80,18 @@ export function useRegion() {
 
   const preferredRegion = getPreferredRegion();
 
+  // Build the URL with query parameter if preferred region exists
+  const queryUrl = preferredRegion 
+    ? `/api/region-config?region=${preferredRegion}`
+    : '/api/region-config';
+
   // Fetch current region configuration
   const {
     data: regionData,
     isLoading,
     error
   } = useQuery<RegionResponse>({
-    queryKey: ['/api/region-config', preferredRegion], // Include preferred region in cache key
-    queryFn: async () => {
-      const url = preferredRegion 
-        ? `/api/region-config?region=${preferredRegion}`
-        : '/api/region-config';
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch region config: ${response.status}`);
-      }
-      return response.json();
-    },
+    queryKey: [queryUrl], // Use the full URL with query params as the key
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     retry: 1
   });
