@@ -5,23 +5,37 @@ import { Button } from "@/components/ui/button";
 import BonusCard from "./BonusCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRegion } from "@/hooks/useRegion";
-import { queryClient } from "@/lib/queryClient";
 import type { BonusRecommendation } from "@/types";
 
 export default function FeaturedBonuses() {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
   const { currentRegion } = useRegion();
-  
-  // Build API URL with region parameter
-  const apiUrl = currentRegion?.regionCode 
-    ? `/api/bonuses?region=${currentRegion.regionCode}${productType !== "all" ? `&productType=${productType}` : ''}${location !== "all" ? `&location=${location}` : ''}`
-    : '/api/bonuses';
 
-  console.log(`🎯 FeaturedBonuses: Region=${currentRegion?.regionCode}, URL=${apiUrl}`);
+  // Log when component renders and region changes
+  useEffect(() => {
+    console.log(`🎯 FeaturedBonuses: Component rendered with region: ${currentRegion?.regionCode}`);
+  }, [currentRegion?.regionCode]);
+
+  // Build query parameters
+  const params = new URLSearchParams();
+  if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
+  if (productType !== "all") params.append("productType", productType);
+  if (location !== "all") params.append("location", location);
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+
+  console.log(`🎯 FeaturedBonuses: Query: /api/bonuses${queryString}`);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [apiUrl],
+    queryKey: ["bonuses", currentRegion?.regionCode, productType, location],
+    queryFn: async () => {
+      const url = `/api/bonuses${queryString}`;
+      console.log(`🎯 FeaturedBonuses: Fetching ${url}`);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
+    enabled: !!currentRegion, // Only run when we have region data
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({
