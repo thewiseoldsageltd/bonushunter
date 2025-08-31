@@ -76,11 +76,17 @@ export function useRegion() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('bonushunter-preferred-region');
-      console.log('🔍 INCOGNITO TEST: localStorage value:', stored);
-      console.log('🔍 INCOGNITO TEST: Should be null in fresh incognito window');
       setPreferredRegion(stored);
     }
   }, []);
+
+  // Helper function to reset to IP detection
+  const resetToIPDetection = () => {
+    localStorage.removeItem('bonushunter-preferred-region');
+    setPreferredRegion(null);
+    queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+  };
 
   // Build the URL with query parameter if preferred region exists
   const queryUrl = preferredRegion 
@@ -180,6 +186,7 @@ export function useRegion() {
     
     // Actions
     switchRegion: switchRegionMutation.mutate,
+    resetToIPDetection,
     
     // Helper methods
     isRegionSupported,
