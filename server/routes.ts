@@ -341,17 +341,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bonuses with optional filters
   app.get("/api/bonuses", async (req, res) => {
     try {
-      const { productType } = req.query;
+      const { productType, region } = req.query;
       
-      // Use detected location from middleware
-      const detectedLocation = req.userLocation?.regionCode || 'NJ';
-      const regionConfig = regionConfigService.getRegionConfig(detectedLocation);
+      // Check for user's preferred region (from query param) - same logic as region-config
+      const preferredRegion = region as string;
+      const detectedRegion = req.userLocation?.regionCode || 'NJ';
+      
+      // Use preferred region if provided and valid, otherwise use detected region
+      const regionCode = preferredRegion && regionConfigService.getAvailableRegions().includes(preferredRegion) 
+        ? preferredRegion 
+        : detectedRegion;
+        
+      if (preferredRegion && preferredRegion !== detectedRegion) {
+        console.log(`🌍 Bonuses manual region override - Detected: ${detectedRegion}, Using: ${regionCode}`);
+      }
+      
+      const regionConfig = regionConfigService.getRegionConfig(regionCode);
       
       let bonuses = await storage.getAllBonuses();
       
       // Filter by jurisdiction compliance first
-      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : detectedLocation;
-      const userStateCode = req.userLocation?.country === 'United States' ? detectedLocation : null;
+      const userCountryCode = req.userLocation?.country === 'United States' ? 'US' : regionCode;
+      const userStateCode = req.userLocation?.country === 'United States' ? regionCode : null;
       
       bonuses = bonuses.filter(bonus => {
         if (!bonus.country) {
@@ -375,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         bonuses = bonuses.filter(b => b.productType === productType);
       }
       
-      console.log(`🎯 API bonuses filtered to ${bonuses.length} for region: ${detectedLocation}`);
+      console.log(`🎯 API bonuses filtered to ${bonuses.length} for region: ${regionCode}`);
       
       // Add basic value scores
       const bonusesWithScores = bonuses.map(bonus => ({

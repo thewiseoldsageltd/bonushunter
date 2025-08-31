@@ -4,22 +4,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import BonusCard from "./BonusCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRegion } from "@/hooks/useRegion";
 import type { BonusRecommendation } from "@/types";
 
 export default function FeaturedBonuses() {
   const [productType, setProductType] = useState<string>("all");
   const [location, setLocation] = useState<string>("all");
+  const { currentRegion } = useRegion();
 
   // Construct query string for filtering
   const queryString = (() => {
     const params = new URLSearchParams();
     if (productType !== "all") params.append("productType", productType);
     if (location !== "all") params.append("location", location);
+    // Add region parameter to ensure bonuses match the selected region
+    if (currentRegion?.regionCode) params.append("region", currentRegion.regionCode);
     return params.toString() ? `?${params.toString()}` : '';
   })();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/bonuses", productType, location],
+    queryKey: ["/api/bonuses", productType, location, currentRegion?.regionCode],
     select: (data: any) => ({
       ...data,
       bonuses: data.bonuses.map((bonus: any) => ({

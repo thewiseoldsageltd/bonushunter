@@ -110,6 +110,7 @@ export function useRegion() {
       setPreferredRegion(data.regionCode);
       // Invalidate all region-related queries
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
+      // Invalidate all bonuses queries (with any filters)
       queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
     },
     onError: (error) => {
