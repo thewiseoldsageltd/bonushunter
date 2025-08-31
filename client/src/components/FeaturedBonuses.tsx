@@ -27,8 +27,14 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
     queryKey: ["/api/bonuses", selectedRegion, selectedState, productType, location],
     queryFn: async () => {
       const url = `/api/bonuses${queryString}`;
+      console.log(`🔍 Frontend URL: ${url}`);
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      console.log(`📡 Status: ${response.status}, Content-Type: ${response.headers.get('content-type')}`);
+      if (!response.ok) {
+        const text = await response.text();
+        console.log(`❌ Error response: ${text.substring(0, 100)}...`);
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
       return response.json();
     },
     staleTime: 0, // Always fetch fresh data
