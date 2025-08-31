@@ -182,8 +182,72 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   About
                 </a>
                 
-                {/* Mobile Region Switcher */}
-                <div className="py-2">
+                {/* Mobile Region & State Switcher */}
+                <div className="py-2 border-t border-dark-lighter">
+                  <p className="text-gray-400 text-sm mb-3">Region</p>
+                  
+                  {/* Mobile Region Selector */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between mb-3 text-gray-900 hover:text-gray-900 bg-white"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
+                            <img 
+                              src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                              alt={`${displayRegion} Logo`}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <span>{displayRegion}</span>
+                        </div>
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    
+                    <DropdownMenuContent align="center" className="w-full">
+                      <DropdownMenuItem onClick={() => onRegionChange('UK')}>
+                        <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                          <img src={bonushunterUKLogo} alt="UK Logo" className="w-full h-full object-contain" />
+                        </div>
+                        UK
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onRegionChange('US')}>
+                        <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                          <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
+                        </div>
+                        US
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  {/* Mobile State selector - only show when US is selected */}
+                  {selectedRegion === 'US' && (
+                    <div>
+                      <p className="text-gray-400 text-sm mb-2">State</p>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-between text-gray-900 hover:text-gray-900 bg-white"
+                          >
+                            <span>{selectedState || 'New Jersey'}</span>
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        
+                        <DropdownMenuContent align="center" className="w-full">
+                          <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>New Jersey</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('IL')}>Illinois</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </div>
                 
                 <Button className="bg-primary hover:bg-primary/90 w-full">
