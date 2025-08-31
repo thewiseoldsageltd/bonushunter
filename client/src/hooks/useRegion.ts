@@ -72,11 +72,35 @@ export function useRegion() {
   const queryClient = useQueryClient();
   const [preferredRegion, setPreferredRegion] = useState<string | null>(null);
 
-  // Initialize preferred region from localStorage on mount  
+  // Initialize preferred region from URL first, then localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('bonushunter-preferred-region');
-      setPreferredRegion(stored);
+      // Check URL path first for region
+      const path = window.location.pathname;
+      const pathSegment = path.slice(1).toLowerCase();
+      const regionMap: Record<string, string> = {
+        'us': 'US',
+        'uk': 'UK', 
+        'ca': 'CA',
+        'eu': 'EU',
+        'nj': 'NJ',
+        'pa': 'PA',
+        'nv': 'NV',
+        'ny': 'NY',
+        'mi': 'MI'
+      };
+      
+      const urlRegion = regionMap[pathSegment] || null;
+      
+      if (urlRegion) {
+        // URL region takes precedence
+        setPreferredRegion(urlRegion);
+        localStorage.setItem('bonushunter-preferred-region', urlRegion);
+      } else {
+        // Fall back to localStorage
+        const stored = localStorage.getItem('bonushunter-preferred-region');
+        setPreferredRegion(stored);
+      }
     }
   }, []);
 

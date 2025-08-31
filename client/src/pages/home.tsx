@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturedBonuses from "@/components/FeaturedBonuses";
@@ -19,32 +18,6 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const [location] = useLocation();
-  
-  // Extract region from URL path
-  const getRegionFromUrl = (path: string): string | null => {
-    const pathSegment = path.slice(1).toLowerCase(); // Remove leading slash
-    const regionMap: Record<string, string> = {
-      'us': 'US',
-      'uk': 'UK', 
-      'ca': 'CA',
-      'eu': 'EU',
-      'nj': 'NJ',
-      'pa': 'PA',
-      'nv': 'NV',
-      'ny': 'NY',
-      'mi': 'MI'
-    };
-    return regionMap[pathSegment] || null;
-  };
-  
-  const urlRegion = getRegionFromUrl(location);
-  
-  // Set region preference based on URL
-  if (urlRegion && typeof window !== 'undefined') {
-    localStorage.setItem('bonushunter-preferred-region', urlRegion);
-  }
-  
   return (
     <div className="min-h-screen bg-dark text-white">
       <Header />
