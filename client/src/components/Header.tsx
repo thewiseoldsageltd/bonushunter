@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Search } from "lucide-react";
-import { RegionSwitcher } from "./RegionSwitcher";
 import { useRegion } from "@/hooks/useRegion";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
@@ -83,8 +82,6 @@ export default function Header() {
               About
             </a>
             
-            {/* Region Switcher */}
-            <RegionSwitcher />
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
@@ -124,10 +121,6 @@ export default function Header() {
                   About
                 </a>
                 
-                {/* Mobile Region Switcher */}
-                <div className="py-2">
-                  <RegionSwitcher />
-                </div>
                 
                 <Button className="bg-primary hover:bg-primary/90 w-full">
                   Get Started
