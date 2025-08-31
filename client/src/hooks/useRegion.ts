@@ -85,7 +85,7 @@ export function useRegion() {
     localStorage.removeItem('bonushunter-preferred-region');
     setPreferredRegion(null);
     queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+    queryClient.invalidateQueries({ queryKey: ['bonuses'] });
   };
 
   // Build the URL with query parameter if preferred region exists
@@ -100,7 +100,12 @@ export function useRegion() {
     isLoading,
     error
   } = useQuery<RegionResponse>({
-    queryKey: [queryUrl], // Use the full URL with query params as the key
+    queryKey: ['/api/region-config', preferredRegion], // Use stable key with parameter
+    queryFn: async () => {
+      const response = await fetch(queryUrl);
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    },
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     retry: 1
   });
@@ -116,10 +121,10 @@ export function useRegion() {
     onSuccess: (data) => {
       // Update the preferred region state
       setPreferredRegion(data.regionCode);
-      // Invalidate all region-related queries
+      // Invalidate all region-related queries (matches new queryKey pattern)
       queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
       // Invalidate all bonuses queries (with any filters)
-      queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+      queryClient.invalidateQueries({ queryKey: ['bonuses'] });
     },
     onError: (error) => {
       console.error('Region switch failed:', error);
