@@ -149,12 +149,12 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                     <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                       <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
                     </div>
-                    New Jersey
+                    NJ
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('IL')}>Illinois</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('NY')}>NY</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('PA')}>PA</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -262,7 +262,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                                   />
                                 </div>
                               )}
-                              <span>{selectedState || 'New Jersey'}</span>
+                              <span>{selectedState || 'NJ'}</span>
                             </div>
                             <ChevronDown className="w-4 h-4" />
                           </Button>
@@ -275,10 +275,10 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                             </div>
                             New Jersey
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('IL')}>Illinois</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NY')}>NY</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('PA')}>PA</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
