@@ -144,7 +144,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   </Button>
                 </DropdownMenuTrigger>
                 
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-32">
                   <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>
                     <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                       <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
