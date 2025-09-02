@@ -10,6 +10,7 @@ import {
 import { Menu, Search, ChevronDown } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
+import newJerseyLogo from "@assets/New Jersey Logo_1756803572752.webp";
 
 interface HeaderProps {
   selectedRegion: string;
@@ -129,13 +130,27 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                     size="sm"
                     className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
                   >
+                    {(selectedState || 'NJ') === 'NJ' && (
+                      <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
+                        <img 
+                          src={newJerseyLogo} 
+                          alt="New Jersey Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    )}
                     <span>{selectedState || 'NJ'}</span>
                     <ChevronDown className="w-3 h-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 
-                <DropdownMenuContent align="end" className="w-32">
-                  <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>New Jersey</DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>
+                    <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                      <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
+                    </div>
+                    New Jersey
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
@@ -237,13 +252,29 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                             variant="outline" 
                             className="w-full justify-between text-gray-900 hover:text-gray-900 bg-white hover:bg-gray-50 focus:bg-white active:bg-white"
                           >
-                            <span>{selectedState || 'New Jersey'}</span>
+                            <div className="flex items-center gap-2">
+                              {(selectedState || 'NJ') === 'NJ' && (
+                                <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
+                                  <img 
+                                    src={newJerseyLogo} 
+                                    alt="New Jersey Logo"
+                                    className="w-full h-full object-contain"
+                                  />
+                                </div>
+                              )}
+                              <span>{selectedState || 'New Jersey'}</span>
+                            </div>
                             <ChevronDown className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         
                         <DropdownMenuContent align="center" className="w-full">
-                          <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>New Jersey</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>
+                            <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
+                              <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
+                            </div>
+                            New Jersey
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('NY')}>New York</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('PA')}>Pennsylvania</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('MI')}>Michigan</DropdownMenuItem>
