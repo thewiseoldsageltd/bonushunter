@@ -10,7 +10,7 @@ import {
 import { Menu, Search, ChevronDown } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
-import newJerseyLogo from "@assets/New Jersey Logo_1756805564207.webp";
+import newJerseyLogo from "@assets/New Jersey Green White 500x500_1756880814789.webp";
 
 interface HeaderProps {
   selectedRegion: string;
