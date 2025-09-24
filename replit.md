@@ -25,6 +25,13 @@ Bonushunter is a comprehensive conversational AI platform designed to help users
 - **File validation**: 5MB limit with proper error handling and fallback display
 - **Complete upload workflow**: Upload → Process → Store → Display with real-time UI updates
 
+### September 24, 2025 - Enhanced State Dropdowns & GitHub Token Security
+- **Added New Jersey state logo**: Transparent green/white circular logo displayed in both desktop and mobile state dropdowns
+- **State dropdown cleanup**: Changed from full state names to clean two-letter codes (NJ, NY, PA, MI, IL)
+- **Consistent dropdown sizing**: State dropdown now matches country dropdown width for balanced appearance
+- **GitHub token security**: Chose manual token management over Replit GitHub integration for security - storing only repository-specific access rather than broad organizational permissions
+- **Secure secret storage**: GITHUB_TOKEN now properly stored as encrypted environment variable
+
 ### Current Phase: Content Population & Testing  
 Platform now has comprehensive bonus management with automatic expiration handling and professional logo upload system. Ready for content population and full testing of all features.
 
