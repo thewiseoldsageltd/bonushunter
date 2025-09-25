@@ -584,6 +584,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete operator with strategy support
+  app.delete("/api/admin/operators/:id", async (req, res) => {
+    try {
+      const operatorId = req.params.id;
+      const strategy = req.query.strategy as string || 'prevent';
+      const toOperatorId = req.query.to as string;
+
+      // Validate strategy parameter
+      const deleteStrategySchema = z.object({
+        strategy: z.enum(['prevent', 'reassign', 'hard']).default('prevent'),
+        to: z.string().optional()
+      });
+
+      const params = deleteStrategySchema.parse({ strategy, to: toOperatorId });
+
+      // Check if operator exists
+      const operator = await storage.getOperatorById(operatorId);
+      if (!operator) {
+        return res.status(404).json({ error: "Operator not found" });
+      }
+
+      // Count bonuses for this operator
+      const bonusCount = await storage.countBonusesByOperator(operatorId);
+
+      if (params.strategy === 'prevent' && bonusCount > 0) {
+        return res.status(409).json({ 
+          error: "Cannot delete operator with existing bonuses", 
+          bonusCount,
+          operatorName: operator.name,
+          suggestion: "Use strategy=reassign with to=<targetOperatorId> to move bonuses, or strategy=hard to force delete"
+        });
+      }
+
+      if (params.strategy === 'reassign') {
+        if (!params.to) {
+          return res.status(400).json({ error: "Target operator ID required for reassign strategy (use ?to=<operatorId>)" });
+        }
+
+        if (params.to === operatorId) {
+          return res.status(400).json({ error: "Cannot reassign bonuses to the same operator" });
+        }
+
+        // Check if target operator exists
+        const targetOperator = await storage.getOperatorById(params.to);
+        if (!targetOperator) {
+          return res.status(404).json({ error: "Target operator not found" });
+        }
+
+        // Reassign bonuses to target operator
+        const movedBonuses = await storage.reassignBonuses(operatorId, params.to);
+        
+        // Delete the operator
+        await storage.deleteOperator(operatorId);
+
+        return res.json({
+          success: true,
+          strategy: 'reassign',
+          operatorId,
+          movedBonuses,
+          targetOperatorName: targetOperator.name,
+          message: `Operator deleted and ${movedBonuses} bonuses moved to ${targetOperator.name}`
+        });
+      }
+
+      if (params.strategy === 'hard') {
+        if (bonusCount > 0) {
+          // For hard delete with bonuses, we should warn the user but allow it
+          console.warn(`Hard deleting operator ${operator.name} with ${bonusCount} bonuses`);
+        }
+        
+        await storage.deleteOperator(operatorId);
+        
+        return res.json({
+          success: true,
+          strategy: 'hard',
+          operatorId,
+          deletedBonuses: bonusCount,
+          message: `Operator deleted${bonusCount > 0 ? ` (${bonusCount} bonuses also deleted)` : ''}`
+        });
+      }
+
+      // Default case - prevent with no bonuses, allow deletion
+      await storage.deleteOperator(operatorId);
+      
+      res.json({
+        success: true,
+        strategy: 'prevent',
+        operatorId,
+        message: "Operator deleted successfully"
+      });
+
+    } catch (error) {
+      console.error("Delete operator error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid parameters", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to delete operator" });
+    }
+  });
+
   app.post("/api/admin/bonuses", async (req, res) => {
     try {
       const bonusData = req.body;
