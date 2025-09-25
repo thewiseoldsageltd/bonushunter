@@ -64,7 +64,11 @@ export default function BonusCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden flex items-center justify-center`}>
-          {bonus.operator.logo && (bonus.operator.logo.startsWith('/public-objects/') || bonus.operator.logo.startsWith('http')) ? (
+          {bonus.operator.logo && (
+            bonus.operator.logo.startsWith('/public-objects/') || 
+            bonus.operator.logo.startsWith('http') ||
+            (bonus.operator.logo.startsWith('/') && /\.(png|webp|jpe?g|svg|gif|avif)$/i.test(bonus.operator.logo))
+          ) ? (
             <img 
               src={(() => {
                 // Handle external URLs directly
