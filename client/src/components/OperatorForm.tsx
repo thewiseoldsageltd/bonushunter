@@ -72,9 +72,9 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
       // This prevents manually entered paths from overwriting uploaded logos
       if (data.logo && data.logo.trim()) {
         const logoValue = data.logo.trim();
-        // Allow SEO-friendly uploaded paths (like /public-objects/logos/bet365-logo.png) or external URLs
-        if (logoValue.startsWith('/public-objects/logos/') || 
-            logoValue.startsWith('http://') || logoValue.startsWith('https://')) {
+        // Allow domain root images (like /bet365_logo.webp) or external URLs
+        if (logoValue.startsWith('http://') || logoValue.startsWith('https://') || 
+            (logoValue.startsWith('/') && /\.(png|webp|jpe?g|svg|gif|avif)$/i.test(logoValue))) {
           processedData.logo = logoValue;
         }
         // If logo is just a filename (like "bet365-logo.png"), don't include it to avoid overwriting uploaded logos
