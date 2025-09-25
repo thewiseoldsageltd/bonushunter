@@ -848,6 +848,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Serve uploaded images directly from domain root (e.g., domain.com/bet365_logo.webp)
+  app.get("/:base.:ext", async (req, res) => {
+    const { base, ext } = req.params;
+    const filename = `${base}.${ext}`;
+    
+    // Only serve image files to avoid conflicts with app routes
+    const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'avif'];
+    if (!imageExtensions.includes(ext.toLowerCase())) {
+      return res.status(404).json({ error: "Not found" });
+    }
+    
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const file = await objectStorageService.searchPublicObject(filename);
+      
+      if (!file) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+      
+      // Stream the image with proper caching
+      await objectStorageService.downloadObject(file, res, 86400); // 24 hours cache
+    } catch (error) {
+      console.error("Error serving image from domain root:", error);
+      res.status(404).json({ error: "Image not found" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

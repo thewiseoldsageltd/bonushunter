@@ -247,14 +247,14 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   console.log('🔍 Getting upload parameters for file:', file.name, file.type);
                   
                   const response = await apiRequest('POST', '/api/admin/logos/upload', {
-                    operatorName: formData.name,
-                    fileType: file.type
+                    filename: file.name,
+                    contentType: file.type
                   });
                   const data = await response.json();
                   console.log('🔍 Upload parameters response:', data);
                   
-                  // Store the permanent logoPath for later use
-                  setFormData(prev => ({ ...prev, logoPath: data.logoPath }));
+                  // Store the permanent publicPath (e.g., /bet365_logo.webp)
+                  setFormData(prev => ({ ...prev, logoPath: data.publicPath }));
                   
                   return {
                     method: 'PUT' as const,
@@ -269,15 +269,15 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   console.log('🔍 Upload successful?', result.successful);
                   console.log('🔍 Upload failed?', result.failed);
                   if (result.successful && result.successful.length > 0) {
-                    // ✅ Use the permanent logoPath instead of temporary uploadURL
-                    const permanentLogoPath = formData.logoPath;
-                    console.log('🔍 Using permanent logo path:', permanentLogoPath);
+                    // ✅ Use the permanent publicPath (e.g., /bet365_logo.webp)
+                    const permanentPublicPath = formData.logoPath;
+                    console.log('🔍 Using permanent public path:', permanentPublicPath);
                     
                     // Update the operator logo via API
                     if (operator?.id) {
                       console.log('🔍 Updating existing operator logo...');
                       apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
-                        logoURL: permanentLogoPath
+                        logoURL: permanentPublicPath
                       }).then(async (res) => {
                         const data = await res.json();
                         console.log('🔍 Logo update response:', data);
@@ -296,8 +296,8 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                       });
                     } else {
                       // For new operators, use the permanent path
-                      console.log('🔍 Setting logo for new operator:', permanentLogoPath);
-                      setFormData(prev => ({ ...prev, logo: permanentLogoPath }));
+                      console.log('🔍 Setting logo for new operator:', permanentPublicPath);
+                      setFormData(prev => ({ ...prev, logo: permanentPublicPath }));
                     }
                   } else {
                     console.error('🔍 Upload failed or no files uploaded:', result);
