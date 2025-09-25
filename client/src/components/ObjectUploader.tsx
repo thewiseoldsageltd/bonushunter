@@ -172,7 +172,10 @@ export function ObjectUploader({
   return (
     <div>
       <Button 
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          console.log('🔍 ObjectUploader: Button clicked - opening modal');
+          setShowModal(true);
+        }}
         className={buttonClassName} 
         type="button"
       >
@@ -183,7 +186,10 @@ export function ObjectUploader({
         <DashboardModal
           uppy={uppy}
           open={showModal}
-          onRequestClose={() => setShowModal(false)}
+          onRequestClose={() => {
+            console.log('🔍 ObjectUploader: Modal close requested');
+            setShowModal(false);
+          }}
           proudlyDisplayPoweredByUppy={false}
           disablePageScrollWhenModalOpen={true}
           closeAfterFinish={true}
