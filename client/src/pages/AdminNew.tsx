@@ -209,6 +209,9 @@ const AdminNew = () => {
   const [deletingOperator, setDeletingOperator] = useState<any>(null);
   const [deleteStrategy, setDeleteStrategy] = useState<'prevent' | 'reassign' | 'hard'>('prevent');
   const [targetOperatorId, setTargetOperatorId] = useState('');
+  
+  // Debug: Log dialog state
+  console.log('🔍 Delete dialog state - deletingOperator:', !!deletingOperator, deletingOperator?.name);
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -1843,7 +1846,10 @@ const AdminNew = () => {
         </Tabs>
 
         {/* Delete Operator Confirmation Dialog */}
-        <Dialog open={!!deletingOperator} onOpenChange={() => setDeletingOperator(null)}>
+        <Dialog open={!!deletingOperator} onOpenChange={() => {
+          console.log('🔍 Dialog onOpenChange called, closing dialog');
+          setDeletingOperator(null);
+        }}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Delete Operator</DialogTitle>
