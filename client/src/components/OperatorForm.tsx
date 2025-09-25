@@ -16,7 +16,6 @@ interface OperatorFormProps {
 }
 
 export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess }) => {
-  console.log('🔍 OperatorForm RENDERING with operator:', operator?.name);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   

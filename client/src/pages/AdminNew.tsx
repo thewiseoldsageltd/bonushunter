@@ -73,32 +73,6 @@ interface OperatorFormData {
   active: boolean;
 }
 
-// Simple error boundary component
-class ErrorBoundary extends React.Component {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: any) {
-    console.error('🔍 ERROR BOUNDARY CAUGHT:', error);
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: any, errorInfo: any) {
-    console.error('🔍 ERROR BOUNDARY DETAILS:', error, errorInfo);
-  }
-
-  render() {
-    if ((this.state as any).hasError) {
-      return <div className="p-4 bg-red-100 text-red-800 rounded">
-        <h3>Something went wrong with the form:</h3>
-        <pre>{String((this.state as any).error)}</pre>
-      </div>;
-    }
-    return (this.props as any).children;
-  }
-}
 
 const AdminNew = () => {
   const [location] = useLocation();
@@ -1765,17 +1739,15 @@ const AdminNew = () => {
                   <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">Edit Operator: {editingOperator.name}</h3>
 
-                    <ErrorBoundary>
-                      <OperatorForm 
-                        operator={editingOperator} 
-                        onSuccess={() => {
-                          queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
-                          queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
-                          setShowEditOperatorForm(false);
-                          setEditingOperator(null);
-                        }} 
-                      />
-                    </ErrorBoundary>
+                    <OperatorForm 
+                      operator={editingOperator} 
+                      onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
+                        setShowEditOperatorForm(false);
+                        setEditingOperator(null);
+                      }} 
+                    />
                   </div>
                 )}
 
@@ -1813,11 +1785,9 @@ const AdminNew = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              console.log('🔍 EDIT BUTTON CLICKED for operator:', operator.name);
                               setShowAddOperatorForm(false); // Close add form if open
                               setShowEditOperatorForm(true); // Show edit form inline
                               setEditingOperator(operator); // Store editing operator for inline form
-                              console.log('🔍 Edit state set successfully');
                             }}
                             data-testid={`button-edit-operator-${operator.id}`}
                           >
