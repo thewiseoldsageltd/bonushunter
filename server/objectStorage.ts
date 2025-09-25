@@ -225,27 +225,6 @@ export class ObjectStorageService {
     return `/objects/${entityId}`;
   }
 
-  // Normalize logo path for public access
-  normalizeLogoPath(rawPath: string): string {
-    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
-      return rawPath;
-    }
-  
-    // Extract the path from the URL by removing query parameters and domain
-    const url = new URL(rawPath);
-    const rawObjectPath = url.pathname;
-  
-    const publicSearchPaths = this.getPublicObjectSearchPaths();
-    for (const searchPath of publicSearchPaths) {
-      if (rawObjectPath.startsWith(searchPath)) {
-        // Extract the relative path from the search path
-        const relativePath = rawObjectPath.slice(searchPath.length + 1);
-        return `/public-objects/${relativePath}`;
-      }
-    }
-  
-    return rawPath;
-  }
 }
 
 function parseObjectPath(path: string): {

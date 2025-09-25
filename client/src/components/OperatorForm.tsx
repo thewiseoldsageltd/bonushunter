@@ -71,12 +71,12 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
       // This prevents manually entered paths from overwriting uploaded logos
       if (data.logo && data.logo.trim()) {
         const logoValue = data.logo.trim();
-        // Only allow properly formatted upload paths (with UUIDs) or external URLs
-        if ((logoValue.startsWith('/public-objects/logos/') && logoValue.length > 40) || 
+        // Allow SEO-friendly uploaded paths (like /public-objects/logos/bet365-logo.png) or external URLs
+        if (logoValue.startsWith('/public-objects/logos/') || 
             logoValue.startsWith('http://') || logoValue.startsWith('https://')) {
           processedData.logo = logoValue;
         }
-        // If logo is just a path like "/public-objects/bet365-logo.png", don't include it
+        // If logo is just a filename (like "bet365-logo.png"), don't include it to avoid overwriting uploaded logos
       }
       
       // Debug: log the processed data
@@ -243,8 +243,11 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                 maxNumberOfFiles={1}
                 maxFileSize={5242880} // 5MB
                 onGetUploadParameters={async () => {
-                  const response = await apiRequest('POST', '/api/admin/logos/upload');
+                  const response = await apiRequest('POST', '/api/admin/logos/upload', {
+                    operatorName: formData.name
+                  });
                   const data = await response.json();
+                  console.log('🔍 Upload parameters response:', data);
                   return {
                     method: 'PUT' as const,
                     url: data.uploadURL,

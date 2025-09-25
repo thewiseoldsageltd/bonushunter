@@ -800,6 +800,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO-friendly logo routes (e.g., /bet365-logo)
+  app.get("/:operatorSlug-logo", async (req, res) => {
+    const operatorSlug = req.params.operatorSlug;
+    const logoFileName = `${operatorSlug}-logo.png`;
+    const filePath = `logos/${logoFileName}`;
+    
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "Logo not found" });
+      }
+      // Set SEO-friendly headers
+      res.set({
+        'Cache-Control': 'public, max-age=86400', // 24 hour cache
+        'X-Content-Type-Options': 'nosniff'
+      });
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error serving SEO-friendly logo:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Serve public objects (logos)
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
