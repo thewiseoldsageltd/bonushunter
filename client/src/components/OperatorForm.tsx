@@ -254,30 +254,23 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   console.log('🔍 Upload failed?', result.failed);
                   if (result.successful && result.successful.length > 0) {
                     const uploadedFileURL = result.successful[0].uploadURL;
-                    console.log('Raw uploaded file URL:', uploadedFileURL);
-                    
-                    // Extract the actual file path from the Google Cloud Storage URL
-                    // URL format: https://storage.googleapis.com/bucket/public/logos/filename?params
-                    // We need: /public-objects/logos/filename
-                    const urlMatch = uploadedFileURL.match(/\/public\/(.+?)\?/);
-                    const actualFilePath = urlMatch ? `/public-objects/${urlMatch[1]}` : uploadedFileURL;
-                    console.log('Extracted file path:', actualFilePath);
+                    console.log('🔍 Raw uploaded file URL:', uploadedFileURL);
                     
                     // Update the operator logo via API
                     if (operator?.id) {
-                      console.log('Updating existing operator logo...');
+                      console.log('🔍 Updating existing operator logo...');
                       apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
-                        logoURL: actualFilePath
+                        logoURL: uploadedFileURL
                       }).then(async (res) => {
                         const data = await res.json();
-                        console.log('Logo update response:', data);
+                        console.log('🔍 Logo update response:', data);
                         setFormData(prev => ({ ...prev, logo: data.logoPath }));
                         toast({
                           title: "Logo Updated!",
                           description: "The operator logo has been updated successfully.",
                         });
                       }).catch(error => {
-                        console.error('Logo update error:', error);
+                        console.error('🔍 Logo update error:', error);
                         toast({
                           title: "Logo Update Failed",
                           description: "Failed to update the operator logo.",
@@ -285,12 +278,12 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                         });
                       });
                     } else {
-                      // For new operators, just set the extracted path
-                      console.log('Setting logo for new operator:', actualFilePath);
-                      setFormData(prev => ({ ...prev, logo: actualFilePath }));
+                      // For new operators, just set the URL for now
+                      console.log('🔍 Setting logo for new operator:', uploadedFileURL);
+                      setFormData(prev => ({ ...prev, logo: uploadedFileURL }));
                     }
                   } else {
-                    console.error('Upload failed or no files uploaded:', result);
+                    console.error('🔍 Upload failed or no files uploaded:', result);
                     toast({
                       title: "Upload Failed",
                       description: "The logo upload was not successful.",
