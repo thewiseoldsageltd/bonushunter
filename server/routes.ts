@@ -755,11 +755,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Logo upload endpoint with SEO-friendly naming
   app.post("/api/admin/logos/upload", async (req, res) => {
     try {
-      const { operatorName } = req.body;
-      console.log('🔍 Logo upload request for operator:', operatorName);
+      const { operatorName, fileType } = req.body;
+      console.log('🔍 Logo upload request for operator:', operatorName, 'fileType:', fileType);
+      
+      // Extract file extension from MIME type
+      let fileExtension = '.webp'; // default
+      if (fileType) {
+        if (fileType.includes('png')) fileExtension = '.png';
+        else if (fileType.includes('jpeg') || fileType.includes('jpg')) fileExtension = '.jpg';
+        else if (fileType.includes('webp')) fileExtension = '.webp';
+        else if (fileType.includes('svg')) fileExtension = '.svg';
+      }
       
       const objectStorageService = new ObjectStorageService();
-      const result = await objectStorageService.getLogoUploadURL(operatorName);
+      const result = await objectStorageService.getLogoUploadURL(operatorName, fileExtension);
       
       console.log('🔍 Upload URL generated:', result);
       res.json(result);

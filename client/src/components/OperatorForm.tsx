@@ -243,9 +243,12 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
               <ObjectUploader
                 maxNumberOfFiles={1}
                 maxFileSize={5242880} // 5MB
-                onGetUploadParameters={async () => {
+                onGetUploadParameters={async (file) => {
+                  console.log('🔍 Getting upload parameters for file:', file.name, file.type);
+                  
                   const response = await apiRequest('POST', '/api/admin/logos/upload', {
-                    operatorName: formData.name
+                    operatorName: formData.name,
+                    fileType: file.type
                   });
                   const data = await response.json();
                   console.log('🔍 Upload parameters response:', data);
@@ -256,6 +259,9 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   return {
                     method: 'PUT' as const,
                     url: data.uploadURL,
+                    headers: {
+                      'Content-Type': file.type
+                    }
                   };
                 }}
                 onComplete={(result: any) => {

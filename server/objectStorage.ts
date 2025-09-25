@@ -120,16 +120,19 @@ export class ObjectStorageService {
   }
 
   // Gets the upload URL for a logo file with SEO-friendly naming.
-  async getLogoUploadURL(operatorName?: string): Promise<{uploadURL: string, logoPath: string}> {
+  async getLogoUploadURL(operatorName?: string, fileExtension?: string): Promise<{uploadURL: string, logoPath: string}> {
     const publicSearchPaths = this.getPublicObjectSearchPaths();
     if (publicSearchPaths.length === 0) {
       throw new Error("No public search paths configured");
     }
 
+    // Default to .webp if no extension provided
+    const ext = fileExtension || '.webp';
+    
     // Generate SEO-friendly filename or fallback to UUID
     const logoFileName = operatorName 
-      ? this.generateSEOFriendlyLogoName(operatorName)
-      : `logo-${randomUUID()}.png`;
+      ? this.generateSEOFriendlyLogoName(operatorName, ext)
+      : `logo-${randomUUID()}${ext}`;
     
     const fullPath = `${publicSearchPaths[0]}/logos/${logoFileName}`;
     const logoPath = `/public-objects/logos/${logoFileName}`;
@@ -148,7 +151,7 @@ export class ObjectStorageService {
   }
 
   // Generates SEO-friendly logo filename from operator name
-  private generateSEOFriendlyLogoName(operatorName: string): string {
+  private generateSEOFriendlyLogoName(operatorName: string, fileExtension?: string): string {
     // Convert to lowercase, replace spaces and special chars with hyphens
     const cleanName = operatorName
       .toLowerCase()
@@ -156,7 +159,8 @@ export class ObjectStorageService {
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
     
-    return `${cleanName}-logo.png`;
+    const ext = fileExtension || '.webp';
+    return `${cleanName}-logo${ext}`;
   }
 
   // Gets the object entity file from the object path.
