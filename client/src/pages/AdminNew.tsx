@@ -313,9 +313,16 @@ const AdminNew = () => {
   });
 
   // Fetch all operators for the dropdown
-  const { data: operatorsData } = useQuery({
-    queryKey: ['/api/admin/operators']
+  const { data: operatorsData, isLoading: loadingOperators, error: operatorsError } = useQuery({
+    queryKey: ['/api/admin/operators'],
+    staleTime: 0, // Force fresh data
+    gcTime: 0, // Clear cache immediately
   });
+
+  // Debug operators data
+  console.log('🔍 Admin Debug - Operators data:', operatorsData);
+  console.log('🔍 Admin Debug - Loading operators:', loadingOperators);
+  console.log('🔍 Admin Debug - Operators error:', operatorsError);
 
   // Helper function to combine date and time
   const combineDateAndTime = (date: string, time: string): string => {
@@ -605,6 +612,11 @@ const AdminNew = () => {
 
   const bonuses = (bonusesData as any)?.bonuses || [];
   const operators = (operatorsData as any)?.operators || [];
+  
+  // Debug operators array
+  console.log('🔍 Admin Debug - Processed operators array:', operators);
+  console.log('🔍 Admin Debug - Operators length:', operators.length);
+  
   const stats = {
     totalBonuses: bonuses.length,
     activeOperators: operators.length,
