@@ -86,14 +86,14 @@ const AdminNew = () => {
     bonusType: 'welcome',
     productType: 'sportsbook',
     operatorId: '',
-    matchPercent: '100',
-    minDeposit: '10',
-    maxBonus: '0',
+    matchPercent: '',
+    minDeposit: '',
+    maxBonus: '',
     promoCode: '',
     landingUrl: '',
-    wageringRequirement: '1',
-    expiryDays: '30',
-    valueScore: '85',
+    wageringRequirement: '',
+    expiryDays: '',
+    valueScore: '',
     termsAndConditions: '',
     existingUserEligible: false,
     startAt: '',
@@ -107,11 +107,11 @@ const AdminNew = () => {
 
   const [editCalculatedEV, setEditCalculatedEV] = useState(() => 
     calculateBonusEV({
-      matchPercent: '100',
+      matchPercent: '0',
       maxBonus: '0',
-      minDeposit: '10',
+      minDeposit: '0',
       wageringRequirement: '1',
-      expiryDays: '30',
+      expiryDays: '0',
       productType: 'sportsbook',
       gameWeightings: {},
       maxCashout: '',
@@ -318,11 +318,6 @@ const AdminNew = () => {
     staleTime: 0, // Force fresh data
     gcTime: 0, // Clear cache immediately
   });
-
-  // Debug operators data
-  console.log('🔍 Admin Debug - Operators data:', operatorsData);
-  console.log('🔍 Admin Debug - Loading operators:', loadingOperators);
-  console.log('🔍 Admin Debug - Operators error:', operatorsError);
 
   // Helper function to combine date and time
   const combineDateAndTime = (date: string, time: string): string => {
@@ -612,11 +607,6 @@ const AdminNew = () => {
 
   const bonuses = (bonusesData as any)?.bonuses || [];
   const operators = (operatorsData as any)?.operators || [];
-  
-  // Debug operators array
-  console.log('🔍 Admin Debug - Processed operators array:', operators);
-  console.log('🔍 Admin Debug - Operators length:', operators.length);
-  
   const stats = {
     totalBonuses: bonuses.length,
     activeOperators: operators.length,
@@ -753,7 +743,7 @@ const AdminNew = () => {
                             id="title"
                             value={bonusForm.title}
                             onChange={(e) => setBonusForm(prev => ({ ...prev, title: e.target.value }))}
-                            placeholder="FanDuel No Sweat First Bet"
+                            placeholder="Enter bonus title"
                             required
                             data-testid="input-title"
                           />
@@ -784,7 +774,7 @@ const AdminNew = () => {
                           id="description"
                           value={bonusForm.description}
                           onChange={(e) => setBonusForm(prev => ({ ...prev, description: e.target.value }))}
-                          placeholder="Get a 100% deposit match bonus up to $1,000..."
+                          placeholder="Enter bonus description"
                           rows={3}
                           data-testid="textarea-description"
                         />
@@ -847,7 +837,7 @@ const AdminNew = () => {
                             id="promoCode"
                             value={bonusForm.promoCode}
                             onChange={(e) => setBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
-                            placeholder="BONUS1000"
+                            placeholder="Enter promo code"
                             data-testid="input-promo-code"
                           />
                         </div>
@@ -1175,7 +1165,7 @@ const AdminNew = () => {
                             id="edit-title"
                             value={editBonusForm.title}
                             onChange={(e) => setEditBonusForm(prev => ({ ...prev, title: e.target.value }))}
-                            placeholder="FanDuel No Sweat First Bet"
+                            placeholder="Enter bonus title"
                             required
                             data-testid="input-edit-title"
                           />
@@ -1206,7 +1196,7 @@ const AdminNew = () => {
                           id="edit-description"
                           value={editBonusForm.description}
                           onChange={(e) => setEditBonusForm(prev => ({ ...prev, description: e.target.value }))}
-                          placeholder="Get a 100% deposit match bonus up to $1,000..."
+                          placeholder="Enter bonus description"
                           rows={3}
                           data-testid="textarea-edit-description"
                         />
@@ -1269,7 +1259,7 @@ const AdminNew = () => {
                             id="edit-promoCode"
                             value={editBonusForm.promoCode}
                             onChange={(e) => setEditBonusForm(prev => ({ ...prev, promoCode: e.target.value }))}
-                            placeholder="BONUS1000"
+                            placeholder="Enter promo code"
                             data-testid="input-edit-promo-code"
                           />
                         </div>
