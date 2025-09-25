@@ -231,15 +231,47 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         <div className="space-y-2">
           <Label htmlFor="logo">Logo</Label>
           <div className="space-y-3">
+            {/* Logo Preview Section */}
+            {formData.logo && (
+              <div className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                <img 
+                  src={formData.logo} 
+                  alt="Current logo" 
+                  className="w-16 h-16 object-contain rounded border"
+                  data-testid="img-current-logo"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Current Logo
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {formData.logo.split('/').pop()}
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFormData(prev => ({ ...prev, logo: '', logoPath: '' }))}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  data-testid="button-remove-logo"
+                >
+                  ✕ Remove
+                </Button>
+              </div>
+            )}
+            
+            {/* Manual URL Input */}
             <Input
               id="logo"
               value={formData.logo}
               onChange={(e) => setFormData(prev => ({ ...prev, logo: e.target.value }))}
-              placeholder="Logo URL or upload a file below"
+              placeholder="Enter logo URL (e.g., /bet365_logo.webp)"
               data-testid="input-operator-logo"
             />
+            
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">or</span>
+              <span className="text-sm text-gray-500">or upload a new file:</span>
               <ObjectUploader
                 maxNumberOfFiles={1}
                 maxFileSize={5242880} // 5MB
