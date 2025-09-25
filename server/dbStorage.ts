@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { db } from './db';
 import * as schema from '@shared/schema';
 import type { 
