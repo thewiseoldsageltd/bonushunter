@@ -74,6 +74,7 @@ interface OperatorFormData {
 }
 
 const AdminNew = () => {
+  console.log('🔍 AdminNew component is loading!');
   const [location] = useLocation();
   
   // Determine default tab based on URL
