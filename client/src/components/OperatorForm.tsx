@@ -316,6 +316,19 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                     // Update the operator logo via API
                     if (operator?.id) {
                       console.log('🔍 Updating existing operator logo...');
+                      console.log('🔍 Sending logoURL:', permanentPublicPath);
+                      console.log('🔍 API request to:', `/api/admin/operators/${operator.id}/logo`);
+                      
+                      if (!permanentPublicPath) {
+                        console.error('🔍 ERROR: permanentPublicPath is empty!', permanentPublicPath);
+                        toast({
+                          title: "Upload Error",
+                          description: "Logo path is missing. Please try uploading again.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
                       apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
                         logoURL: permanentPublicPath
                       }).then(async (res) => {
