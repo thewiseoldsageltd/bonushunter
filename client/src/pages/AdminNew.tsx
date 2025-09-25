@@ -74,7 +74,6 @@ interface OperatorFormData {
 }
 
 const AdminNew = () => {
-  console.log('🔍 AdminNew component is loading!');
   const [location] = useLocation();
   
   // Determine default tab based on URL
@@ -211,27 +210,6 @@ const AdminNew = () => {
   const [deleteStrategy, setDeleteStrategy] = useState<'prevent' | 'reassign' | 'hard'>('prevent');
   const [targetOperatorId, setTargetOperatorId] = useState('');
   
-  // Debug: Log dialog state
-  console.log('🔍 Delete dialog state - deletingOperator:', !!deletingOperator, deletingOperator?.name);
-
-  // Force close any stuck dialogs on component mount
-  React.useEffect(() => {
-    console.log('🔍 Component mounted, resetting delete dialog state');
-    setDeletingOperator(null);
-  }, []);
-
-  // Add escape key handler to close dialog
-  React.useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && deletingOperator) {
-        console.log('🔍 Escape pressed, closing delete dialog');
-        setDeletingOperator(null);
-      }
-    };
-    
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [deletingOperator]);
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -1756,10 +1734,7 @@ const AdminNew = () => {
                 )}
 
                 {/* Inline Edit Form */}
-                {(() => {
-                  console.log('🔍 Form render check - showEditOperatorForm:', showEditOperatorForm, 'editingOperator:', !!editingOperator);
-                  return showEditOperatorForm && editingOperator;
-                })() && (
+                {showEditOperatorForm && editingOperator && (
                   <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">Edit Operator: {editingOperator.name}</h3>
 
@@ -1809,11 +1784,9 @@ const AdminNew = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              console.log('🔍 Edit button clicked for operator:', operator);
                               setShowAddOperatorForm(false); // Close add form if open
                               setShowEditOperatorForm(true); // Show edit form inline
                               setEditingOperator(operator); // Store editing operator for inline form
-                              console.log('🔍 Edit state set - showEditOperatorForm:', true, 'editingOperator:', operator);
                             }}
                             data-testid={`button-edit-operator-${operator.id}`}
                           >

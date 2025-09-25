@@ -19,10 +19,6 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Debug logging
-  console.log('🔍 OperatorForm rendered with operator:', operator);
-  console.log('🔍 OperatorForm operator exists:', !!operator);
-  
   const [formData, setFormData] = useState({
     name: operator?.name || '',
     siteUrl: operator?.siteUrl || '',
