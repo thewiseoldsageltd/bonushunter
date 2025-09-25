@@ -752,29 +752,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keepalive endpoint to prevent sleeping
-  // Logo upload endpoint with SEO-friendly naming
+  // Logo upload endpoint preserving original filename
   app.post("/api/admin/logos/upload", async (req, res) => {
     try {
-      const { operatorName, fileType } = req.body;
-      console.log('🔍 Logo upload request for operator:', operatorName, 'fileType:', fileType);
-      
-      // Extract file extension from MIME type
-      let fileExtension = '.webp'; // default
-      if (fileType) {
-        if (fileType.includes('png')) fileExtension = '.png';
-        else if (fileType.includes('jpeg') || fileType.includes('jpg')) fileExtension = '.jpg';
-        else if (fileType.includes('webp')) fileExtension = '.webp';
-        else if (fileType.includes('svg')) fileExtension = '.svg';
-      }
+      const { filename, contentType } = req.body;
+      console.log('🔍 Logo upload request for filename:', filename, 'contentType:', contentType);
       
       const objectStorageService = new ObjectStorageService();
-      const result = await objectStorageService.getLogoUploadURL(operatorName, fileExtension);
+      const result = await objectStorageService.getOriginalNameUploadURL(filename, contentType);
       
       console.log('🔍 Upload URL generated:', result);
       res.json(result);
     } catch (error) {
       console.error("Error getting logo upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
+      res.status(500).json({ error: error.message || "Failed to get upload URL" });
     }
   });
 

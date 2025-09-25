@@ -119,27 +119,23 @@ export class ObjectStorageService {
     }
   }
 
-  // Gets the upload URL for a logo file with SEO-friendly naming.
-  async getLogoUploadURL(operatorName?: string, fileExtension?: string): Promise<{uploadURL: string, logoPath: string}> {
+  // Gets upload URL preserving original filename for domain root serving
+  async getOriginalNameUploadURL(filename: string, contentType?: string): Promise<{uploadURL: string, publicPath: string}> {
     const publicSearchPaths = this.getPublicObjectSearchPaths();
     if (publicSearchPaths.length === 0) {
       throw new Error("No public search paths configured");
     }
 
-    // Default to .webp if no extension provided
-    const ext = fileExtension || '.webp';
+    // Sanitize filename for security
+    const sanitizedFilename = this.sanitizeFilename(filename);
     
-    // Generate SEO-friendly filename or fallback to UUID
-    const logoFileName = operatorName 
-      ? this.generateSEOFriendlyLogoName(operatorName, ext)
-      : `logo-${randomUUID()}${ext}`;
-    
-    const fullPath = `${publicSearchPaths[0]}/logos/${logoFileName}`;
-    const logoPath = `/public-objects/logos/${logoFileName}`;
+    // Store at bucket root for domain.com/filename.ext serving
+    const fullPath = `${publicSearchPaths[0]}/${sanitizedFilename}`;
+    const publicPath = `/${sanitizedFilename}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
-    // Sign URL for PUT method with TTL
+    // Sign URL for PUT method
     const uploadURL = await signObjectURL({
       bucketName,
       objectName,
@@ -147,20 +143,26 @@ export class ObjectStorageService {
       ttlSec: 900,
     });
 
-    return { uploadURL, logoPath };
+    return { uploadURL, publicPath };
   }
 
-  // Generates SEO-friendly logo filename from operator name
-  private generateSEOFriendlyLogoName(operatorName: string, fileExtension?: string): string {
-    // Convert to lowercase, replace spaces and special chars with hyphens
-    const cleanName = operatorName
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+  // Sanitizes filename for security while preserving original name
+  private sanitizeFilename(filename: string): string {
+    // Extract just the basename (no path traversal)
+    const basename = filename.split(/[/\\]/).pop() || filename;
     
-    const ext = fileExtension || '.webp';
-    return `${cleanName}-logo${ext}`;
+    // Validate extension against allowed image types
+    const allowedExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'avif'];
+    const extension = basename.split('.').pop()?.toLowerCase();
+    
+    if (!extension || !allowedExtensions.includes(extension)) {
+      throw new Error(`Invalid file type. Allowed: ${allowedExtensions.join(', ')}`);
+    }
+    
+    // Remove unsafe characters but preserve the original name structure
+    const safeName = basename.replace(/[^a-zA-Z0-9._-]/g, '_');
+    
+    return safeName;
   }
 
   // Gets the object entity file from the object path.
