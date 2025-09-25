@@ -604,7 +604,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minDeposit: String(bonusData.minDeposit),
         maxBonus: String(bonusData.maxBonus),
         wageringRequirement: String(bonusData.wageringRequirement),
-        valueScore: String(bonusData.valueScore)
+        valueScore: String(bonusData.valueScore),
+        // Convert date strings to Date objects for PostgreSQL
+        startAt: bonusData.startAt ? new Date(bonusData.startAt) : undefined,
+        endAt: bonusData.endAt ? new Date(bonusData.endAt) : undefined,
       };
 
       // Auto-calculate EV score based on bonus terms
