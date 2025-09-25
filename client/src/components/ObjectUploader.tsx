@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
@@ -60,7 +60,9 @@ export function ObjectUploader({
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
   const [hasFiles, setHasFiles] = useState(false);
-  const [uppy] = useState(() =>
+  
+  // Create Uppy instance with proper dependency management
+  const uppy = useMemo(() => 
     new Uppy({
       restrictions: {
         maxNumberOfFiles,
@@ -70,22 +72,89 @@ export function ObjectUploader({
       autoProceed: false,
       allowMultipleUploadBatches: false,
     })
-      .use(AwsS3, {
-        shouldUseMultipart: false,
-        getUploadParameters: (file) => onGetUploadParameters(file),
-      })
       .on("file-added", () => {
         setHasFiles(true);
       })
       .on("file-removed", () => {
-        setHasFiles(uppy.getFiles().length > 1);
+        // Fixed logic: should be > 0, not > 1  
+        setHasFiles(uppy.getFiles().length > 0);
       })
       .on("complete", (result: any) => {
+        console.log('🔍 ObjectUploader: Upload complete:', result);
         onComplete?.(result);
         setShowModal(false);
         setHasFiles(false);
       })
+      .on("upload-error", (file, error) => {
+        console.error('🔍 ObjectUploader: Upload error:', error, file);
+      })
+      .on("error", (error) => {
+        console.error('🔍 ObjectUploader: General error:', error);
+      }),
+    [maxNumberOfFiles, maxFileSize]
   );
+
+  // Update AwsS3 plugin when onGetUploadParameters changes
+  useEffect(() => {
+    console.log('🔍 ObjectUploader: Setting up AwsS3 plugin with fresh upload parameters');
+    
+    const plugin = uppy.getPlugin('AwsS3');
+    if (!plugin) {
+      uppy.use(AwsS3, {
+        shouldUseMultipart: false,
+        getUploadParameters: async (file: any) => {
+          console.log('🔍 ObjectUploader: AwsS3 getUploadParameters called for:', file.name);
+          const result = await onGetUploadParameters(file);
+          
+          // Ensure Content-Type header is included
+          const headers = {
+            'Content-Type': file.type,
+            ...result.headers
+          };
+          
+          console.log('🔍 ObjectUploader: Returning upload params:', { 
+            method: result.method, 
+            url: result.url.substring(0, 100) + '...', 
+            headers 
+          });
+          
+          return {
+            ...result,
+            headers
+          };
+        },
+      });
+    } else {
+      plugin.setOptions({
+        getUploadParameters: async (file: any) => {
+          console.log('🔍 ObjectUploader: AwsS3 getUploadParameters called for:', file.name);
+          const result = await onGetUploadParameters(file);
+          
+          // Ensure Content-Type header is included
+          const headers = {
+            'Content-Type': file.type,
+            ...result.headers
+          };
+          
+          console.log('🔍 ObjectUploader: Returning upload params:', { 
+            method: result.method, 
+            url: result.url.substring(0, 100) + '...', 
+            headers 
+          });
+          
+          return {
+            ...result,
+            headers
+          };
+        },
+      });
+    }
+
+    // Cleanup on unmount - Note: Uppy doesn't have close() in this version
+    return () => {
+      // uppy.close(); // Not available in this version
+    };
+  }, [uppy, onGetUploadParameters]);
 
   // Disable global space bar protection when files are selected
   React.useEffect(() => {
