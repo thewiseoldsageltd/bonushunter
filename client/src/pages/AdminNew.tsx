@@ -1866,10 +1866,7 @@ const AdminNew = () => {
         </Tabs>
 
         {/* Delete Operator Confirmation Dialog */}
-        <Dialog open={false} onOpenChange={() => {
-          console.log('🔍 Dialog onOpenChange called, closing dialog');
-          setDeletingOperator(null);
-        }}>
+        <Dialog open={!!deletingOperator} onOpenChange={() => setDeletingOperator(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Delete Operator</DialogTitle>

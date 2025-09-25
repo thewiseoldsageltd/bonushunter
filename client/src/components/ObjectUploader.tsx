@@ -99,74 +99,64 @@ export function ObjectUploader({
   useEffect(() => {
     console.log('🔍 ObjectUploader: Setting up AwsS3 plugin with fresh upload parameters');
     
-    // Add upload start listener for debugging
-    uppy.on('upload', (data) => {
-      console.log('🔍 ObjectUploader: Upload started!', data);
-    });
-    
-    uppy.on('upload-progress', (file, progress) => {
-      console.log('🔍 ObjectUploader: Upload progress:', file?.name, progress);
-    });
-    
-    uppy.on('upload-success', (file, response) => {
-      console.log('🔍 ObjectUploader: Upload success:', file?.name, response);
-    });
-    
-    const plugin = uppy.getPlugin('AwsS3');
-    if (!plugin) {
-      uppy.use(AwsS3, {
-        shouldUseMultipart: false,
-        getUploadParameters: async (file: any) => {
-          console.log('🔍 ObjectUploader: AwsS3 getUploadParameters called for:', file.name);
-          const result = await onGetUploadParameters(file);
-          
-          // Ensure Content-Type header is included
-          const headers = {
-            'Content-Type': file.type,
-            ...result.headers
-          };
-          
-          console.log('🔍 ObjectUploader: Returning upload params:', { 
-            method: result.method, 
-            url: result.url.substring(0, 100) + '...', 
-            headers 
-          });
-          
-          return {
-            ...result,
-            headers
-          };
-        },
+    // Add upload start listener for debugging (only if not already added)
+    const existingUploadListeners = uppy.opts.onBeforeUpload || [];
+    if (existingUploadListeners.length === 0) {
+      uppy.on('upload', (data) => {
+        console.log('🔍 ObjectUploader: Upload started!', data);
       });
-    } else {
-      plugin.setOptions({
-        getUploadParameters: async (file: any) => {
-          console.log('🔍 ObjectUploader: AwsS3 getUploadParameters called for:', file.name);
-          const result = await onGetUploadParameters(file);
-          
-          // Ensure Content-Type header is included
-          const headers = {
-            'Content-Type': file.type,
-            ...result.headers
-          };
-          
-          console.log('🔍 ObjectUploader: Returning upload params:', { 
-            method: result.method, 
-            url: result.url.substring(0, 100) + '...', 
-            headers 
-          });
-          
-          return {
-            ...result,
-            headers
-          };
-        },
+      
+      uppy.on('upload-progress', (file, progress) => {
+        console.log('🔍 ObjectUploader: Upload progress:', file?.name, progress);
+      });
+      
+      uppy.on('upload-success', (file, response) => {
+        console.log('🔍 ObjectUploader: Upload success:', file?.name, response);
       });
     }
+    
+    // Remove existing AwsS3 plugin to avoid conflicts
+    const existingPlugin = uppy.getPlugin('AwsS3');
+    if (existingPlugin) {
+      console.log('🔍 ObjectUploader: Removing existing AwsS3 plugin to avoid conflicts');
+      uppy.removePlugin(existingPlugin);
+    }
+    
+    // Add fresh AwsS3 plugin
+    console.log('🔍 ObjectUploader: Adding fresh AwsS3 plugin');
+    uppy.use(AwsS3, {
+      id: 'AwsS3',
+      shouldUseMultipart: false,
+      getUploadParameters: async (file: any) => {
+        console.log('🔍 ObjectUploader: AwsS3 getUploadParameters called for:', file.name);
+        const result = await onGetUploadParameters(file);
+        
+        // Ensure Content-Type header is included
+        const headers = {
+          'Content-Type': file.type,
+          ...result.headers
+        };
+        
+        console.log('🔍 ObjectUploader: Returning upload params:', { 
+          method: result.method, 
+          url: result.url.substring(0, 100) + '...', 
+          headers 
+        });
+        
+        return {
+          ...result,
+          headers
+        };
+      },
+    });
 
-    // Cleanup on unmount - Note: Uppy doesn't have close() in this version
+    // Cleanup: remove plugin when component unmounts or effect re-runs
     return () => {
-      // uppy.close(); // Not available in this version
+      const pluginToRemove = uppy.getPlugin('AwsS3');
+      if (pluginToRemove) {
+        console.log('🔍 ObjectUploader: Cleaning up AwsS3 plugin');
+        uppy.removePlugin(pluginToRemove);
+      }
     };
   }, [uppy, onGetUploadParameters]);
 
