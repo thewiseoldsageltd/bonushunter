@@ -249,7 +249,9 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   };
                 }}
                 onComplete={(result: any) => {
-                  console.log('Upload complete result:', result);
+                  console.log('🔍 Upload complete result:', result);
+                  console.log('🔍 Upload successful?', result.successful);
+                  console.log('🔍 Upload failed?', result.failed);
                   if (result.successful && result.successful.length > 0) {
                     const uploadedFileURL = result.successful[0].uploadURL;
                     console.log('Raw uploaded file URL:', uploadedFileURL);
