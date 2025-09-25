@@ -1784,9 +1784,11 @@ const AdminNew = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
+                              console.log('🔍 EDIT BUTTON CLICKED for operator:', operator.name);
                               setShowAddOperatorForm(false); // Close add form if open
                               setShowEditOperatorForm(true); // Show edit form inline
                               setEditingOperator(operator); // Store editing operator for inline form
+                              console.log('🔍 Edit state set successfully');
                             }}
                             data-testid={`button-edit-operator-${operator.id}`}
                           >
