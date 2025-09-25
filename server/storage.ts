@@ -21,6 +21,11 @@ export interface IStorage {
   getAllOperators(): Promise<Operator[]>;
   createOperator(operator: InsertOperator): Promise<Operator>;
   updateOperator(id: string, operator: InsertOperator): Promise<Operator>;
+  updateOperatorLogo(id: string, logoPath: string): Promise<{ logoPath: string }>;
+  countBonusesByOperator(operatorId: string): Promise<number>;
+  reassignBonuses(fromOperatorId: string, toOperatorId: string): Promise<number>;
+  deleteOperator(operatorId: string): Promise<void>;
+  getOperatorById(id: string): Promise<Operator | null>;
 
   // Jurisdictions
   getJurisdiction(id: string): Promise<Jurisdiction | undefined>;

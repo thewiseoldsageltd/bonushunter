@@ -53,6 +53,36 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async updateOperatorLogo(id: string, logoPath: string): Promise<{ logoPath: string }> {
+    await db.update(schema.operators).set({ logo: logoPath }).where(eq(schema.operators.id, id));
+    return { logoPath };
+  }
+
+  async countBonusesByOperator(operatorId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.bonuses)
+      .where(eq(schema.bonuses.operatorId, operatorId));
+    return result[0]?.count || 0;
+  }
+
+  async reassignBonuses(fromOperatorId: string, toOperatorId: string): Promise<number> {
+    const result = await db
+      .update(schema.bonuses)
+      .set({ operatorId: toOperatorId })
+      .where(eq(schema.bonuses.operatorId, fromOperatorId));
+    return result.rowCount || 0;
+  }
+
+  async deleteOperator(operatorId: string): Promise<void> {
+    await db.delete(schema.operators).where(eq(schema.operators.id, operatorId));
+  }
+
+  async getOperatorById(id: string): Promise<Operator | null> {
+    const result = await db.select().from(schema.operators).where(eq(schema.operators.id, id)).limit(1);
+    return result[0] || null;
+  }
+
   // Jurisdictions
   async getJurisdiction(id: string): Promise<Jurisdiction | undefined> {
     const result = await db.select().from(schema.jurisdictions).where(eq(schema.jurisdictions.id, id)).limit(1);
