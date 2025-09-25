@@ -69,7 +69,7 @@ export function ObjectUploader({
         maxFileSize,
         allowedFileTypes: ['image/*'], // Only allow images for logos
       },
-      autoProceed: false,
+      autoProceed: true,
       allowMultipleUploadBatches: false,
     })
       .on("file-added", (file) => {
@@ -102,6 +102,14 @@ export function ObjectUploader({
     // Add upload start listener for debugging
     uppy.on('upload', (data) => {
       console.log('🔍 ObjectUploader: Upload started!', data);
+    });
+    
+    uppy.on('upload-progress', (file, progress) => {
+      console.log('🔍 ObjectUploader: Upload progress:', file?.name, progress);
+    });
+    
+    uppy.on('upload-success', (file, response) => {
+      console.log('🔍 ObjectUploader: Upload success:', file?.name, response);
     });
     
     const plugin = uppy.getPlugin('AwsS3');
