@@ -72,7 +72,8 @@ export function ObjectUploader({
       autoProceed: false,
       allowMultipleUploadBatches: false,
     })
-      .on("file-added", () => {
+      .on("file-added", (file) => {
+        console.log('🔍 ObjectUploader: File added to Uppy:', file.name, file.type, file.size);
         setHasFiles(true);
       })
       .on("file-removed", () => {
@@ -97,6 +98,11 @@ export function ObjectUploader({
   // Update AwsS3 plugin when onGetUploadParameters changes
   useEffect(() => {
     console.log('🔍 ObjectUploader: Setting up AwsS3 plugin with fresh upload parameters');
+    
+    // Add upload start listener for debugging
+    uppy.on('upload', (data) => {
+      console.log('🔍 ObjectUploader: Upload started!', data);
+    });
     
     const plugin = uppy.getPlugin('AwsS3');
     if (!plugin) {
