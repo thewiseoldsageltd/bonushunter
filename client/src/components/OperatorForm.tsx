@@ -67,14 +67,16 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         maxWithdrawal: data.maxWithdrawal && data.maxWithdrawal.trim() ? data.maxWithdrawal : undefined,
       };
 
-      // Only include logo if it's a valid path (starts with /public-objects/) or valid URL
-      // This prevents manually entered filenames from overwriting uploaded logos
+      // Only include logo if it's a valid uploaded path or external URL
+      // This prevents manually entered paths from overwriting uploaded logos
       if (data.logo && data.logo.trim()) {
         const logoValue = data.logo.trim();
-        if (logoValue.startsWith('/public-objects/') || logoValue.startsWith('http://') || logoValue.startsWith('https://')) {
+        // Only allow properly formatted upload paths (with UUIDs) or external URLs
+        if ((logoValue.startsWith('/public-objects/logos/') && logoValue.length > 40) || 
+            logoValue.startsWith('http://') || logoValue.startsWith('https://')) {
           processedData.logo = logoValue;
         }
-        // If logo is just a filename (like "bet365-logo.png"), don't include it to avoid overwriting uploaded logos
+        // If logo is just a path like "/public-objects/bet365-logo.png", don't include it
       }
       
       // Debug: log the processed data
