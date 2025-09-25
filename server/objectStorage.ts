@@ -119,25 +119,44 @@ export class ObjectStorageService {
     }
   }
 
-  // Gets the upload URL for a logo file.
-  async getLogoUploadURL(): Promise<string> {
+  // Gets the upload URL for a logo file with SEO-friendly naming.
+  async getLogoUploadURL(operatorName?: string): Promise<{uploadURL: string, logoPath: string}> {
     const publicSearchPaths = this.getPublicObjectSearchPaths();
     if (publicSearchPaths.length === 0) {
       throw new Error("No public search paths configured");
     }
 
-    const logoId = randomUUID();
-    const fullPath = `${publicSearchPaths[0]}/logos/${logoId}`;
+    // Generate SEO-friendly filename or fallback to UUID
+    const logoFileName = operatorName 
+      ? this.generateSEOFriendlyLogoName(operatorName)
+      : `logo-${randomUUID()}.png`;
+    
+    const fullPath = `${publicSearchPaths[0]}/logos/${logoFileName}`;
+    const logoPath = `/public-objects/logos/${logoFileName}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
     // Sign URL for PUT method with TTL
-    return signObjectURL({
+    const uploadURL = await signObjectURL({
       bucketName,
       objectName,
       method: "PUT",
       ttlSec: 900,
     });
+
+    return { uploadURL, logoPath };
+  }
+
+  // Generates SEO-friendly logo filename from operator name
+  private generateSEOFriendlyLogoName(operatorName: string): string {
+    // Convert to lowercase, replace spaces and special chars with hyphens
+    const cleanName = operatorName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
+    return `${cleanName}-logo.png`;
   }
 
   // Gets the object entity file from the object path.
@@ -165,6 +184,22 @@ export class ObjectStorageService {
       throw new ObjectNotFoundError();
     }
     return objectFile;
+  }
+
+  // Normalizes logo path for consistency
+  normalizeLogoPath(logoURL: string): string {
+    // If it's already a relative path, return as-is
+    if (logoURL.startsWith('/public-objects/')) {
+      return logoURL;
+    }
+    
+    // If it's a full URL, return as-is for external logos
+    if (logoURL.startsWith('http://') || logoURL.startsWith('https://')) {
+      return logoURL;
+    }
+    
+    // Otherwise assume it's a relative logo path
+    return logoURL;
   }
 
   normalizeObjectEntityPath(rawPath: string): string {

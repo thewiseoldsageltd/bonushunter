@@ -752,12 +752,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Keepalive endpoint to prevent sleeping
-  // Logo upload endpoint
+  // Logo upload endpoint with SEO-friendly naming
   app.post("/api/admin/logos/upload", async (req, res) => {
     try {
+      const { operatorName } = req.body;
+      console.log('🔍 Logo upload request for operator:', operatorName);
+      
       const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getLogoUploadURL();
-      res.json({ uploadURL });
+      const result = await objectStorageService.getLogoUploadURL(operatorName);
+      
+      console.log('🔍 Upload URL generated:', result);
+      res.json(result);
     } catch (error) {
       console.error("Error getting logo upload URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
