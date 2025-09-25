@@ -64,10 +64,14 @@ export default function BonusCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`${compact ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-xl overflow-hidden flex items-center justify-center`}>
-          {bonus.operator.logo && bonus.operator.logo.startsWith('/public-objects/') ? (
+          {bonus.operator.logo && (bonus.operator.logo.startsWith('/public-objects/') || bonus.operator.logo.startsWith('http')) ? (
             <img 
               src={(() => {
-                // Use Replit backend in production, relative URLs in development
+                // Handle external URLs directly
+                if (bonus.operator.logo.startsWith('http')) {
+                  return bonus.operator.logo;
+                }
+                // Use Replit backend in production, relative URLs in development for /public-objects/
                 const BACKEND_URL = import.meta.env.PROD 
                   ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
                   : '';
