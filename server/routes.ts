@@ -869,7 +869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Stream the image with proper caching
       await objectStorageService.downloadObject(file, res, 86400); // 24 hours cache
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error serving image from domain root:", error);
       res.status(404).json({ error: "Image not found" });
     }
