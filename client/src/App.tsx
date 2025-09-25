@@ -21,6 +21,9 @@ function Router() {
       <Route path="/ny" component={Home}/>
       <Route path="/mi" component={Home}/>
       <Route path="/admin" component={AdminNew}/>
+      <Route path="/admin/operators" component={AdminNew}/>
+      <Route path="/admin/bonuses" component={AdminNew}/>
+      <Route path="/admin/analytics" component={AdminNew}/>
       <Route component={NotFound} />
     </Switch>
   );

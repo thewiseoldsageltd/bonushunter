@@ -276,25 +276,33 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                 maxNumberOfFiles={1}
                 maxFileSize={5242880} // 5MB
                 onGetUploadParameters={async (file) => {
-                  console.log('🔍 Getting upload parameters for file:', file.name, file.type);
+                  console.log('🔍 ObjectUploader: Getting upload parameters for file:', file.name, file.type);
+                  console.log('🔍 ObjectUploader: File object:', file);
                   
-                  const response = await apiRequest('POST', '/api/admin/logos/upload', {
-                    filename: file.name,
-                    contentType: file.type
-                  });
-                  const data = await response.json();
-                  console.log('🔍 Upload parameters response:', data);
-                  
-                  // Store the permanent publicPath (e.g., /bet365_logo.webp)
-                  setFormData(prev => ({ ...prev, logoPath: data.publicPath }));
-                  
-                  return {
-                    method: 'PUT' as const,
-                    url: data.uploadURL,
-                    headers: {
-                      'Content-Type': file.type
-                    }
-                  };
+                  try {
+                    console.log('🔍 ObjectUploader: Making API request to /api/admin/logos/upload');
+                    const response = await apiRequest('POST', '/api/admin/logos/upload', {
+                      filename: file.name,
+                      contentType: file.type
+                    });
+                    console.log('🔍 ObjectUploader: API response received:', response.status);
+                    const data = await response.json();
+                      console.log('🔍 ObjectUploader: Upload parameters response:', data);
+                    
+                    // Store the permanent publicPath (e.g., /bet365_logo.webp)
+                    setFormData(prev => ({ ...prev, logoPath: data.publicPath }));
+                    
+                    return {
+                      method: 'PUT' as const,
+                      url: data.uploadURL,
+                      headers: {
+                        'Content-Type': file.type
+                      }
+                    };
+                  } catch (error) {
+                    console.error('🔍 ObjectUploader: Error getting upload parameters:', error);
+                    throw error;
+                  }
                 }}
                 onComplete={(result: any) => {
                   console.log('🔍 Upload complete result:', result);

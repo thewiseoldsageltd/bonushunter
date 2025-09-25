@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,14 @@ interface OperatorFormData {
 }
 
 const AdminNew = () => {
+  const [location] = useLocation();
+  
+  // Determine default tab based on URL
+  const getDefaultTab = () => {
+    if (location.includes('/operators')) return 'operators';
+    if (location.includes('/analytics')) return 'analytics';
+    return 'bonuses';
+  };
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [editingBonus, setEditingBonus] = useState<any>(null);
@@ -675,7 +684,7 @@ const AdminNew = () => {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="bonuses" className="space-y-6">
+        <Tabs defaultValue={getDefaultTab()} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="bonuses">Bonuses</TabsTrigger>
             <TabsTrigger value="operators">Operators</TabsTrigger>
