@@ -1733,7 +1733,10 @@ const AdminNew = () => {
                 )}
 
                 {/* Inline Edit Form */}
-                {showEditOperatorForm && editingOperator && (
+                {(() => {
+                  console.log('🔍 Form render check - showEditOperatorForm:', showEditOperatorForm, 'editingOperator:', !!editingOperator);
+                  return showEditOperatorForm && editingOperator;
+                })() && (
                   <div className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
                     <h3 className="text-lg font-semibold mb-4">Edit Operator: {editingOperator.name}</h3>
 
@@ -1783,9 +1786,11 @@ const AdminNew = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
+                              console.log('🔍 Edit button clicked for operator:', operator);
                               setShowAddOperatorForm(false); // Close add form if open
                               setShowEditOperatorForm(true); // Show edit form inline
                               setEditingOperator(operator); // Store editing operator for inline form
+                              console.log('🔍 Edit state set - showEditOperatorForm:', true, 'editingOperator:', operator);
                             }}
                             data-testid={`button-edit-operator-${operator.id}`}
                           >
