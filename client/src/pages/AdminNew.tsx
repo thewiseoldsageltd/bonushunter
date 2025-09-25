@@ -213,6 +213,25 @@ const AdminNew = () => {
   // Debug: Log dialog state
   console.log('🔍 Delete dialog state - deletingOperator:', !!deletingOperator, deletingOperator?.name);
 
+  // Force close any stuck dialogs on component mount
+  React.useEffect(() => {
+    console.log('🔍 Component mounted, resetting delete dialog state');
+    setDeletingOperator(null);
+  }, []);
+
+  // Add escape key handler to close dialog
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && deletingOperator) {
+        console.log('🔍 Escape pressed, closing delete dialog');
+        setDeletingOperator(null);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [deletingOperator]);
+
   // Recalculate EV when form changes
   React.useEffect(() => {
     const newEV = calculateBonusEV({
