@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,9 @@ interface OperatorFormProps {
 export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Use a ref to store logo path to avoid race conditions
+  const logoPathRef = useRef<string>('');
   
   const [formData, setFormData] = useState({
     name: operator?.name || '',
@@ -290,6 +293,7 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                       console.log('🔍 ObjectUploader: Upload parameters response:', data);
                     
                     // Store the permanent publicPath (e.g., /bet365_logo.webp)
+                    logoPathRef.current = data.publicPath;
                     setFormData(prev => ({ ...prev, logoPath: data.publicPath }));
                     
                     return {
@@ -309,9 +313,9 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   console.log('🔍 Upload successful?', result.successful);
                   console.log('🔍 Upload failed?', result.failed);
                   if (result.successful && result.successful.length > 0) {
-                    // ✅ Use the permanent publicPath (e.g., /bet365_logo.webp)
-                    const permanentPublicPath = formData.logoPath;
-                    console.log('🔍 Using permanent public path:', permanentPublicPath);
+                    // ✅ Use the permanent publicPath from ref (avoids race condition)
+                    const permanentPublicPath = logoPathRef.current;
+                    console.log('🔍 Using permanent public path from ref:', permanentPublicPath);
                     
                     // Update the operator logo via API
                     if (operator?.id) {
@@ -321,6 +325,8 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                       
                       if (!permanentPublicPath) {
                         console.error('🔍 ERROR: permanentPublicPath is empty!', permanentPublicPath);
+                        console.error('🔍 logoPathRef.current:', logoPathRef.current);
+                        console.error('🔍 formData.logoPath:', formData.logoPath);
                         toast({
                           title: "Upload Error",
                           description: "Logo path is missing. Please try uploading again.",
