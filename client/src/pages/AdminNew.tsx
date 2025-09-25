@@ -204,6 +204,11 @@ const AdminNew = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showAddOperatorForm, setShowAddOperatorForm] = useState(false);
+  
+  // Delete operator state
+  const [deletingOperator, setDeletingOperator] = useState<any>(null);
+  const [deleteStrategy, setDeleteStrategy] = useState<'prevent' | 'reassign' | 'hard'>('prevent');
+  const [targetOperatorId, setTargetOperatorId] = useState('');
 
   // Recalculate EV when form changes
   React.useEffect(() => {
@@ -444,6 +449,42 @@ const AdminNew = () => {
       toast({
         title: "Update Failed",
         description: error.message || "Could not update operator",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete operator mutation with strategy support
+  const deleteOperatorMutation = useMutation({
+    mutationFn: async ({ operatorId, strategy, targetOperatorId }: { 
+      operatorId: string; 
+      strategy: 'prevent' | 'reassign' | 'hard'; 
+      targetOperatorId?: string 
+    }) => {
+      const params = new URLSearchParams();
+      params.append('strategy', strategy);
+      if (targetOperatorId && strategy === 'reassign') {
+        params.append('to', targetOperatorId);
+      }
+      
+      const response = await apiRequest('DELETE', `/api/admin/operators/${operatorId}?${params}`);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Operator Deleted Successfully!",
+        description: data.message || "The operator has been removed.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/operators'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bonuses'] });
+      setDeletingOperator(null);
+      setDeleteStrategy('prevent');
+      setTargetOperatorId('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Could not delete operator",
         variant: "destructive",
       });
     }
@@ -1750,6 +1791,19 @@ const AdminNew = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setDeletingOperator(operator);
+                              setDeleteStrategy('prevent');
+                              setTargetOperatorId('');
+                            }}
+                            data-testid={`button-delete-operator-${operator.id}`}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     ))
@@ -1782,6 +1836,95 @@ const AdminNew = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Delete Operator Confirmation Dialog */}
+        <Dialog open={!!deletingOperator} onOpenChange={() => setDeletingOperator(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete Operator</DialogTitle>
+            </DialogHeader>
+            
+            {deletingOperator && (
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-200">
+                  <h3 className="font-semibold text-yellow-800">⚠️ Are you sure?</h3>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    You're about to delete <strong>{deletingOperator.name}</strong>
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="delete-strategy">Deletion Strategy</Label>
+                    <Select value={deleteStrategy} onValueChange={(value: 'prevent' | 'reassign' | 'hard') => setDeleteStrategy(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="prevent">Prevent (safe delete only if no bonuses)</SelectItem>
+                        <SelectItem value="reassign">Reassign bonuses to another operator</SelectItem>
+                        <SelectItem value="hard">Hard delete (removes everything)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {deleteStrategy === 'reassign' && (
+                    <div>
+                      <Label htmlFor="target-operator">Move bonuses to:</Label>
+                      <Select value={targetOperatorId} onValueChange={setTargetOperatorId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select target operator" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {operators
+                            ?.filter((op: any) => op.id !== deletingOperator.id)
+                            .map((operator: any) => (
+                              <SelectItem key={operator.id} value={operator.id}>
+                                {operator.name}
+                              </SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {deleteStrategy === 'hard' && (
+                    <div className="p-3 border rounded-lg bg-red-50 border-red-200">
+                      <p className="text-sm text-red-700">
+                        ⚠️ <strong>Warning:</strong> This will permanently delete the operator and all associated bonuses. This cannot be undone.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setDeletingOperator(null)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      deleteOperatorMutation.mutate({
+                        operatorId: deletingOperator.id,
+                        strategy: deleteStrategy,
+                        targetOperatorId: deleteStrategy === 'reassign' ? targetOperatorId : undefined
+                      });
+                    }}
+                    disabled={deleteStrategy === 'reassign' && !targetOperatorId}
+                    className="flex-1 bg-red-600 hover:bg-red-700"
+                    data-testid="button-confirm-delete-operator"
+                  >
+                    {deleteOperatorMutation.isPending ? 'Deleting...' : 'Delete Operator'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
