@@ -252,13 +252,20 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                   console.log('Upload complete result:', result);
                   if (result.successful && result.successful.length > 0) {
                     const uploadedFileURL = result.successful[0].uploadURL;
-                    console.log('Uploaded file URL:', uploadedFileURL);
+                    console.log('Raw uploaded file URL:', uploadedFileURL);
+                    
+                    // Extract the actual file path from the Google Cloud Storage URL
+                    // URL format: https://storage.googleapis.com/bucket/public/logos/filename?params
+                    // We need: /public-objects/logos/filename
+                    const urlMatch = uploadedFileURL.match(/\/public\/(.+?)\?/);
+                    const actualFilePath = urlMatch ? `/public-objects/${urlMatch[1]}` : uploadedFileURL;
+                    console.log('Extracted file path:', actualFilePath);
                     
                     // Update the operator logo via API
                     if (operator?.id) {
                       console.log('Updating existing operator logo...');
                       apiRequest('PUT', `/api/admin/operators/${operator.id}/logo`, {
-                        logoURL: uploadedFileURL
+                        logoURL: actualFilePath
                       }).then(async (res) => {
                         const data = await res.json();
                         console.log('Logo update response:', data);
@@ -276,9 +283,9 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
                         });
                       });
                     } else {
-                      // For new operators, just set the URL for now
-                      console.log('Setting logo for new operator:', uploadedFileURL);
-                      setFormData(prev => ({ ...prev, logo: uploadedFileURL }));
+                      // For new operators, just set the extracted path
+                      console.log('Setting logo for new operator:', actualFilePath);
+                      setFormData(prev => ({ ...prev, logo: actualFilePath }));
                     }
                   } else {
                     console.error('Upload failed or no files uploaded:', result);
