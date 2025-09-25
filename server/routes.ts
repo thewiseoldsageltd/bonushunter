@@ -763,7 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('🔍 Upload URL generated:', result);
       res.json(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting logo upload URL:", error);
       res.status(500).json({ error: error.message || "Failed to get upload URL" });
     }
