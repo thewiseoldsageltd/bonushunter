@@ -66,6 +66,16 @@ export const OperatorForm: React.FC<OperatorFormProps> = ({ operator, onSuccess 
         minDeposit: data.minDeposit && data.minDeposit.trim() ? data.minDeposit : undefined,
         maxWithdrawal: data.maxWithdrawal && data.maxWithdrawal.trim() ? data.maxWithdrawal : undefined,
       };
+
+      // Only include logo if it's a valid path (starts with /public-objects/) or valid URL
+      // This prevents manually entered filenames from overwriting uploaded logos
+      if (data.logo && data.logo.trim()) {
+        const logoValue = data.logo.trim();
+        if (logoValue.startsWith('/public-objects/') || logoValue.startsWith('http://') || logoValue.startsWith('https://')) {
+          processedData.logo = logoValue;
+        }
+        // If logo is just a filename (like "bet365-logo.png"), don't include it to avoid overwriting uploaded logos
+      }
       
       // Debug: log the processed data
       console.log('Sending operator data:', processedData);
