@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Zap } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
@@ -102,7 +102,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
     }
   };
 
-  const demoContent = getDemoContent();
+  const demoContent = useMemo(() => getDemoContent(), [selectedState, isLoading, currentRegion]);
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-dark via-dark-light to-dark">
