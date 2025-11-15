@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Zap } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
+import { useRegion } from "@/hooks/useRegion";
 
 interface HeroSectionProps {
   selectedRegion?: string;
@@ -10,6 +11,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ selectedRegion, selectedState }: HeroSectionProps) {
   const [showChat, setShowChat] = useState(false);
+  const { currentRegion, getRegionCurrency } = useRegion();
 
   const handleStartChat = () => {
     setShowChat(true);
@@ -25,6 +27,41 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
       }
     }, 100);
   };
+
+  // Get region-specific demo content
+  const getDemoContent = () => {
+    const currency = getRegionCurrency();
+    const regionCode = currentRegion?.regionCode || 'US';
+    
+    if (regionCode === 'UK') {
+      return {
+        userMessage: `I've got £50 to spend on blackjack`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for the UK with your £50 budget:`,
+        operator: 'Bet365 Casino',
+        bonus: '100% match up to £2,000 + £50 free',
+        valueScore: '96.8% Value Score'
+      };
+    } else if (regionCode === 'CA') {
+      return {
+        userMessage: `I've got C$50 to spend on blackjack in Ontario`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for Ontario with your C$50 budget:`,
+        operator: 'BetMGM Casino',
+        bonus: '100% match up to C$2,000 + C$50 free',
+        valueScore: '96.8% Value Score'
+      };
+    } else {
+      // Default to US
+      return {
+        userMessage: `I've got $50 to spend on blackjack in New Jersey`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for New Jersey with your $50 budget:`,
+        operator: 'DraftKings Casino',
+        bonus: '100% match up to $2,000 + $50 free',
+        valueScore: '96.8% Value Score'
+      };
+    }
+  };
+
+  const demoContent = getDemoContent();
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-dark via-dark-light to-dark">
@@ -82,7 +119,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
                 <div className="space-y-4 mb-4 h-64 overflow-y-auto">
                   <div className="flex justify-end">
                     <div className="bg-primary/20 rounded-lg px-4 py-2 max-w-xs">
-                      <p className="text-sm">I've got $50 to spend on blackjack in New Jersey</p>
+                      <p className="text-sm">{demoContent.userMessage}</p>
                     </div>
                   </div>
                   
@@ -91,14 +128,14 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
                       <Zap className="text-white text-xs" />
                     </div>
                     <div className="bg-dark-lighter rounded-lg px-4 py-3 flex-1">
-                      <p className="text-sm mb-2">⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for New Jersey with your $50 budget:</p>
+                      <p className="text-sm mb-2">{demoContent.aiResponse}</p>
                       <div className="space-y-2">
                         <div className="bg-dark/50 rounded p-2 text-xs">
                           <div className="flex justify-between items-center">
-                            <span className="font-medium text-secondary">DraftKings Casino</span>
-                            <span className="text-accent">96.8% Value Score</span>
+                            <span className="font-medium text-secondary">{demoContent.operator}</span>
+                            <span className="text-accent">{demoContent.valueScore}</span>
                           </div>
-                          <p className="text-gray-400">100% match up to $2,000 + $50 free</p>
+                          <p className="text-gray-400">{demoContent.bonus}</p>
                         </div>
                       </div>
                     </div>
