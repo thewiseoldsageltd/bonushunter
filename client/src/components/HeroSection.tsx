@@ -32,16 +32,30 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
   const getDemoContent = () => {
     // Map state codes to full names
     const stateNames: Record<string, string> = {
-      'NJ': 'New Jersey',
-      'NY': 'New York',
-      'PA': 'Pennsylvania',
-      'MI': 'Michigan',
-      'IL': 'Illinois',
-      'CO': 'Colorado',
-      'IN': 'Indiana',
-      'VA': 'Virginia',
       'AZ': 'Arizona',
-      'NV': 'Nevada'
+      'CO': 'Colorado',
+      'CT': 'Connecticut',
+      'DE': 'Delaware',
+      'IA': 'Iowa',
+      'IL': 'Illinois',
+      'IN': 'Indiana',
+      'KS': 'Kansas',
+      'LA': 'Louisiana',
+      'MA': 'Massachusetts',
+      'MD': 'Maryland',
+      'MI': 'Michigan',
+      'NC': 'North Carolina',
+      'NH': 'New Hampshire',
+      'NJ': 'New Jersey',
+      'NV': 'Nevada',
+      'NY': 'New York',
+      'OH': 'Ohio',
+      'PA': 'Pennsylvania',
+      'RI': 'Rhode Island',
+      'TN': 'Tennessee',
+      'VA': 'Virginia',
+      'WV': 'West Virginia',
+      'WY': 'Wyoming'
     };
     
     // Don't show region-specific content until region has loaded
