@@ -40,8 +40,13 @@ export default function Home() {
       return;
     }
     
-    // Otherwise auto-detect
-    fetch('/api/region-config')
+    // Otherwise auto-detect - use Replit backend for Vercel deployments
+    const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+    const BACKEND_URL = isVercelDeployment
+      ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
+      : '';
+    
+    fetch(`${BACKEND_URL}/api/region-config`)
       .then(res => res.json())
       .then(data => {
         if (data.region?.regionCode) {
