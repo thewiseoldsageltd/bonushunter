@@ -11,7 +11,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ selectedRegion, selectedState }: HeroSectionProps) {
   const [showChat, setShowChat] = useState(false);
-  const { currentRegion, getRegionCurrency } = useRegion();
+  const { currentRegion, getRegionCurrency, isLoading } = useRegion();
 
   const handleStartChat = () => {
     setShowChat(true);
@@ -30,8 +30,19 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
 
   // Get region-specific demo content
   const getDemoContent = () => {
-    const currency = getRegionCurrency();
-    const regionCode = currentRegion?.regionCode || 'US';
+    // Don't show region-specific content until region has loaded
+    // This prevents flashing US content before detecting UK/CA
+    if (isLoading || !currentRegion) {
+      return {
+        userMessage: `I've got $50 to spend on blackjack in New Jersey`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for New Jersey with your $50 budget:`,
+        operator: 'DraftKings Casino',
+        bonus: '100% match up to $2,000 + $50 free',
+        valueScore: '96.8% Value Score'
+      };
+    }
+
+    const regionCode = currentRegion.regionCode;
     
     if (regionCode === 'UK') {
       return {
