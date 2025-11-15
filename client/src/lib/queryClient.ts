@@ -45,6 +45,13 @@ export const getQueryFn: <T>(options: {
     const url = queryKey[0] as string;
     const fullUrl = `${BACKEND_URL}${url}`;
     
+    console.log('🔧 API Request:', { 
+      hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
+      isVercelDeployment, 
+      url, 
+      fullUrl 
+    });
+    
     const res = await fetch(fullUrl, {
       credentials: isVercelDeployment ? "omit" : "include",
     });
