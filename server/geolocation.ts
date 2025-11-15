@@ -150,7 +150,21 @@ export class GeolocationService {
       'Colorado': 'CO',
       'Indiana': 'IN',
       'Virginia': 'VA',
-      'Arizona': 'AZ'
+      'Arizona': 'AZ',
+      'West Virginia': 'WV',
+      'Connecticut': 'CT',
+      'Delaware': 'DE',
+      'Maryland': 'MD',
+      'Massachusetts': 'MA',
+      'Ohio': 'OH',
+      'Tennessee': 'TN',
+      'Wyoming': 'WY',
+      'Kansas': 'KS',
+      'North Carolina': 'NC',
+      'Iowa': 'IA',
+      'Louisiana': 'LA',
+      'New Hampshire': 'NH',
+      'Rhode Island': 'RI'
     };
 
     return stateMapping[stateName] || 'NJ'; // Default to NJ if state not found

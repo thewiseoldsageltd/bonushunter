@@ -122,7 +122,7 @@ export class RegionConfigService {
         multiCurrency: false, // USD only
         vpnBlocking: true     // Strict location verification
       },
-      supportedJurisdictions: ['NJ', 'PA', 'NV', 'NY', 'MI', 'IL', 'CO', 'IN', 'VA', 'AZ']
+      supportedJurisdictions: ['NJ', 'PA', 'NV', 'NY', 'MI', 'IL', 'CO', 'IN', 'VA', 'AZ', 'WV', 'CT', 'DE', 'MD', 'MA', 'OH', 'TN', 'WY', 'KS', 'NC', 'IA', 'LA', 'NH', 'RI']
     });
 
     // United Kingdom Configuration
