@@ -30,12 +30,27 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
 
   // Get region-specific demo content
   const getDemoContent = () => {
+    // Map state codes to full names
+    const stateNames: Record<string, string> = {
+      'NJ': 'New Jersey',
+      'NY': 'New York',
+      'PA': 'Pennsylvania',
+      'MI': 'Michigan',
+      'IL': 'Illinois',
+      'CO': 'Colorado',
+      'IN': 'Indiana',
+      'VA': 'Virginia',
+      'AZ': 'Arizona',
+      'NV': 'Nevada'
+    };
+    
     // Don't show region-specific content until region has loaded
     // This prevents flashing US content before detecting UK/CA
     if (isLoading || !currentRegion) {
+      const stateName = selectedState ? stateNames[selectedState] || 'New Jersey' : 'New Jersey';
       return {
-        userMessage: `I've got $50 to spend on blackjack in New Jersey`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for New Jersey with your $50 budget:`,
+        userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
         operator: 'DraftKings Casino',
         bonus: '100% match up to $2,000 + $50 free',
         valueScore: '96.8% Value Score'
@@ -61,10 +76,11 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
         valueScore: '96.8% Value Score'
       };
     } else {
-      // Default to US
+      // US region - use selected state or default to New Jersey
+      const stateName = selectedState ? stateNames[selectedState] || 'New Jersey' : 'New Jersey';
       return {
-        userMessage: `I've got $50 to spend on blackjack in New Jersey`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for New Jersey with your $50 budget:`,
+        userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
         operator: 'DraftKings Casino',
         bonus: '100% match up to $2,000 + $50 free',
         valueScore: '96.8% Value Score'
