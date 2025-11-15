@@ -12,8 +12,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Use Replit backend in production, relative URLs in development
-  const BACKEND_URL = import.meta.env.PROD 
+  // Use Replit backend for Vercel deployments, relative URLs in development
+  const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+  const BACKEND_URL = isVercelDeployment
     ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
     : '';
   const fullUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
@@ -22,7 +23,7 @@ export async function apiRequest(
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
-    credentials: import.meta.env.PROD ? "omit" : "include",
+    credentials: isVercelDeployment ? "omit" : "include",
   });
 
   await throwIfResNotOk(res);
@@ -35,8 +36,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Use Replit backend in production, relative URLs in development
-    const BACKEND_URL = import.meta.env.PROD 
+    // Use Replit backend for Vercel deployments, relative URLs in development
+    const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+    const BACKEND_URL = isVercelDeployment
       ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
       : '';
     // Only use the first item in queryKey for the URL
@@ -44,7 +46,7 @@ export const getQueryFn: <T>(options: {
     const fullUrl = `${BACKEND_URL}${url}`;
     
     const res = await fetch(fullUrl, {
-      credentials: import.meta.env.PROD ? "omit" : "include",
+      credentials: isVercelDeployment ? "omit" : "include",
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
