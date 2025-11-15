@@ -144,17 +144,36 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   </Button>
                 </DropdownMenuTrigger>
                 
-                <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuContent align="end" className="w-32 max-h-96 overflow-y-auto">
+                  <DropdownMenuItem onClick={() => onStateChange?.('AZ')}>AZ</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('CO')}>CO</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('CT')}>CT</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('DE')}>DE</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('IA')}>IA</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('IN')}>IN</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('KS')}>KS</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('LA')}>LA</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('MA')}>MA</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('MD')}>MD</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('NC')}>NC</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('NH')}>NH</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>
                     <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                       <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
                     </div>
                     NJ
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('NV')}>NV</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('NY')}>NY</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('OH')}>OH</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onStateChange?.('PA')}>PA</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('RI')}>RI</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('TN')}>TN</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('VA')}>VA</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('WV')}>WV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onStateChange?.('WY')}>WY</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -268,17 +287,36 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                           </Button>
                         </DropdownMenuTrigger>
                         
-                        <DropdownMenuContent align="center" className="w-full">
+                        <DropdownMenuContent align="center" className="w-full max-h-96 overflow-y-auto">
+                          <DropdownMenuItem onClick={() => onStateChange?.('AZ')}>AZ</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('CO')}>CO</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('CT')}>CT</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('DE')}>DE</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('IA')}>IA</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('IN')}>IN</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('KS')}>KS</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('LA')}>LA</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('MA')}>MA</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('MD')}>MD</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NC')}>NC</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NH')}>NH</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('NJ')}>
                             <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
                               <img src={newJerseyLogo} alt="New Jersey Logo" className="w-full h-full object-contain" />
                             </div>
-                            New Jersey
+                            NJ
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('NV')}>NV</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('NY')}>NY</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('OH')}>OH</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onStateChange?.('PA')}>PA</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('MI')}>MI</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onStateChange?.('IL')}>IL</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('RI')}>RI</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('TN')}>TN</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('VA')}>VA</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('WV')}>WV</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStateChange?.('WY')}>WY</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
