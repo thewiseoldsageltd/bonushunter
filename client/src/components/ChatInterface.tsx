@@ -20,7 +20,8 @@ export default function ChatInterface({ selectedRegion, selectedState }: ChatInt
   
   // Dynamic welcome message with currency localization only
   const getWelcomeMessage = () => {
-    if (isLoading) {
+    // Only show currency when region is fully loaded
+    if (isLoading || !currentRegion) {
       return "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!";
     }
     
@@ -33,7 +34,7 @@ export default function ChatInterface({ selectedRegion, selectedState }: ChatInt
     {
       id: "artemis-welcome",
       role: "assistant", 
-      content: getWelcomeMessage(),
+      content: "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!",
       timestamp: new Date(),
       isInitialMessage: true
     }
@@ -47,13 +48,14 @@ export default function ChatInterface({ selectedRegion, selectedState }: ChatInt
 
   // Update welcome message when region data loads
   useEffect(() => {
-    if (!isLoading && messages.length > 0 && messages[0].isInitialMessage) {
+    if (!isLoading && currentRegion && messages.length > 0 && messages[0].isInitialMessage) {
+      const updatedMessage = getWelcomeMessage();
       setMessages(prev => [
-        { ...prev[0], content: getWelcomeMessage() },
+        { ...prev[0], content: updatedMessage },
         ...prev.slice(1)
       ]);
     }
-  }, [isLoading, detectedLocation, currentRegion]);
+  }, [isLoading, currentRegion]);
 
   const chatMutation = useMutation({
     mutationFn: async (message: string): Promise<ChatResponse> => {
