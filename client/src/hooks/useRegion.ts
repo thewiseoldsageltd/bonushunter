@@ -127,7 +127,13 @@ export function useRegion() {
   } = useQuery<RegionResponse>({
     queryKey: ['/api/region-config', preferredRegion], // Use stable key with parameter
     queryFn: async () => {
-      const response = await fetch(queryUrl);
+      // Use Replit backend for Vercel deployments
+      const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+      const BACKEND_URL = isVercelDeployment
+        ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
+        : '';
+      
+      const response = await fetch(`${BACKEND_URL}${queryUrl}`);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     },
