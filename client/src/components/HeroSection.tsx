@@ -71,6 +71,18 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
       };
     }
 
+    // If user manually selected a US state from dropdown, show that state regardless of auto-detected region
+    if (selectedState && selectedRegion === 'US' && stateNames[selectedState]) {
+      const stateName = stateNames[selectedState];
+      return {
+        userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
+        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
+        operator: 'DraftKings Casino',
+        bonus: '100% match up to $2,000 + $50 free',
+        valueScore: '96.8% Value Score'
+      };
+    }
+
     const regionCode = currentRegion.regionCode;
     
     if (regionCode === 'UK') {
@@ -102,7 +114,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
     }
   };
 
-  const demoContent = useMemo(() => getDemoContent(), [selectedState, isLoading, currentRegion]);
+  const demoContent = useMemo(() => getDemoContent(), [selectedState, selectedRegion, isLoading, currentRegion]);
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-dark via-dark-light to-dark">
