@@ -122,7 +122,13 @@ export class RegionConfigService {
         multiCurrency: false, // USD only
         vpnBlocking: true     // Strict location verification
       },
-      supportedJurisdictions: ['NJ', 'PA', 'NV', 'NY', 'MI', 'IL', 'CO', 'IN', 'VA', 'AZ', 'WV', 'CT', 'DE', 'MD', 'MA', 'OH', 'TN', 'WY', 'KS', 'NC', 'IA', 'LA', 'NH', 'RI']
+      supportedJurisdictions: [
+        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+        'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+        'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+        'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+      ]
     });
 
     // United Kingdom Configuration
@@ -241,7 +247,13 @@ export class RegionConfigService {
   }
 
   private isUSState(code: string): boolean {
-    const usStates = ['NJ', 'PA', 'NV', 'NY', 'MI', 'IL', 'CO', 'IN', 'VA', 'AZ'];
+    const usStates = [
+      'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+      'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+      'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+      'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+      'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+    ];
     return usStates.includes(code.toUpperCase());
   }
 
