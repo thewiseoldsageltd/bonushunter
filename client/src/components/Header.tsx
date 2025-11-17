@@ -251,7 +251,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                       onClick={() => onStateChange?.(state.code)}
                     >
                       <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                        <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" />
+                        <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" loading="lazy" />
                       </div>
                       {state.code}
                     </DropdownMenuItem>
@@ -371,7 +371,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                               onClick={() => onStateChange?.(state.code)}
                             >
                               <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center mr-2">
-                                <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" />
+                                <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" loading="lazy" />
                               </div>
                               {state.code}
                             </DropdownMenuItem>
