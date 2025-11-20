@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrencySymbol } from "@/lib/currency";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -1000,28 +999,24 @@ const AdminNew = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="minDeposit">
-                            Min Deposit ({getCurrencySymbol(bonusForm.country === 'United Kingdom' ? 'GBP' : bonusForm.country === 'Canada' ? 'CAD' : 'USD')})
-                          </Label>
+                          <Label htmlFor="minDeposit">Min Deposit</Label>
                           <Input
                             id="minDeposit"
                             type="number"
                             value={bonusForm.minDeposit}
                             onChange={(e) => setBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-                            placeholder="10"
+                            placeholder="5.00"
                             data-testid="input-min-deposit"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="maxBonus">
-                            Max Bonus ({getCurrencySymbol(bonusForm.country === 'United Kingdom' ? 'GBP' : bonusForm.country === 'Canada' ? 'CAD' : 'USD')})
-                          </Label>
+                          <Label htmlFor="maxBonus">Max Bonus</Label>
                           <Input
                             id="maxBonus"
                             type="number"
                             value={bonusForm.maxBonus}
                             onChange={(e) => setBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
-                            placeholder="1000"
+                            placeholder="30.00"
                             data-testid="input-max-bonus"
                           />
                         </div>
@@ -1426,28 +1421,24 @@ const AdminNew = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="edit-minDeposit">
-                            Min Deposit ({getCurrencySymbol(editBonusForm.country === 'United Kingdom' ? 'GBP' : editBonusForm.country === 'Canada' ? 'CAD' : 'USD')})
-                          </Label>
+                          <Label htmlFor="edit-minDeposit">Min Deposit</Label>
                           <Input
                             id="edit-minDeposit"
                             type="number"
                             value={editBonusForm.minDeposit}
                             onChange={(e) => setEditBonusForm(prev => ({ ...prev, minDeposit: e.target.value }))}
-                            placeholder="10"
+                            placeholder="5.00"
                             data-testid="input-edit-min-deposit"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="edit-maxBonus">
-                            Max Bonus ({getCurrencySymbol(editBonusForm.country === 'United Kingdom' ? 'GBP' : editBonusForm.country === 'Canada' ? 'CAD' : 'USD')})
-                          </Label>
+                          <Label htmlFor="edit-maxBonus">Max Bonus</Label>
                           <Input
                             id="edit-maxBonus"
                             type="number"
                             value={editBonusForm.maxBonus}
                             onChange={(e) => setEditBonusForm(prev => ({ ...prev, maxBonus: e.target.value }))}
-                            placeholder="1000"
+                            placeholder="30.00"
                             data-testid="input-edit-max-bonus"
                           />
                         </div>
