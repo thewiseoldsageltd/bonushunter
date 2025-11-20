@@ -33,7 +33,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
         title: bonus.title,
         description: bonus.description,
         valueScore: bonus.valueScore,
-        rationale: `Value score: ${bonus.valueScore}/100`,
+        rationale: bonus.rationale || undefined,
         matchPercent: bonus.matchPercent,
         maxBonus: bonus.maxBonus,
         minDeposit: bonus.minDeposit,

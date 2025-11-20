@@ -93,6 +93,9 @@ export default function BonusCard({
           )}
         </div>
         <div className="text-right">
+          <div className="text-2xl font-bold text-accent mb-1" data-testid={`text-value-score-${bonus.id}`}>
+            {bonus.valueScore}
+          </div>
           <div className="flex">
             {getStarRating(bonus.valueScore)}
           </div>
