@@ -41,6 +41,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Region configuration endpoint (with inline middleware)
   app.get("/api/region-config", cachedGeolocationMiddleware, (req, res) => {
+    // Check for test location parameters (for development testing)
+    const testRegion = req.query.testRegion as string;
+    const testState = req.query.testState as string;
+    
     // Check for user's preferred region (from query param)
     const preferredRegion = req.query.region as string;
     const detectedRegion = req.userLocation?.regionCode || 'US';
@@ -56,10 +60,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🌍 Manual region override - Detected: ${detectedRegion}, Using: ${regionCode}`);
     }
     
+    // If test location is provided, override detectedLocation
+    let detectedLocation = req.userLocation;
+    if (testRegion) {
+      console.log(`🧪 Test location override - Region: ${testRegion}${testState ? `, State: ${testState}` : ''}`);
+      
+      // Create test location object
+      const regionMap: Record<string, { country: string, region: string }> = {
+        'US': { country: 'United States', region: testState || 'New Jersey' },
+        'UK': { country: 'United Kingdom', region: 'United Kingdom' },
+        'CA': { country: 'Canada', region: testState || 'Ontario' }
+      };
+      
+      const testInfo = regionMap[testRegion] || { country: 'United States', region: 'New Jersey' };
+      
+      detectedLocation = {
+        country: testInfo.country,
+        countryCode: testRegion,
+        region: testInfo.region,
+        regionCode: testState || testRegion,
+        timezone: 'America/New_York',
+        currency: testRegion === 'UK' ? 'GBP' : testRegion === 'CA' ? 'CAD' : 'USD',
+        continent: testRegion === 'UK' ? 'Europe' : 'North America',
+        isEU: false,
+        detectedIP: req.userLocation?.detectedIP || '127.0.0.1'
+      };
+    }
+    
     res.json({
       region: config,
       availableRegions: regionConfigService.getAvailableRegions(),
-      detectedLocation: req.userLocation
+      detectedLocation
     });
   });
 

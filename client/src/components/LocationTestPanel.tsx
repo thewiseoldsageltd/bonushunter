@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X, MapPin } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 
 interface LocationTestPanelProps {
   onClose: () => void;
@@ -36,6 +37,11 @@ export default function LocationTestPanel({ onClose, onLocationChange }: Locatio
           region: location.region,
           state: location.state
         }));
+        
+        // Invalidate React Query caches to refetch with new test location
+        queryClient.invalidateQueries({ queryKey: ['/api/region-config'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/bonuses'] });
+        
         onLocationChange(location.region, location.state);
       }
     }

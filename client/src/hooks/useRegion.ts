@@ -114,9 +114,33 @@ export function useRegion() {
   };
 
   // Build the URL with query parameter if preferred region exists
-  const queryUrl = preferredRegion 
-    ? `/api/region-config?region=${preferredRegion}`
-    : '/api/region-config';
+  // Also check for test location from sessionStorage
+  const buildQueryUrl = () => {
+    const params = new URLSearchParams();
+    
+    if (preferredRegion) {
+      params.append('region', preferredRegion);
+    }
+    
+    // Check for test location in sessionStorage
+    if (typeof window !== 'undefined') {
+      const testLocation = sessionStorage.getItem('test_location');
+      if (testLocation) {
+        try {
+          const { region, state } = JSON.parse(testLocation);
+          params.append('testRegion', region);
+          if (state) {
+            params.append('testState', state);
+          }
+        } catch (err) {
+          console.log('Failed to parse test location in useRegion');
+        }
+      }
+    }
+    
+    const queryString = params.toString();
+    return queryString ? `/api/region-config?${queryString}` : '/api/region-config';
+  };
 
 
   // Fetch current region configuration
@@ -125,7 +149,7 @@ export function useRegion() {
     isLoading,
     error
   } = useQuery<RegionResponse>({
-    queryKey: ['/api/region-config', preferredRegion], // Use stable key with parameter
+    queryKey: ['/api/region-config', preferredRegion, typeof window !== 'undefined' ? sessionStorage.getItem('test_location') : null], // Include test location in cache key
     queryFn: async () => {
       // Use Replit backend for Vercel deployments
       const isVercelDeployment = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
@@ -133,6 +157,7 @@ export function useRegion() {
         ? 'https://def70970-e455-49b3-94a8-84862a055de9-00-1os3u94dmcw5t.picard.replit.dev'
         : '';
       
+      const queryUrl = buildQueryUrl();
       const response = await fetch(`${BACKEND_URL}${queryUrl}`);
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
@@ -146,9 +171,9 @@ export function useRegion() {
   console.log('🔍 Region Debug:', {
     location,
     preferredRegion,
-    queryUrl,
     currentRegion: regionData?.region?.regionCode,
-    isLoading
+    isLoading,
+    testLocation: typeof window !== 'undefined' ? sessionStorage.getItem('test_location') : null
   });
 
   // Manual region switching mutation (if user wants to override detection)
