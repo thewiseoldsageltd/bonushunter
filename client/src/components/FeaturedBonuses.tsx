@@ -81,7 +81,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
               <SelectTrigger className="bg-dark-light border-dark-lighter text-white" data-testid="select-product-type">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
-              <SelectContent className="bg-dark-light border-dark-lighter">
+              <SelectContent className="bg-dark-light border-dark-lighter text-white">
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="casino">Casino</SelectItem>
                 <SelectItem value="sportsbook">Sportsbook</SelectItem>
@@ -92,11 +92,29 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
               <SelectTrigger className="bg-dark-light border-dark-lighter text-white" data-testid="select-location">
                 <SelectValue placeholder="All Locations" />
               </SelectTrigger>
-              <SelectContent className="bg-dark-light border-dark-lighter">
+              <SelectContent className="bg-dark-light border-dark-lighter text-white">
                 <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="NJ">New Jersey</SelectItem>
-                <SelectItem value="PA">Pennsylvania</SelectItem>
-                <SelectItem value="MI">Michigan</SelectItem>
+                {selectedRegion === 'UK' && (
+                  <>
+                    <SelectItem value="UK">United Kingdom</SelectItem>
+                  </>
+                )}
+                {selectedRegion === 'CA' && (
+                  <>
+                    <SelectItem value="ON">Ontario</SelectItem>
+                    <SelectItem value="AB">Alberta</SelectItem>
+                    <SelectItem value="BC">British Columbia</SelectItem>
+                  </>
+                )}
+                {selectedRegion === 'US' && (
+                  <>
+                    <SelectItem value="NJ">New Jersey</SelectItem>
+                    <SelectItem value="PA">Pennsylvania</SelectItem>
+                    <SelectItem value="MI">Michigan</SelectItem>
+                    <SelectItem value="NY">New York</SelectItem>
+                    <SelectItem value="IL">Illinois</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>
