@@ -21,7 +21,12 @@ import {
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 import { localize } from "@/lib/localization";
-import LocationTestPanel from "@/components/LocationTestPanel";
+import { lazy, Suspense } from "react";
+
+// Development-only import - completely excluded from production builds
+const LocationTestPanel = import.meta.env.DEV 
+  ? lazy(() => import("@/components/LocationTestPanel"))
+  : null;
 
 
 export default function Home() {
@@ -43,8 +48,10 @@ export default function Home() {
     }, 800);
   };
   
-  // Keyboard shortcut to toggle test panel (Ctrl+Shift+L)
+  // Keyboard shortcut to toggle test panel (Ctrl+Shift+L) - Development only
   useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       // Debug logging
       if (e.ctrlKey && e.shiftKey) {
@@ -372,12 +379,14 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Developer Test Panel - Toggle with Ctrl+Shift+L */}
-      {showTestPanel && (
-        <LocationTestPanel 
-          onClose={() => setShowTestPanel(false)}
-          onLocationChange={handleTestLocationChange}
-        />
+      {/* Developer Test Panel - Development mode only */}
+      {import.meta.env.DEV && showTestPanel && LocationTestPanel && (
+        <Suspense fallback={null}>
+          <LocationTestPanel 
+            onClose={() => setShowTestPanel(false)}
+            onLocationChange={handleTestLocationChange}
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -262,8 +262,8 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
               </DropdownMenu>
             )}
             
-            {/* Development-only test mode button - hidden on production */}
-            {typeof window !== 'undefined' && !window.location.hostname.includes('vercel.app') && (
+            {/* Development-only test mode button - completely excluded from production builds */}
+            {import.meta.env.DEV && (
               <Button 
                 variant="ghost"
                 size="sm"
