@@ -197,23 +197,35 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
           
           <nav className="hidden md:flex items-center space-x-6">
             <a 
-              href="#" 
+              href="#how-it-works" 
               className="text-gray-300 hover:text-white transition-colors"
               data-testid="link-how-it-works"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               How it Works
             </a>
             <a 
-              href="#" 
+              href="#bonuses" 
               className="text-gray-300 hover:text-white transition-colors"
               data-testid="link-bonuses"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('bonuses')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               Bonuses
             </a>
             <a 
-              href="#" 
+              href="#about" 
               className="text-gray-300 hover:text-white transition-colors"
               data-testid="link-about"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               About
             </a>
@@ -363,23 +375,41 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
             <SheetContent side="right" className="bg-dark border-dark-lighter">
               <div className="flex flex-col space-y-4 mt-8">
                 <a 
-                  href="#" 
+                  href="#how-it-works" 
                   className="text-gray-300 hover:text-white transition-colors"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                  }}
                 >
                   How it Works
                 </a>
                 <a 
-                  href="#" 
+                  href="#bonuses" 
                   className="text-gray-300 hover:text-white transition-colors"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('bonuses')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                  }}
                 >
                   Bonuses
                 </a>
                 <a 
-                  href="#" 
+                  href="#about" 
                   className="text-gray-300 hover:text-white transition-colors"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                  }}
                 >
                   About
                 </a>

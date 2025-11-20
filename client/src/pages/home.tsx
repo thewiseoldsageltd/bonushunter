@@ -155,7 +155,7 @@ export default function Home() {
       />
       
       {/* How It Works Section */}
-      <section className="py-20 bg-dark-light/30">
+      <section id="how-it-works" className="py-20 bg-dark-light/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-display font-bold text-3xl lg:text-4xl mb-4">How Bonushunter Works</h2>
@@ -314,7 +314,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark-light border-t border-dark-lighter py-12">
+      <footer id="about" className="bg-dark-light border-t border-dark-lighter py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">

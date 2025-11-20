@@ -48,7 +48,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
 
   if (error) {
     return (
-      <section className="py-20">
+      <section id="bonuses" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="font-display font-bold text-3xl mb-4">Top-Rated Bonuses</h2>
@@ -65,7 +65,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
   }
 
   return (
-    <section className="py-20">
+    <section id="bonuses" className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12">
           <div>
