@@ -262,16 +262,19 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
               </DropdownMenu>
             )}
             
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="text-gray-400 hover:text-white transition-colors"
-              data-testid="button-test-mode"
-              onClick={onTestModeToggle}
-              title="Toggle Location Test Mode"
-            >
-              <MapPin className="w-4 h-4" />
-            </Button>
+            {/* Development-only test mode button - hidden on production */}
+            {typeof window !== 'undefined' && !window.location.hostname.includes('vercel.app') && (
+              <Button 
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white transition-colors"
+                data-testid="button-test-mode"
+                onClick={onTestModeToggle}
+                title="Toggle Location Test Mode (Dev Only)"
+              >
+                <MapPin className="w-4 h-4" />
+              </Button>
+            )}
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
