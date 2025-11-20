@@ -216,7 +216,7 @@ export default function Home() {
           <p className="text-xl text-gray-300 mb-8 leading-relaxed">
             Join thousands of smart players who use Bonushunter to make informed decisions about their gambling bonuses. Start chatting with our AI today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button 
               className="bg-primary hover:bg-primary/90 px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105"
               data-testid="button-start-finding-bonuses"
@@ -224,25 +224,6 @@ export default function Home() {
               <Rocket className="mr-2" />
               Start Finding Bonuses
             </Button>
-            <Button 
-              variant="outline"
-              className="border-dark-lighter hover:border-gray-400 px-8 py-4 rounded-xl font-semibold text-lg transition-colors"
-              data-testid="button-contact-sales"
-            >
-              <Phone className="mr-2" />
-              Contact Sales
-            </Button>
-          </div>
-          
-          {/* Admin Access */}
-          <div className="mt-8 text-center">
-            <a 
-              href="/admin" 
-              className="inline-flex items-center text-gray-400 hover:text-white transition-colors text-sm"
-            >
-              <UserCog className="mr-2 h-4 w-4" />
-              Admin Dashboard
-            </a>
           </div>
         </div>
       </section>
