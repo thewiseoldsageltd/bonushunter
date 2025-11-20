@@ -18,8 +18,8 @@ import {
   Twitter,
   Linkedin
 } from "lucide-react";
-import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
-import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756568894640.webp";
 import { localize } from "@/lib/localization";
 import { lazy, Suspense } from "react";
 

@@ -8,8 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, Search, ChevronDown, MapPin } from "lucide-react";
-import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
-import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756568894640.webp";
 
 // Note: Canadian logo can be added later - using text emoji for now
 const canadaFlag = "🇨🇦";
