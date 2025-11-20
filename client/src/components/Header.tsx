@@ -387,8 +387,8 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                 <Button 
                   className="bg-primary hover:bg-primary/90 w-full"
                   onClick={() => {
-                    onGetStarted?.();
-                    setIsOpen(false);
+                    setIsOpen(false); // Close menu first
+                    onGetStarted?.(); // Then trigger the scroll and chat activation
                   }}
                 >
                   Get Started
