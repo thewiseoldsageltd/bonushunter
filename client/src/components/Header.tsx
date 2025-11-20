@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Search, ChevronDown } from "lucide-react";
+import { Menu, Search, ChevronDown, MapPin } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
@@ -69,6 +69,7 @@ interface HeaderProps {
   selectedState?: string;
   onStateChange?: (state: string) => void;
   onGetStarted?: () => void;
+  onTestModeToggle?: () => void;
 }
 
 // All 50 US states with their logos
@@ -125,7 +126,7 @@ const US_STATES = [
   { code: 'WY', name: 'Wyoming', logo: wyomingLogo },
 ];
 
-export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange, onGetStarted }: HeaderProps) {
+export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange, onGetStarted, onTestModeToggle }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   const displayRegion = selectedRegion;
@@ -260,6 +261,17 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+            
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white transition-colors"
+              data-testid="button-test-mode"
+              onClick={onTestModeToggle}
+              title="Toggle Location Test Mode"
+            >
+              <MapPin className="w-4 h-4" />
+            </Button>
             
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"

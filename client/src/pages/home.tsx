@@ -137,6 +137,7 @@ export default function Home() {
         selectedState={selectedState}
         onStateChange={handleStateChange}
         onGetStarted={handleGetStarted}
+        onTestModeToggle={() => setShowTestPanel(prev => !prev)}
       />
       <HeroSection 
         selectedRegion={selectedRegion} 
