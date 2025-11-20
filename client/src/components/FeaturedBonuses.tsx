@@ -76,7 +76,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
           </div>
           <div className="flex items-center space-x-4 mt-6 lg:mt-0">
             <Select value={productType} onValueChange={setProductType}>
-              <SelectTrigger className="bg-dark-light border-dark-lighter text-white w-[180px]" data-testid="select-product-type">
+              <SelectTrigger className="bg-dark-light border-dark-lighter text-white w-[155px]" data-testid="select-product-type">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent className="bg-dark-light border-dark-lighter text-white">
