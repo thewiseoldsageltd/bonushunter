@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCurrencySymbol } from "@/lib/currency";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -999,7 +1000,9 @@ const AdminNew = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="minDeposit">Min Deposit ($)</Label>
+                          <Label htmlFor="minDeposit">
+                            Min Deposit ({getCurrencySymbol(bonusForm.country === 'United Kingdom' ? 'GBP' : bonusForm.country === 'Canada' ? 'CAD' : 'USD')})
+                          </Label>
                           <Input
                             id="minDeposit"
                             type="number"
@@ -1010,7 +1013,9 @@ const AdminNew = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="maxBonus">Max Bonus ($)</Label>
+                          <Label htmlFor="maxBonus">
+                            Max Bonus ({getCurrencySymbol(bonusForm.country === 'United Kingdom' ? 'GBP' : bonusForm.country === 'Canada' ? 'CAD' : 'USD')})
+                          </Label>
                           <Input
                             id="maxBonus"
                             type="number"
@@ -1421,7 +1426,9 @@ const AdminNew = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="edit-minDeposit">Min Deposit ($)</Label>
+                          <Label htmlFor="edit-minDeposit">
+                            Min Deposit ({getCurrencySymbol(editBonusForm.country === 'United Kingdom' ? 'GBP' : editBonusForm.country === 'Canada' ? 'CAD' : 'USD')})
+                          </Label>
                           <Input
                             id="edit-minDeposit"
                             type="number"
@@ -1432,7 +1439,9 @@ const AdminNew = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="edit-maxBonus">Max Bonus ($)</Label>
+                          <Label htmlFor="edit-maxBonus">
+                            Max Bonus ({getCurrencySymbol(editBonusForm.country === 'United Kingdom' ? 'GBP' : editBonusForm.country === 'Canada' ? 'CAD' : 'USD')})
+                          </Label>
                           <Input
                             id="edit-maxBonus"
                             type="number"

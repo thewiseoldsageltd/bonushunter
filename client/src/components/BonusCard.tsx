@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Star, ExternalLink } from "lucide-react";
 import type { BonusRecommendation } from "@/types";
+import { useRegion } from "@/hooks/useRegion";
+import { formatCurrency } from "@/lib/currency";
 
 interface BonusCardProps {
   bonus: BonusRecommendation;
@@ -13,6 +15,8 @@ export default function BonusCard({
   compact = false, 
   "data-testid": testId 
 }: BonusCardProps) {
+  const { getRegionCurrency } = useRegion();
+  const currency = getRegionCurrency();
 
   const handleClaim = () => {
     window.open(bonus.landingUrl, '_blank');
@@ -137,7 +141,7 @@ export default function BonusCard({
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Min deposit:</span>
             <span className="text-white" data-testid={`text-min-deposit-${bonus.id}`}>
-              ${bonus.minDeposit}
+              {formatCurrency(bonus.minDeposit, currency)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
