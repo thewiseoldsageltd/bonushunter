@@ -674,12 +674,12 @@ const AdminNew = () => {
             <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold">Bonushunter Admin</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Bonushunter Admin</h1>
             <Badge variant={stats.systemStatus === 'LIVE' ? 'default' : 'outline'} className="ml-2">
               {stats.systemStatus}
             </Badge>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-600">
             Intelligent bonus management with AI-powered EV calculation and analysis
           </p>
         </div>
