@@ -31,20 +31,14 @@ export default function Home() {
   
   // Handler for "Get Started" button - scrolls to top and triggers "Start Chatting" button
   const handleGetStarted = () => {
-    console.log('🎯 Get Started clicked');
-    // Scroll to top first
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Wait longer for menu to close and scroll to complete, then click "Start Chatting"
+    // Wait for menu to close and scroll to complete, then click "Start Chatting"
     setTimeout(() => {
-      console.log('🔍 Looking for Start Chatting button...');
       const startChatButton = document.querySelector('[data-testid="button-start-chatting"]') as HTMLButtonElement;
       if (startChatButton) {
-        console.log('✅ Found button, clicking...');
         startChatButton.click();
-      } else {
-        console.log('❌ Button not found');
       }
-    }, 800); // Increased from 500ms to 800ms to allow menu close + scroll
+    }, 800);
   };
   
   // Get region from URL path or auto-detect
