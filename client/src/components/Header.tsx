@@ -305,7 +305,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   </Button>
                 </DropdownMenuTrigger>
                 
-                <DropdownMenuContent align="end" className="w-48 max-h-96 overflow-y-auto text-white">
+                <DropdownMenuContent align="end" className="w-48 max-h-96 overflow-y-auto">
                   {CANADIAN_PROVINCES.map(province => (
                     <DropdownMenuItem 
                       key={province.code} 
@@ -480,7 +480,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                           </Button>
                         </DropdownMenuTrigger>
                         
-                        <DropdownMenuContent align="center" className="w-full max-h-96 overflow-y-auto text-white">
+                        <DropdownMenuContent align="center" className="w-full max-h-96 overflow-y-auto">
                           {CANADIAN_PROVINCES.map(province => (
                             <DropdownMenuItem 
                               key={province.code} 
