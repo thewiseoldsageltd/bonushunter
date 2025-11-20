@@ -85,6 +85,23 @@ export default function HeroSection({ selectedRegion, selectedState, showChat = 
       'WI': 'Wisconsin',
       'WY': 'Wyoming'
     };
+
+    // Map Canadian province codes to full names
+    const provinceNames: Record<string, string> = {
+      'ON': 'Ontario',
+      'QC': 'Quebec',
+      'BC': 'British Columbia',
+      'AB': 'Alberta',
+      'MB': 'Manitoba',
+      'SK': 'Saskatchewan',
+      'NS': 'Nova Scotia',
+      'NB': 'New Brunswick',
+      'NL': 'Newfoundland and Labrador',
+      'PE': 'Prince Edward Island',
+      'NT': 'Northwest Territories',
+      'YT': 'Yukon',
+      'NU': 'Nunavut'
+    };
     
     // Don't show region-specific content until region has loaded
     // This prevents flashing US content before detecting UK/CA
@@ -121,10 +138,11 @@ export default function HeroSection({ selectedRegion, selectedState, showChat = 
         bonus: '100% match up to £2,000 + £50 free',
         valueScore: '96.8% Value Score'
       };
-    } else if (regionCode === 'CA') {
+    } else if (regionCode === 'CA' || (selectedRegion === 'CA' && selectedState)) {
+      const provinceName = selectedState ? provinceNames[selectedState] || 'Ontario' : 'Ontario';
       return {
-        userMessage: `I've got C$50 to spend on blackjack in Ontario`,
-        aiResponse: localize('CA', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for Ontario with your C$50 budget:`),
+        userMessage: `I've got C$50 to spend on blackjack in ${provinceName}`,
+        aiResponse: localize('CA', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${provinceName} with your C$50 budget:`),
         operator: 'BetMGM Casino',
         bonus: '100% match up to C$2,000 + C$50 free',
         valueScore: '96.8% Value Score'
