@@ -11,6 +11,9 @@ import { Menu, Search, ChevronDown, MapPin } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
+// Note: Canadian logo can be added later - using text emoji for now
+const canadaFlag = "🇨🇦";
+
 // Import all 50 optimized 64x64px state logos
 import alabamaLogo from "@assets/Alabama 64x64_1763644327429.webp";
 import alaskaLogo from "@assets/Alaska 64x64_1763644327430.webp";
@@ -126,11 +129,29 @@ const US_STATES = [
   { code: 'WY', name: 'Wyoming', logo: wyomingLogo },
 ];
 
+// Canadian Provinces - main provinces for now
+const CANADIAN_PROVINCES = [
+  { code: 'ON', name: 'Ontario' },
+  { code: 'QC', name: 'Quebec' },
+  { code: 'BC', name: 'British Columbia' },
+  { code: 'AB', name: 'Alberta' },
+  { code: 'MB', name: 'Manitoba' },
+  { code: 'SK', name: 'Saskatchewan' },
+  { code: 'NS', name: 'Nova Scotia' },
+  { code: 'NB', name: 'New Brunswick' },
+  { code: 'NL', name: 'Newfoundland and Labrador' },
+  { code: 'PE', name: 'Prince Edward Island' },
+  { code: 'NT', name: 'Northwest Territories' },
+  { code: 'YT', name: 'Yukon' },
+  { code: 'NU', name: 'Nunavut' },
+];
+
 export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange, onGetStarted, onTestModeToggle }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   const displayRegion = selectedRegion;
   const currentState = US_STATES.find(s => s.code === (selectedState || 'NJ')) || US_STATES.find(s => s.code === 'NJ')!;
+  const currentProvince = CANADIAN_PROVINCES.find(p => p.code === (selectedState || 'ON')) || CANADIAN_PROVINCES.find(p => p.code === 'ON')!;
 
   return (
     <header className="bg-dark-light/50 backdrop-blur-lg border-b border-dark-lighter sticky top-0 z-50">
@@ -199,11 +220,15 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
                 >
                   <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
-                    <img 
-                      src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
-                      alt={`${displayRegion} Logo`}
-                      className="w-full h-full object-contain"
-                    />
+                    {displayRegion === 'CA' ? (
+                      <span className="text-xs">{canadaFlag}</span>
+                    ) : (
+                      <img 
+                        src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                        alt={`${displayRegion} Logo`}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
                   </div>
                   <span>{displayRegion}</span>
                   <ChevronDown className="w-3 h-3" />
@@ -222,6 +247,10 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                     <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
                   </div>
                   US
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onRegionChange('CA')}>
+                  <span className="mr-2">{canadaFlag}</span>
+                  CA
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -256,6 +285,34 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                         <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" loading="lazy" />
                       </div>
                       {state.code}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            
+            {selectedRegion === 'CA' && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-2 h-8 text-gray-900 hover:text-gray-900 bg-white"
+                  >
+                    <span className="text-xs">{canadaFlag}</span>
+                    <span>{currentProvince.code}</span>
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                
+                <DropdownMenuContent align="end" className="w-48 max-h-96 overflow-y-auto text-white">
+                  {CANADIAN_PROVINCES.map(province => (
+                    <DropdownMenuItem 
+                      key={province.code} 
+                      onClick={() => onStateChange?.(province.code)}
+                    >
+                      <span className="mr-2">{canadaFlag}</span>
+                      {province.code}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -330,11 +387,15 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 bg-white rounded-sm overflow-hidden flex items-center justify-center">
-                            <img 
-                              src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
-                              alt={`${displayRegion} Logo`}
-                              className="w-full h-full object-contain"
-                            />
+                            {displayRegion === 'CA' ? (
+                              <span className="text-xs">{canadaFlag}</span>
+                            ) : (
+                              <img 
+                                src={displayRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                                alt={`${displayRegion} Logo`}
+                                className="w-full h-full object-contain"
+                              />
+                            )}
                           </div>
                           <span>{displayRegion}</span>
                         </div>
@@ -354,6 +415,10 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                           <img src={bonushunterUSLogo} alt="US Logo" className="w-full h-full object-contain" />
                         </div>
                         US
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onRegionChange('CA')}>
+                        <span className="mr-2">{canadaFlag}</span>
+                        CA
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -391,6 +456,38 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                                 <img src={state.logo} alt={`${state.name} Logo`} className="w-full h-full object-contain" loading="lazy" />
                               </div>
                               {state.code}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
+                  
+                  {selectedRegion === 'CA' && (
+                    <div>
+                      <p className="text-gray-400 text-sm mb-2">Province</p>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-between text-gray-900 hover:text-gray-900 bg-white hover:bg-gray-50 focus:bg-white active:bg-white"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs">{canadaFlag}</span>
+                              <span>{currentProvince.code}</span>
+                            </div>
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        
+                        <DropdownMenuContent align="center" className="w-full max-h-96 overflow-y-auto text-white">
+                          {CANADIAN_PROVINCES.map(province => (
+                            <DropdownMenuItem 
+                              key={province.code} 
+                              onClick={() => onStateChange?.(province.code)}
+                            >
+                              <span className="mr-2">{canadaFlag}</span>
+                              {province.code}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>
