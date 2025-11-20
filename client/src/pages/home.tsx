@@ -29,24 +29,17 @@ export default function Home() {
   const [selectedState, setSelectedState] = useState('NJ');
   const [showChat, setShowChat] = useState(false);
   
-  // Handler for "Get Started" button - activates chat and scrolls appropriately
+  // Handler for "Get Started" button - scrolls to top and triggers "Start Chatting" button
   const handleGetStarted = () => {
-    setShowChat(true);
-    // On mobile, scroll to chat container; on desktop, scroll to top
+    // Scroll to top first
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // After scroll completes, click the "Start Chatting" button which handles chat activation and mobile scrolling
     setTimeout(() => {
-      const chatElement = document.querySelector('[data-testid="chat-container"]');
-      if (chatElement && window.innerWidth < 1024) {
-        // Mobile: scroll chat into view
-        chatElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Add extra scroll to ensure full visibility (account for header)
-        setTimeout(() => {
-          window.scrollBy({ top: -65, behavior: 'smooth' });
-        }, 500);
-      } else {
-        // Desktop: just scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      const startChatButton = document.querySelector('[data-testid="button-start-chatting"]') as HTMLButtonElement;
+      if (startChatButton) {
+        startChatButton.click();
       }
-    }, 100);
+    }, 500);
   };
   
   // Get region from URL path or auto-detect
