@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import BonusCard from "./BonusCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRegion } from "@/hooks/useRegion";
 import type { BonusRecommendation } from "@/types";
 
 interface FeaturedBonusesProps {
@@ -13,6 +14,10 @@ interface FeaturedBonusesProps {
 
 export default function FeaturedBonuses({ selectedRegion, selectedState }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
+  const { currentRegion } = useRegion();
+  
+  // Region-specific text for British vs American English
+  const analyzedText = currentRegion?.regionCode === 'UK' ? 'analysed' : 'analyzed';
 
   // Build query parameters
   const params = new URLSearchParams();
@@ -71,7 +76,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
           <div>
             <h2 className="font-display font-bold text-3xl lg:text-4xl mb-4">Top-Rated Bonuses</h2>
             <p className="text-xl text-gray-300">
-              Discover the highest-value offers analyzed by our AI
+              Discover the highest-value offers {analyzedText} by our AI
             </p>
           </div>
           <div className="flex items-center space-x-4 mt-6 lg:mt-0">
