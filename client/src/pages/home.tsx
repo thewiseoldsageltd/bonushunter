@@ -21,6 +21,7 @@ import {
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 import { localize } from "@/lib/localization";
+import LocationTestPanel from "@/components/LocationTestPanel";
 
 
 export default function Home() {
@@ -28,6 +29,7 @@ export default function Home() {
   const [selectedRegion, setSelectedRegion] = useState('UK');
   const [selectedState, setSelectedState] = useState('NJ');
   const [showChat, setShowChat] = useState(false);
+  const [showTestPanel, setShowTestPanel] = useState(false);
   
   // Handler for "Get Started" button - scrolls to top and triggers "Start Chatting" button
   const handleGetStarted = () => {
@@ -41,9 +43,36 @@ export default function Home() {
     }, 800);
   };
   
-  // Get region from URL path or auto-detect
+  // Keyboard shortcut to toggle test panel (Ctrl+Shift+L)
   useEffect(() => {
-    // First check URL path
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+        e.preventDefault();
+        setShowTestPanel(prev => !prev);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Get region from URL path, test mode, or auto-detect
+  useEffect(() => {
+    // First check if there's a test location in sessionStorage
+    const testLocation = sessionStorage.getItem('test_location');
+    if (testLocation) {
+      try {
+        const { region, state } = JSON.parse(testLocation);
+        console.log(`🧪 Using test location: ${region}${state ? ` - ${state}` : ''}`);
+        setSelectedRegion(region);
+        if (state) setSelectedState(state);
+        return;
+      } catch (err) {
+        console.log('Failed to parse test location');
+      }
+    }
+    
+    // Check URL path
     let pathRegion = null;
     if (location === '/us') pathRegion = 'US';
     else if (location === '/uk') pathRegion = 'UK';
@@ -82,6 +111,15 @@ export default function Home() {
   // Handle state changes
   const handleStateChange = (state: string) => {
     setSelectedState(state);
+  };
+
+  // Handle test location change
+  const handleTestLocationChange = (region: string, state?: string) => {
+    setSelectedRegion(region);
+    if (state) {
+      setSelectedState(state);
+    }
+    setShowTestPanel(false);
   };
   
   return (
@@ -325,6 +363,14 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Developer Test Panel - Toggle with Ctrl+Shift+L */}
+      {showTestPanel && (
+        <LocationTestPanel 
+          onClose={() => setShowTestPanel(false)}
+          onLocationChange={handleTestLocationChange}
+        />
+      )}
     </div>
   );
 }
