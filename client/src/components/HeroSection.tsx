@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, Zap } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
 import { useRegion } from "@/hooks/useRegion";
+import { localize } from "@/lib/localization";
 
 interface HeroSectionProps {
   selectedRegion?: string;
@@ -156,7 +157,10 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
               with AI
             </h1>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Skip the endless comparison tables. Chat with our AI to discover personalized casino, sportsbook, and poker bonuses that match your budget, location, and preferences.
+              {localize(
+                selectedRegion || currentRegion?.regionCode || 'US',
+                'Skip the endless comparison tables. Chat with our AI to discover personalized casino, sportsbook, and poker bonuses that match your budget, location, and preferences.'
+              )}
             </p>
             <div className="flex justify-center lg:justify-start">
               <Button 

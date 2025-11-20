@@ -8,6 +8,7 @@ import BonusCard from "@/components/BonusCard";
 import TypewriterText from "@/components/TypewriterText";
 import TypewriterTextWithLinks from "@/components/TypewriterTextWithLinks";
 import { useRegion } from "@/hooks/useRegion";
+import { localize } from "@/lib/localization";
 import type { ChatMessage, ChatResponse } from "@/types";
 
 interface ChatInterfaceProps {
@@ -20,21 +21,23 @@ export default function ChatInterface({ selectedRegion, selectedState }: ChatInt
   
   // Dynamic welcome message with currency localization only
   const getWelcomeMessage = () => {
+    const region = selectedRegion || currentRegion?.regionCode || 'US';
+    
     // Only show currency when region is fully loaded
     if (isLoading || !currentRegion) {
-      return "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!";
+      return localize(region, "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!");
     }
     
     const currency = getRegionCurrency();
     
-    return `⚡ Hi! I'm Artemis, your AI bonus hunter! Tell me your budget (in ${currency}) and favorite games - I'll find the best value bonuses for you!`;
+    return localize(region, `⚡ Hi! I'm Artemis, your AI bonus hunter! Tell me your budget (in ${currency}) and favorite games - I'll find the best value bonuses for you!`);
   };
   
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "artemis-welcome",
       role: "assistant", 
-      content: "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!",
+      content: localize(selectedRegion || 'US', "⚡ Hi! I'm Artemis, your AI bonus hunter. Tell me your budget and favorite games - I'll find the best value bonuses for you!"),
       timestamp: new Date(),
       isInitialMessage: true
     }

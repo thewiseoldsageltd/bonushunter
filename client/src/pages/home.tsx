@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
+import { localize } from "@/lib/localization";
 
 
 export default function Home() {
@@ -117,7 +118,7 @@ export default function Home() {
               </div>
               <h3 className="font-display font-semibold text-xl mb-4">Perfect Match</h3>
               <p className="text-gray-300 leading-relaxed">
-                Get personalized bonus recommendations ranked by value, not just marketing appeal. Make smarter choices.
+                {localize(selectedRegion, 'Get personalized bonus recommendations ranked by value, not just marketing appeal. Make smarter choices.')}
               </p>
             </div>
           </div>
