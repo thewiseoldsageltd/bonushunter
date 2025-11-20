@@ -13,14 +13,12 @@ interface FeaturedBonusesProps {
 
 export default function FeaturedBonuses({ selectedRegion, selectedState }: FeaturedBonusesProps) {
   const [productType, setProductType] = useState<string>("all");
-  const [location, setLocation] = useState<string>("all");
 
   // Build query parameters
   const params = new URLSearchParams();
   if (selectedRegion) params.append("region", selectedRegion);
   if (selectedState && selectedRegion === 'US') params.append("state", selectedState);
   if (productType !== "all") params.append("productType", productType);
-  if (location !== "all") params.append("location", location);
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
   const { data, isLoading, error } = useQuery({
@@ -78,7 +76,7 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
           </div>
           <div className="flex items-center space-x-4 mt-6 lg:mt-0">
             <Select value={productType} onValueChange={setProductType}>
-              <SelectTrigger className="bg-dark-light border-dark-lighter text-white" data-testid="select-product-type">
+              <SelectTrigger className="bg-dark-light border-dark-lighter text-white w-[180px]" data-testid="select-product-type">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent className="bg-dark-light border-dark-lighter text-white">
@@ -86,35 +84,6 @@ export default function FeaturedBonuses({ selectedRegion, selectedState }: Featu
                 <SelectItem value="casino">Casino</SelectItem>
                 <SelectItem value="sportsbook">Sportsbook</SelectItem>
                 <SelectItem value="poker">Poker</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="bg-dark-light border-dark-lighter text-white" data-testid="select-location">
-                <SelectValue placeholder="All Locations" />
-              </SelectTrigger>
-              <SelectContent className="bg-dark-light border-dark-lighter text-white">
-                <SelectItem value="all">All Locations</SelectItem>
-                {selectedRegion === 'UK' && (
-                  <>
-                    <SelectItem value="UK">United Kingdom</SelectItem>
-                  </>
-                )}
-                {selectedRegion === 'CA' && (
-                  <>
-                    <SelectItem value="ON">Ontario</SelectItem>
-                    <SelectItem value="AB">Alberta</SelectItem>
-                    <SelectItem value="BC">British Columbia</SelectItem>
-                  </>
-                )}
-                {selectedRegion === 'US' && (
-                  <>
-                    <SelectItem value="NJ">New Jersey</SelectItem>
-                    <SelectItem value="PA">Pennsylvania</SelectItem>
-                    <SelectItem value="MI">Michigan</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="IL">Illinois</SelectItem>
-                  </>
-                )}
               </SelectContent>
             </Select>
           </div>
