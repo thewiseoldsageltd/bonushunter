@@ -27,6 +27,13 @@ export default function Home() {
   const [location, setLocation] = useLocation();
   const [selectedRegion, setSelectedRegion] = useState('UK');
   const [selectedState, setSelectedState] = useState('NJ');
+  const [showChat, setShowChat] = useState(false);
+  
+  // Handler for "Get Started" button - scrolls to top and activates chat
+  const handleGetStarted = () => {
+    setShowChat(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   // Get region from URL path or auto-detect
   useEffect(() => {
@@ -78,8 +85,14 @@ export default function Home() {
         onRegionChange={handleRegionChange}
         selectedState={selectedState}
         onStateChange={handleStateChange}
+        onGetStarted={handleGetStarted}
       />
-      <HeroSection selectedRegion={selectedRegion} selectedState={selectedState} />
+      <HeroSection 
+        selectedRegion={selectedRegion} 
+        selectedState={selectedState}
+        showChat={showChat}
+        setShowChat={setShowChat}
+      />
       
       {/* How It Works Section */}
       <section className="py-20 bg-dark-light/30">

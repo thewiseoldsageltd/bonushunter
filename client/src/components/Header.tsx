@@ -68,6 +68,7 @@ interface HeaderProps {
   onRegionChange: (region: string) => void;
   selectedState?: string;
   onStateChange?: (state: string) => void;
+  onGetStarted?: () => void;
 }
 
 // All 50 US states with their logos
@@ -124,7 +125,7 @@ const US_STATES = [
   { code: 'WY', name: 'Wyoming', logo: wyomingLogo },
 ];
 
-export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange }: HeaderProps) {
+export default function Header({ selectedRegion, onRegionChange, selectedState, onStateChange, onGetStarted }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   const displayRegion = selectedRegion;
@@ -263,6 +264,7 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
             <Button 
               className="bg-primary hover:bg-primary/90 transition-colors"
               data-testid="button-get-started"
+              onClick={onGetStarted}
             >
               Get Started
             </Button>
@@ -382,7 +384,13 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   )}
                 </div>
                 
-                <Button className="bg-primary hover:bg-primary/90 w-full">
+                <Button 
+                  className="bg-primary hover:bg-primary/90 w-full"
+                  onClick={() => {
+                    onGetStarted?.();
+                    setIsOpen(false);
+                  }}
+                >
                   Get Started
                 </Button>
               </div>

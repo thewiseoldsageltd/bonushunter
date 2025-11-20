@@ -8,14 +8,15 @@ import { localize } from "@/lib/localization";
 interface HeroSectionProps {
   selectedRegion?: string;
   selectedState?: string;
+  showChat?: boolean;
+  setShowChat?: (show: boolean) => void;
 }
 
-export default function HeroSection({ selectedRegion, selectedState }: HeroSectionProps) {
-  const [showChat, setShowChat] = useState(false);
+export default function HeroSection({ selectedRegion, selectedState, showChat = false, setShowChat }: HeroSectionProps) {
   const { currentRegion, getRegionCurrency, isLoading } = useRegion();
 
   const handleStartChat = () => {
-    setShowChat(true);
+    if (setShowChat) setShowChat(true);
     // Scroll to show the full chat box on mobile
     setTimeout(() => {
       const chatElement = document.querySelector('[data-testid="chat-container"]');
