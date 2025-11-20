@@ -113,7 +113,7 @@ export class GeolocationService {
       'US': { region: data.state_prov || 'New Jersey', code: this.getUSStateCode(data.state_prov) },
       'GB': { region: 'United Kingdom', code: 'UK' },
       'UK': { region: 'United Kingdom', code: 'UK' },
-      'CA': { region: data.state_prov || 'Ontario', code: data.state_prov === 'Ontario' ? 'ON' : 'CA' },
+      'CA': { region: data.state_prov || 'Ontario', code: this.getCanadianProvinceCode(data.state_prov) },
       'DE': { region: 'Germany', code: 'DE' },
       'SE': { region: 'Sweden', code: 'SE' },
       'MT': { region: 'Malta', code: 'MT' }
@@ -168,6 +168,29 @@ export class GeolocationService {
     };
 
     return stateMapping[stateName] || 'NJ'; // Default to NJ if state not found
+  }
+
+  /**
+   * Map Canadian province/territory names to codes
+   */
+  private getCanadianProvinceCode(provinceName: string): string {
+    const provinceMapping: Record<string, string> = {
+      'Ontario': 'ON',
+      'Quebec': 'QC',
+      'British Columbia': 'BC',
+      'Alberta': 'AB',
+      'Manitoba': 'MB',
+      'Saskatchewan': 'SK',
+      'Nova Scotia': 'NS',
+      'New Brunswick': 'NB',
+      'Newfoundland and Labrador': 'NL',
+      'Prince Edward Island': 'PE',
+      'Northwest Territories': 'NT',
+      'Yukon': 'YT',
+      'Nunavut': 'NU'
+    };
+
+    return provinceMapping[provinceName] || 'ON'; // Default to Ontario if province not found
   }
 
   /**

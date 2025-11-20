@@ -172,6 +172,14 @@ export default function Header({ selectedRegion, onRegionChange, selectedState, 
                   className="w-full h-full object-contain"
                 />
               </div>
+            ) : displayRegion === 'CA' ? (
+              <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center p-1">
+                <img 
+                  src={bonushunterCALogo} 
+                  alt="Bonushunter CA Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             ) : (
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
                 <Search className="text-white text-lg" />

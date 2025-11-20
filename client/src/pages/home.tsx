@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756567626654.webp";
 import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756568894640.webp";
+import bonushunterCALogo from "@assets/bonushunter-ca-logo_1763663717348.webp";
 import { localize } from "@/lib/localization";
 import { lazy, Suspense } from "react";
 
@@ -320,7 +321,7 @@ export default function Home() {
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-white rounded-lg overflow-hidden flex items-center justify-center p-1">
                   <img 
-                    src={selectedRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                    src={selectedRegion === 'US' ? bonushunterUSLogo : selectedRegion === 'UK' ? bonushunterUKLogo : bonushunterCALogo} 
                     alt={`Bonushunter ${selectedRegion} Logo`}
                     className="w-full h-full object-contain"
                   />
