@@ -46,8 +46,15 @@ export default function Home() {
   // Keyboard shortcut to toggle test panel (Ctrl+Shift+L)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+      // Debug logging
+      if (e.ctrlKey && e.shiftKey) {
+        console.log('🔑 Keyboard shortcut pressed:', e.key, e.code);
+      }
+      
+      // Support both uppercase L and lowercase l
+      if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l')) {
         e.preventDefault();
+        console.log('✅ Location test panel toggled!');
         setShowTestPanel(prev => !prev);
       }
     };
