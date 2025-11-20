@@ -93,12 +93,6 @@ export default function BonusCard({
           )}
         </div>
         <div className="text-right">
-          <div className="flex items-center space-x-1">
-            <span className={`${compact ? 'text-lg' : 'text-2xl'} font-bold text-accent`} data-testid={`text-value-score-${bonus.id}`}>
-              {bonus.valueScore}
-            </span>
-            <span className="text-sm text-gray-400">Value Score</span>
-          </div>
           <div className="flex">
             {getStarRating(bonus.valueScore)}
           </div>
@@ -141,6 +135,12 @@ export default function BonusCard({
             <span className="text-gray-400">Min deposit:</span>
             <span className="text-white" data-testid={`text-min-deposit-${bonus.id}`}>
               ${bonus.minDeposit}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">Value score:</span>
+            <span className="text-white" data-testid={`text-value-score-${bonus.id}`}>
+              {bonus.valueScore}/100
             </span>
           </div>
           {bonus.rationale && (
