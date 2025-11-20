@@ -91,7 +91,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
       const stateName = selectedState ? stateNames[selectedState] || 'New Jersey' : 'New Jersey';
       return {
         userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
+        aiResponse: localize('US', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`),
         operator: 'DraftKings Casino',
         bonus: '100% match up to $2,000 + $50 free',
         valueScore: '96.8% Value Score'
@@ -103,7 +103,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
       const stateName = stateNames[selectedState];
       return {
         userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
+        aiResponse: localize('US', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`),
         operator: 'DraftKings Casino',
         bonus: '100% match up to $2,000 + $50 free',
         valueScore: '96.8% Value Score'
@@ -115,7 +115,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
     if (regionCode === 'UK') {
       return {
         userMessage: `I've got £50 to spend on blackjack`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for the UK with your £50 budget:`,
+        aiResponse: localize('UK', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for the UK with your £50 budget:`),
         operator: 'Bet365 Casino',
         bonus: '100% match up to £2,000 + £50 free',
         valueScore: '96.8% Value Score'
@@ -123,7 +123,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
     } else if (regionCode === 'CA') {
       return {
         userMessage: `I've got C$50 to spend on blackjack in Ontario`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for Ontario with your C$50 budget:`,
+        aiResponse: localize('CA', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for Ontario with your C$50 budget:`),
         operator: 'BetMGM Casino',
         bonus: '100% match up to C$2,000 + C$50 free',
         valueScore: '96.8% Value Score'
@@ -133,7 +133,7 @@ export default function HeroSection({ selectedRegion, selectedState }: HeroSecti
       const stateName = selectedState ? stateNames[selectedState] || 'New Jersey' : 'New Jersey';
       return {
         userMessage: `I've got $50 to spend on blackjack in ${stateName}`,
-        aiResponse: `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`,
+        aiResponse: localize('US', `⚡ Excellent! I've analyzed bonuses across all operators and found 3 high-value blackjack options for ${stateName} with your $50 budget:`),
         operator: 'DraftKings Casino',
         bonus: '100% match up to $2,000 + $50 free',
         valueScore: '96.8% Value Score'
