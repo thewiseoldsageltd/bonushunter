@@ -18,6 +18,8 @@ import {
   Twitter,
   Linkedin
 } from "lucide-react";
+import bonushunterUSLogo from "@assets/bonushunter-us-logo_1756570284184.png";
+import bonushunterUKLogo from "@assets/bonushunter-uk-logo_1756570284184.png";
 
 
 export default function Home() {
@@ -234,8 +236,12 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                  <Search className="text-white text-sm" />
+                <div className="w-8 h-8 bg-white rounded-lg overflow-hidden flex items-center justify-center p-1">
+                  <img 
+                    src={selectedRegion === 'US' ? bonushunterUSLogo : bonushunterUKLogo} 
+                    alt={`Bonushunter ${selectedRegion} Logo`}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <span className="font-display font-bold text-lg">Bonushunter</span>
               </div>
