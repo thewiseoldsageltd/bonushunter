@@ -220,6 +220,15 @@ export default function Home() {
           </p>
           <div className="flex justify-center">
             <Button 
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => {
+                  const startChatButton = document.querySelector('[data-testid="button-start-chatting"]') as HTMLButtonElement;
+                  if (startChatButton) {
+                    startChatButton.click();
+                  }
+                }, 500);
+              }}
               className="bg-primary hover:bg-primary/90 px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105"
               data-testid="button-start-finding-bonuses"
             >
